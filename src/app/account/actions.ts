@@ -1,13 +1,21 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { sendTransactionalEmail } from "@/lib/email/resend";
+import type { Json } from "@/types/database";
 
 export interface AccountAuthResult {
   ok: boolean;
   message: string;
+}
+
+export interface CustomerOrderActionResult {
+  ok: boolean;
+  message: string;
+  action?: "CANCELLED" | "CANCEL_REQUESTED" | "REFUND_REQUESTED";
 }
 
 function emailOf(value: string) {
@@ -21,14 +29,14 @@ function loginEmailHtml(code: string) {
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f6f8;">
       <tr>
         <td align="center" style="padding:32px 16px;">
-          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background:#FEFFFF;border:1px solid #d8dee3;">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background:#FEFFFF;border:1px solid #d8dee3;border-top:4px solid #2271B1;">
             <tr>
-              <td style="padding:28px;border-bottom:1px solid #e4e8eb;">
-                <div style="font-family:Georgia,'Times New Roman',serif;font-size:30px;line-height:1.2;color:#0E1721;">
+              <td style="padding:28px;background:#0E1721;">
+                <div style="font-family:Georgia,'Times New Roman',serif;font-size:30px;line-height:1.2;color:#FEFFFF;letter-spacing:.03em;">
                   SWARA RANJANA
                 </div>
-                <div style="margin-top:8px;font-size:10px;line-height:1.4;color:#2271B1;letter-spacing:3px;text-transform:uppercase;">
-                  My Tickets
+                <div style="margin-top:8px;font-size:10px;line-height:1.4;color:#62B6F3;letter-spacing:3px;text-transform:uppercase;">
+                  My Tickets • Secure Access
                 </div>
               </td>
             </tr>
@@ -90,8 +98,6 @@ export async function requestCustomerLoginCode(
       };
     }
 
-    // Keep the same response for unknown addresses so the endpoint cannot be
-    // used to discover which emails have reservations.
     if (!customer) {
       return {
         ok: true,
@@ -100,9 +106,6 @@ export async function requestCustomerLoginCode(
       };
     }
 
-    // Generate the Supabase Auth OTP without asking Supabase's mailer to send
-    // anything. We deliver the raw OTP through the same Resend integration
-    // used by reservation/ticket emails.
     const { data: linkData, error: linkError } =
       await admin.auth.admin.generateLink({
         type: "magiclink",
@@ -110,10 +113,7 @@ export async function requestCustomerLoginCode(
       });
 
     if (linkError || !linkData?.properties?.email_otp) {
-      console.error(
-        "Customer OTP generation failed:",
-        linkError,
-      );
+      console.error("Customer OTP generation failed:", linkError);
       return {
         ok: false,
         message:
@@ -142,7 +142,6 @@ export async function requestCustomerLoginCode(
         "Customer OTP email delivery failed:",
         delivery.error,
       );
-
       return {
         ok: false,
         message:
@@ -207,12 +206,8 @@ export async function verifyCustomerLoginCode(
   );
 
   if (claimError) {
-    console.error(
-      "Customer account claim failed:",
-      claimError,
-    );
+    console.error("Customer account claim failed:", claimError);
     await supabase.auth.signOut();
-
     return {
       ok: false,
       message:
@@ -223,6 +218,79 @@ export async function verifyCustomerLoginCode(
   return {
     ok: true,
     message: "Signed in.",
+  };
+}
+
+type CustomerOrderRpcResponse = {
+  data: Json | null;
+  error: { message?: string } | null;
+};
+
+function isJsonRecord(
+  value: Json | null,
+): value is Record<string, Json | undefined> {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+export async function requestCustomerOrderAction(
+  orderId: string,
+  reason = "",
+): Promise<CustomerOrderActionResult> {
+  if (!orderId) {
+    return { ok: false, message: "Order not found." };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {
+      ok: false,
+      message: "Your session has expired. Sign in again to continue.",
+    };
+  }
+
+  const rpc = supabase.rpc as unknown as (
+    name: string,
+    args: Record<string, unknown>,
+  ) => Promise<CustomerOrderRpcResponse>;
+
+  const { data, error } = await rpc("customer_order_action", {
+    p_order_id: orderId,
+    p_reason: reason.trim() || null,
+  });
+
+  if (error || !isJsonRecord(data) || data.ok !== true) {
+    const message =
+      isJsonRecord(data) && typeof data.message === "string"
+        ? data.message
+        : error?.message || "This ticket action could not be completed.";
+
+    return { ok: false, message };
+  }
+
+  const rawAction =
+    typeof data.action === "string" ? data.action : undefined;
+  const action =
+    rawAction === "CANCELLED" ||
+    rawAction === "CANCEL_REQUESTED" ||
+    rawAction === "REFUND_REQUESTED"
+      ? rawAction
+      : undefined;
+
+  revalidatePath("/account");
+  revalidatePath(`/account/orders/${orderId}`);
+  revalidatePath("/admin/orders");
+
+  return {
+    ok: true,
+    action,
+    message:
+      typeof data.message === "string"
+        ? data.message
+        : "Your request has been received.",
   };
 }
 

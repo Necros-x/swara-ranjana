@@ -30,13 +30,17 @@
     --color-muted: #7D8A95;
   }
 
-
   :where(a, button, summary, select, [role="button"], input[type="checkbox"], input[type="radio"]) {
     cursor: pointer;
   }
 
   :where(button:disabled, input:disabled, select:disabled, [aria-disabled="true"]) {
     cursor: not-allowed;
+  }
+
+  html,
+  body {
+    max-width: 100%;
   }
 
   body {
@@ -113,6 +117,71 @@
 
 .animate-pulse-subtle {
   animation: pulse-subtle 6s ease-in-out infinite;
+}
+
+/* Reservation modal: use a real mobile sheet instead of vertically centering a
+   panel taller than the viewport. This prevents the top of the form being cut. */
+@media (max-width: 639px) {
+  #ticket-reservation-overlay {
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+
+  #ticket-reservation-overlay > div {
+    width: 100% !important;
+    max-width: none !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    margin: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    border-radius: 0 !important;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  #ticket-reservation-overlay textarea {
+    min-height: 84px;
+  }
+
+  #hero-section h1 {
+    font-size: clamp(4rem, 22vw, 6rem) !important;
+  }
+}
+
+/* The layered Photoshop butterfly remains unchanged on desktop. On smaller
+   screens remove the oversized blurred duplicate and scale the complete crisp
+   assembly as one unit, preventing pieces from appearing stretched/cropped. */
+@media (max-width: 1023px) {
+  #hero-section > div > div:last-child {
+    height: 360px !important;
+    margin-bottom: -54px;
+    transform: translateY(-18px) scale(0.84);
+    transform-origin: top center;
+  }
+
+  #hero-section > div > div:last-child > div:first-child {
+    display: none !important;
+  }
+
+  #mobile-fullscreen-menu svg,
+  #ticket-reservation-overlay svg,
+  #editorial-footer svg {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  #hero-section > div > div:last-child {
+    height: 470px !important;
+    margin-bottom: -36px;
+    transform: translateY(-10px) scale(0.9);
+  }
 }
 
 /* Custom Scrollbar for Luxury Aesthetic */
