@@ -18,6 +18,7 @@ import { ArtistModal } from './components/common/ArtistModal';
 import { TicketReservationModal } from './components/common/TicketReservationModal';
 import { LightboxModal } from './components/common/LightboxModal';
 import { ScrollProgress } from './components/common/ScrollProgress';
+import type { PublicTicketCatalog } from '@/lib/catalog/types';
 
 // Pages
 import { HomePage } from './components/pages/HomePage';
@@ -29,7 +30,7 @@ import { TicketsPage } from './components/pages/TicketsPage';
 import { VenuePage } from './components/pages/VenuePage';
 import { ContactPage } from './components/pages/ContactPage';
 
-export default function App() {
+export default function App({ catalog = null }: { catalog?: PublicTicketCatalog | null }) {
   const pathname = usePathname();
   const router = useRouter();
   const activePage: PageId = (() => {
@@ -116,7 +117,11 @@ export default function App() {
               <GalleryPage onOpenLightbox={setLightboxItem} />
             )}
             {activePage === 'tickets' && (
-              <TicketsPage onOpenTicketsModal={handleOpenTicketsModal} />
+              <TicketsPage
+                onOpenTicketsModal={handleOpenTicketsModal}
+                ticketTiers={catalog?.ticketTiers}
+                concertMeta={catalog?.concertMeta}
+              />
             )}
             {activePage === 'venue' && (
               <VenuePage onOpenTicketsModal={() => handleOpenTicketsModal()} />
@@ -155,6 +160,8 @@ export default function App() {
       <TicketReservationModal
         isOpen={isTicketsModalOpen}
         initialTierId={ticketTierId}
+        ticketTiers={catalog?.ticketTiers}
+        concertMeta={catalog?.concertMeta}
         onClose={() => setIsTicketsModalOpen(false)}
       />
 

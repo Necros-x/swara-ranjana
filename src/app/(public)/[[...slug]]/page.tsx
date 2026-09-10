@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import PublicApp from "@/public-site/App";
+import { getPublicTicketCatalog } from "@/lib/catalog/public";
 
 const publicRoutes = new Set([
   "about",
@@ -22,5 +23,7 @@ export default async function PublicPage({
     notFound();
   }
 
-  return <PublicApp />;
+  const catalog = await getPublicTicketCatalog();
+
+  return <PublicApp catalog={catalog} />;
 }

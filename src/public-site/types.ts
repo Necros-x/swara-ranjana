@@ -52,6 +52,7 @@ export interface GalleryItem {
 
 export interface TicketTier {
   id: string;
+  code?: string;
   tierName: string;
   subtitle: string;
   priceLKR: number;
@@ -61,6 +62,8 @@ export interface TicketTier {
   benefits: string[];
   recommended?: boolean;
   colorAccent?: string;
+  maxPerOrder?: number;
+  remainingSeats?: number;
 }
 
 export interface PreviousEdition {

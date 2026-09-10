@@ -91,6 +91,8 @@ type TicketTypeRow = {
   sale_ends_at: string | null;
   status: TicketTypeStatus;
   sort_order: number;
+  benefits: string[];
+  recommended: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -109,6 +111,8 @@ type TicketTypeInsert = {
   sale_ends_at?: string | null;
   status?: TicketTypeStatus;
   sort_order?: number;
+  benefits?: string[];
+  recommended?: boolean;
   created_at?: string;
   updated_at?: string;
 };
@@ -294,6 +298,10 @@ export interface Database {
     };
     Views: Record<string, never>;
     Functions: {
+      get_public_event_catalog: {
+        Args: { p_slug?: string };
+        Returns: Json;
+      };
       redeem_ticket: {
         Args: {
           p_token: string;

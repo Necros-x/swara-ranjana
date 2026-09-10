@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Check, Calendar, MapPin, Clock, ShieldCheck, Ticket as TicketIcon, Sparkles } from 'lucide-react';
 import { TICKET_TIERS, CONCERT_META } from '../../data/concertData';
 import { TicketTier } from '../../types';
+import type { LiveConcertMeta } from '@/lib/catalog/types';
 import { SwaraRanjanaLogo } from './SwaraRanjanaLogo';
 import { ButterflyArtwork } from './ButterflyArtwork';
 import { playHoverChime } from '../../lib/audioInteraction';
@@ -11,16 +12,39 @@ interface TicketModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialTierId?: string;
+  ticketTiers?: TicketTier[];
+  concertMeta?: LiveConcertMeta;
 }
 
 export const TicketReservationModal: React.FC<TicketModalProps> = ({
   isOpen,
   onClose,
-  initialTierId = 'tier-premium',
+  initialTierId,
+  ticketTiers,
+  concertMeta,
 }) => {
-  const [selectedTier, setSelectedTier] = useState<TicketTier>(() => {
-    return TICKET_TIERS.find((t) => t.id === initialTierId) || TICKET_TIERS[1];
-  });
+  const tiers = useMemo(
+    () => (ticketTiers?.length ? ticketTiers : TICKET_TIERS),
+    [ticketTiers],
+  );
+  const meta = concertMeta ?? CONCERT_META;
+  const resolveTier = () => {
+    const requested = tiers.find((tier) => tier.id === initialTierId);
+    if (requested && requested.availability !== 'Sold Out') return requested;
+    return (
+      tiers.find((tier) => tier.recommended && tier.availability !== 'Sold Out') ??
+      tiers.find((tier) => tier.availability !== 'Sold Out') ??
+      tiers[0]
+    );
+  };
+  const [selectedTier, setSelectedTier] = useState<TicketTier>(() => resolveTier());
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const nextTier = resolveTier();
+    setSelectedTier(nextTier);
+    setQuantity((current) => Math.min(current, Math.max(1, Math.min(nextTier.maxPerOrder ?? 6, nextTier.remainingSeats ?? 20))));
+  }, [isOpen, initialTierId, tiers]);
   const [quantity, setQuantity] = useState(2);
   const [formData, setFormData] = useState({
     fullName: '',
@@ -33,7 +57,9 @@ export const TicketReservationModal: React.FC<TicketModalProps> = ({
 
   if (!isOpen) return null;
 
-  const totalAmount = selectedTier.priceLKR * quantity;
+  const maxQuantity = Math.max(1, Math.min(selectedTier.maxPerOrder ?? 6, selectedTier.remainingSeats ?? 20));
+  const quantityOptions = Array.from({ length: maxQuantity }, (_, index) => index + 1);
+  const totalAmount = selectedTier.priceLKR * Math.min(quantity, maxQuantity);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,13 +123,17 @@ export const TicketReservationModal: React.FC<TicketModalProps> = ({
                   <label className="block text-[11px] uppercase font-mono tracking-widest text-[#31465A]">
                     Select Seating Tier
                   </label>
-                  {TICKET_TIERS.map((tier) => {
+                  {tiers.map((tier) => {
                     const isSelected = selectedTier.id === tier.id;
                     return (
                       <div
                         key={tier.id}
-                        onClick={() => setSelectedTier(tier)}
-                        className={`p-4 border rounded-sm cursor-pointer transition-all duration-200 flex items-center justify-between ${
+                        onClick={() => {
+                          if (tier.availability === 'Sold Out') return;
+                          setSelectedTier(tier);
+                          setQuantity((current) => Math.min(current, Math.max(1, Math.min(tier.maxPerOrder ?? 6, tier.remainingSeats ?? 20))));
+                        }}
+                        className={`p-4 border rounded-sm transition-all duration-200 flex items-center justify-between ${tier.availability === 'Sold Out' ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${
                           isSelected
                             ? 'border-[#2271B1] bg-[#2271B1]/5 shadow-sm'
                             : 'border-ink-10 hover:border-ink-20 bg-white'
@@ -143,7 +173,7 @@ export const TicketReservationModal: React.FC<TicketModalProps> = ({
                     Number of Seats
                   </label>
                   <div className="flex items-center gap-3">
-                    {[1, 2, 3, 4, 6].map((num) => (
+                    {quantityOptions.map((num) => (
                       <button
                         key={num}
                         type="button"
@@ -208,7 +238,7 @@ export const TicketReservationModal: React.FC<TicketModalProps> = ({
                   <button
                     id="confirm-seat-reservation-submit-btn"
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || selectedTier.availability === 'Sold Out'}
                     onMouseEnter={playHoverChime}
                     className="w-full mt-4 py-3.5 bg-[#0E1721] hover:bg-[#2271B1] text-white text-xs font-medium uppercase tracking-[0.25em] transition-colors rounded-sm flex items-center justify-center gap-2"
                   >
@@ -241,10 +271,10 @@ export const TicketReservationModal: React.FC<TicketModalProps> = ({
                       <Calendar className="w-4 h-4 text-[#2271B1] shrink-0 mt-0.5" />
                       <div>
                         <span className="font-medium text-[#0E1721] block">
-                          {CONCERT_META.date}
+                          {meta.date}
                         </span>
                         <span className="text-[11px] text-[#7D8A95]">
-                          Doors open {CONCERT_META.doorsOpen} • Showtime 06:00 PM
+                          Doors open {meta.doorsOpen} • Showtime 06:00 PM
                         </span>
                       </div>
                     </div>
@@ -253,10 +283,10 @@ export const TicketReservationModal: React.FC<TicketModalProps> = ({
                       <MapPin className="w-4 h-4 text-[#2271B1] shrink-0 mt-0.5" />
                       <div>
                         <span className="font-medium text-[#0E1721] block">
-                          {CONCERT_META.venue}
+                          {meta.venue}
                         </span>
                         <span className="text-[11px] text-[#7D8A95]">
-                          {CONCERT_META.hall}, Colombo
+                          {meta.hall}, Colombo
                         </span>
                       </div>
                     </div>

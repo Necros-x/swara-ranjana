@@ -6,13 +6,26 @@ import { EditorialHeading } from '../common/EditorialHeading';
 import { ButterflyArtwork } from '../common/ButterflyArtwork';
 import { playHoverChime } from '../../lib/audioInteraction';
 import { Check, ShieldCheck, Ticket as TicketIcon, Calendar, Clock, MapPin, HelpCircle } from 'lucide-react';
+import type { TicketTier } from '../../types';
+import type { LiveConcertMeta } from '@/lib/catalog/types';
 
 interface TicketsPageProps {
   onOpenTicketsModal: (tierId?: string) => void;
+  ticketTiers?: TicketTier[];
+  concertMeta?: LiveConcertMeta;
 }
 
-export const TicketsPage: React.FC<TicketsPageProps> = ({ onOpenTicketsModal }) => {
-  const [selectedSeatingPreview, setSelectedSeatingPreview] = useState<string>('tier-premium');
+export const TicketsPage: React.FC<TicketsPageProps> = ({
+  onOpenTicketsModal,
+  ticketTiers,
+  concertMeta,
+}) => {
+  const tiers = ticketTiers?.length ? ticketTiers : TICKET_TIERS;
+  const meta = concertMeta ?? CONCERT_META;
+  const generalId = tiers.find((tier) => tier.code === 'GENERAL')?.id ?? tiers[0]?.id ?? 'tier-general';
+  const premiumId = tiers.find((tier) => tier.code === 'PREMIUM')?.id ?? tiers[1]?.id ?? generalId;
+  const vipId = tiers.find((tier) => tier.code === 'VIP')?.id ?? tiers[2]?.id ?? premiumId;
+  const [selectedSeatingPreview, setSelectedSeatingPreview] = useState<string>(premiumId);
 
   return (
     <div id="tickets-page-root" className="pt-28 sm:pt-36 pb-24 relative overflow-hidden">
@@ -38,11 +51,11 @@ export const TicketsPage: React.FC<TicketsPageProps> = ({ onOpenTicketsModal }) 
           </p>
 
           <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-xs font-mono text-[#31465A] border-l-2 border-[#2271B1] pl-4">
-            <span className="font-semibold text-[#0E1721]">{CONCERT_META.date}</span>
+            <span className="font-semibold text-[#0E1721]">{meta.date}</span>
             <span>•</span>
-            <span>{CONCERT_META.doorsOpen} Doors</span>
+            <span>{meta.doorsOpen} Doors</span>
             <span>•</span>
-            <span>{CONCERT_META.hall}</span>
+            <span>{meta.hall}</span>
           </div>
         </div>
 
@@ -50,7 +63,7 @@ export const TicketsPage: React.FC<TicketsPageProps> = ({ onOpenTicketsModal }) 
         {/* EDITORIAL TICKET TIERS TABLE                                              */}
         {/* ========================================================================= */}
         <div className="border-t border-ink-10 divide-y divide-ink-10 mb-20">
-          {TICKET_TIERS.map((tier) => {
+          {tiers.map((tier) => {
             return (
               <div
                 key={tier.id}
@@ -105,11 +118,12 @@ export const TicketsPage: React.FC<TicketsPageProps> = ({ onOpenTicketsModal }) 
                   </div>
 
                   <button
-                    onClick={() => onOpenTicketsModal(tier.id)}
-                    onMouseEnter={playHoverChime}
-                    className="w-full sm:w-auto px-8 py-3.5 bg-[#0E1721] hover:bg-[#2271B1] text-white text-xs uppercase tracking-[0.2em] font-medium transition-all duration-300 rounded-sm shadow-sm"
+                    onClick={() => tier.availability !== 'Sold Out' && onOpenTicketsModal(tier.id)}
+                    onMouseEnter={tier.availability !== 'Sold Out' ? playHoverChime : undefined}
+                    disabled={tier.availability === 'Sold Out'}
+                    className="w-full sm:w-auto px-8 py-3.5 bg-[#0E1721] hover:bg-[#2271B1] disabled:bg-[#C2CBD2] disabled:cursor-not-allowed text-white text-xs uppercase tracking-[0.2em] font-medium transition-all duration-300 rounded-sm shadow-sm"
                   >
-                    Select & Reserve →
+                    {tier.availability === 'Sold Out' ? 'Sold Out' : 'Select & Reserve →'}
                   </button>
                 </div>
               </div>
@@ -135,9 +149,9 @@ export const TicketsPage: React.FC<TicketsPageProps> = ({ onOpenTicketsModal }) 
 
             {/* Diamond Stalls / Royal Box (VIP) */}
             <div
-              onClick={() => setSelectedSeatingPreview('tier-vip')}
+              onClick={() => setSelectedSeatingPreview(vipId)}
               className={`p-6 border-2 rounded-lg cursor-pointer transition-all duration-300 ${
-                selectedSeatingPreview === 'tier-vip'
+                selectedSeatingPreview === vipId
                   ? 'border-[#2271B1] bg-[#2271B1]/10 shadow-md'
                   : 'border-ink-20 hover:border-[#2271B1] bg-white'
               }`}
@@ -152,9 +166,9 @@ export const TicketsPage: React.FC<TicketsPageProps> = ({ onOpenTicketsModal }) 
 
             {/* Grand Tier Stalls (Premium) */}
             <div
-              onClick={() => setSelectedSeatingPreview('tier-premium')}
+              onClick={() => setSelectedSeatingPreview(premiumId)}
               className={`p-6 border-2 rounded-lg cursor-pointer transition-all duration-300 ${
-                selectedSeatingPreview === 'tier-premium'
+                selectedSeatingPreview === premiumId
                   ? 'border-[#2271B1] bg-[#2271B1]/10 shadow-md'
                   : 'border-ink-20 hover:border-[#2271B1] bg-white'
               }`}
@@ -169,9 +183,9 @@ export const TicketsPage: React.FC<TicketsPageProps> = ({ onOpenTicketsModal }) 
 
             {/* Balcony Sanctuary (General) */}
             <div
-              onClick={() => setSelectedSeatingPreview('tier-general')}
+              onClick={() => setSelectedSeatingPreview(generalId)}
               className={`p-6 border-2 rounded-lg cursor-pointer transition-all duration-300 ${
-                selectedSeatingPreview === 'tier-general'
+                selectedSeatingPreview === generalId
                   ? 'border-[#2271B1] bg-[#2271B1]/10 shadow-md'
                   : 'border-ink-20 hover:border-[#2271B1] bg-white'
               }`}
