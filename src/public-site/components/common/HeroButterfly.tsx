@@ -66,6 +66,54 @@ type PartConfig = {
  * possible. That makes alignment easier. If you crop them tightly, use the
  * values below to reconstruct the butterfly.
  */
+/**
+ * ============================================================================
+ * GLOBAL BUTTERFLY CONTROLLER
+ * ============================================================================
+ *
+ * Change the whole composition from here instead of touching the JSX below.
+ *
+ * x / y        -> move the ENTIRE butterfly
+ * scale        -> resize the ENTIRE butterfly
+ * rotate       -> resting rotation of the ENTIRE butterfly
+ *
+ * hover        -> whole-butterfly floating movement
+ * backdrop     -> larger blurred copy behind the main butterfly
+ */
+export const BUTTERFLY_GLOBAL = {
+  x: 42,
+  y: 100,
+  scale: 1,
+  rotate: 0,
+
+  hover: {
+    enabled: true,
+    distance: 10,
+    rotate: 0.15,
+    duration: 7.2,
+  },
+
+  backdrop: {
+    enabled: true,
+
+    // Bigger than the foreground butterfly
+    scale: 1.52,
+
+    // Position relative to the main butterfly
+    x: -8,
+    y: -4,
+
+    // Soft/faded treatment
+    opacity: 0.11,
+    blur: 22,
+
+    // Very slow independent background drift
+    drift: 6,
+    breathe: 0.025,
+    duration: 11,
+  },
+} as const;
+
 export const BUTTERFLY_PARTS: Record<PartName, PartConfig> = {
   body: {
     src: "/butterfly/body.webp",
@@ -294,20 +342,45 @@ function ButterflyAssembly({
 
 export function HeroButterfly() {
   const reduceMotion = useReducedMotion();
+  const global = BUTTERFLY_GLOBAL;
+
+  const hoverDistance = global.hover.enabled ? global.hover.distance : 0;
+  const hoverRotate = global.hover.enabled ? global.hover.rotate : 0;
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center translate-x-[4%] sm:translate-x-[7%] lg:translate-x-[10%]">
+    <div className="absolute inset-0 flex items-center justify-center">
       <motion.div
         className="relative h-[440px] w-[390px] sm:h-[590px] sm:w-[520px] lg:h-[740px] lg:w-[650px] xl:h-[800px] xl:w-[720px]"
-        initial={{ opacity: 0, scale: 0.97 }}
+        initial={{
+          opacity: 0,
+          x: global.x,
+          y: global.y,
+          scale: global.scale * 0.97,
+          rotate: global.rotate,
+        }}
         animate={
           reduceMotion
-            ? { opacity: 1, scale: 1 }
+            ? {
+                opacity: 1,
+                x: global.x,
+                y: global.y,
+                scale: global.scale,
+                rotate: global.rotate,
+              }
             : {
                 opacity: 1,
-                scale: 1,
-                y: [-8, 10, -8],
-                rotate: [-0.15, 0.15, -0.15],
+                x: global.x,
+                y: [
+                  global.y - hoverDistance,
+                  global.y + hoverDistance,
+                  global.y - hoverDistance,
+                ],
+                scale: global.scale,
+                rotate: [
+                  global.rotate - hoverRotate,
+                  global.rotate + hoverRotate,
+                  global.rotate - hoverRotate,
+                ],
               }
         }
         transition={
@@ -316,42 +389,64 @@ export function HeroButterfly() {
             : {
                 opacity: { duration: 1 },
                 scale: { duration: 1 },
+                x: { duration: 1 },
                 y: {
-                  duration: 7.2,
+                  duration: global.hover.duration,
                   repeat: Infinity,
                   ease: "easeInOut",
                 },
                 rotate: {
-                  duration: 7.2,
+                  duration: global.hover.duration,
                   repeat: Infinity,
                   ease: "easeInOut",
                 },
               }
         }
       >
-        {/* Dreamy concept-04 echo; same layers but no individual flap. */}
-        <motion.div
-          className="absolute inset-[-5%] opacity-[0.08] blur-[12px] sm:blur-[16px] lg:blur-[20px]"
-          animate={
-            reduceMotion
-              ? undefined
-              : {
-                  y: [4, -5, 4],
-                  scale: [1.12, 1.15, 1.12],
-                }
-          }
-          transition={{
-            duration: 10.8,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        >
-          <ButterflyAssembly animatePieces={false} />
-        </motion.div>
+        {/* BACKDROP: same seven layers, enlarged + blurred */}
+        {global.backdrop.enabled && (
+          <motion.div
+            className="absolute inset-0"
+            style={{
+              opacity: global.backdrop.opacity,
+              filter: `blur(${global.backdrop.blur}px)`,
+              transformOrigin: "50% 45%",
+            }}
+            animate={
+              reduceMotion
+                ? {
+                    x: global.backdrop.x,
+                    y: global.backdrop.y,
+                    scale: global.backdrop.scale,
+                  }
+                : {
+                    x: global.backdrop.x,
+                    y: [
+                      global.backdrop.y + global.backdrop.drift,
+                      global.backdrop.y - global.backdrop.drift,
+                      global.backdrop.y + global.backdrop.drift,
+                    ],
+                    scale: [
+                      global.backdrop.scale,
+                      global.backdrop.scale + global.backdrop.breathe,
+                      global.backdrop.scale,
+                    ],
+                  }
+            }
+            transition={{
+              duration: global.backdrop.duration,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
+            <ButterflyAssembly animatePieces={false} />
+          </motion.div>
+        )}
 
+        {/* Subtle cobalt atmosphere */}
         <div className="absolute left-1/2 top-[42%] h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#2271B1]/5 blur-3xl sm:h-80 sm:w-80" />
 
-        {/* Foreground: all seven Photoshop pieces animate independently. */}
+        {/* Foreground: all seven Photoshop layers animate independently */}
         <ButterflyAssembly />
       </motion.div>
     </div>

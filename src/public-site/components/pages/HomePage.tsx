@@ -149,6 +149,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
            {/* Right Column: Photoshop-layered butterfly */}
           <div className="lg:col-span-5 relative h-[400px] sm:h-[540px] lg:h-[700px] flex items-center justify-center pointer-events-none">
+            {/* <HeroButterfly /> */}
             <HeroButterfly />
           </div>
         </div>
