@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendReservationCreatedEmail } from "@/lib/email/orderEmails";
 import type {
   CheckoutReservationInput,
   CheckoutReservationResult,
@@ -38,7 +39,11 @@ function readBoolean(
   return typeof candidate === "boolean" ? candidate : undefined;
 }
 
-function failure(code: string, message: string, remaining?: number): CheckoutReservationResult {
+function failure(
+  code: string,
+  message: string,
+  remaining?: number,
+): CheckoutReservationResult {
   return {
     ok: false,
     code,
@@ -59,7 +64,10 @@ export async function createCheckoutReservation(
     : 0;
 
   if (!input.eventId || !input.ticketTypeId || !input.requestId) {
-    return failure("INVALID_REQUEST", "The reservation request is incomplete.");
+    return failure(
+      "INVALID_REQUEST",
+      "The reservation request is incomplete.",
+    );
   }
 
   if (quantity < 1 || quantity > 20) {
@@ -92,16 +100,19 @@ export async function createCheckoutReservation(
   try {
     const supabase = createAdminClient();
 
-    const { data, error } = await supabase.rpc("create_checkout_reservation", {
-      p_event_id: input.eventId,
-      p_ticket_type_id: input.ticketTypeId,
-      p_quantity: quantity,
-      p_full_name: fullName,
-      p_email: email,
-      p_phone: phone,
-      p_notes: notes,
-      p_request_id: input.requestId,
-    });
+    const { data, error } = await supabase.rpc(
+      "create_checkout_reservation",
+      {
+        p_event_id: input.eventId,
+        p_ticket_type_id: input.ticketTypeId,
+        p_quantity: quantity,
+        p_full_name: fullName,
+        p_email: email,
+        p_phone: phone,
+        p_notes: notes,
+        p_request_id: input.requestId,
+      },
+    );
 
     if (error) {
       console.error("create_checkout_reservation RPC failed:", error);
@@ -167,6 +178,12 @@ export async function createCheckoutReservation(
       quantity: readNumber(data, "quantity"),
       remainingAfterHold: readNumber(data, "remaining_after_hold"),
     };
+
+    // Email failure never invalidates a successfully-created reservation.
+    // The delivery log lets us safely retry later without duplicating mail.
+    await sendReservationCreatedEmail(orderId).catch((emailError) => {
+      console.error("Reservation email failed:", emailError);
+    });
 
     return success;
   } catch (error) {
