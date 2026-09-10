@@ -10,6 +10,7 @@ import {
 } from "../../data/concertData";
 import { SwaraRanjanaLogo } from "../common/SwaraRanjanaLogo";
 import { ButterflyArtwork } from "../common/ButterflyArtwork";
+import { HeroButterfly } from "../common/HeroButterfly";
 import { ParallaxImage } from "../common/ParallaxImage";
 import { EventCountdown } from "../common/EventCountdown";
 import { SectionLabel } from "../common/SectionLabel";
@@ -146,55 +147,9 @@ export const HomePage: React.FC<HomePageProps> = ({
             </motion.div>
           </div>
 
-           {/* Right Column: layered hovering butterfly — concept 04 */}
+           {/* Right Column: Photoshop-layered butterfly */}
           <div className="lg:col-span-5 relative h-[400px] sm:h-[540px] lg:h-[700px] flex items-center justify-center pointer-events-none">
-            {/* Positioning wrapper stays static so Motion transforms do not fight translateY */}
-            <div className="absolute inset-0 flex items-center justify-center translate-x-[5%] sm:translate-x-[8%] lg:translate-x-[12%]">
-              <motion.div
-                className="relative w-[430px] h-[480px] sm:w-[560px] sm:h-[620px] lg:w-[680px] lg:h-[760px] xl:w-[760px] xl:h-[820px]"
-                animate={{
-                  y: [-8, 10, -8],
-                  rotate: [-0.18, 0.18, -0.18],
-                }}
-                transition={{
-                  duration: 6.8,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                }}
-              >
-                {/* Large dreamy echo behind the real butterfly */}
-                <motion.div
-                  className="absolute inset-[-4%] sm:inset-[-6%] opacity-[0.10] blur-[10px] sm:blur-[14px] lg:blur-[18px]"
-                  animate={{
-                    y: [4, -5, 4],
-                    scale: [1.13, 1.15, 1.13],
-                  }}
-                  transition={{
-                    duration: 10.5,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
-                >
-                  <ButterflyArtwork
-                    variant="full"
-                    animate={false}
-                    glow={false}
-                    className="w-full h-full"
-                  />
-                </motion.div>
-
-                {/* Foreground butterfly — your current full variant already has the gentle wing flap */}
-                <div className="absolute inset-0 z-10">
-                  <ButterflyArtwork
-                    variant="full"
-                    className="w-full h-full filter drop-shadow-[0_20px_40px_rgba(34,113,177,0.14)]"
-                  />
-                </div>
-
-                {/* Soft cobalt atmosphere */}
-                <div className="absolute left-1/2 top-[42%] -translate-x-1/2 -translate-y-1/2 w-56 h-56 sm:w-72 sm:h-72 rounded-full bg-[#2271B1]/5 blur-3xl" />
-              </motion.div>
-            </div>
+            <HeroButterfly />
           </div>
         </div>
       </section>
