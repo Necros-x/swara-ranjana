@@ -147,10 +147,17 @@ export const HomePage: React.FC<HomePageProps> = ({
             </motion.div>
           </div>
 
-           {/* Right Column: Photoshop-layered butterfly */}
+           {/* Right Column: two complete Photoshop-layered butterflies */}
           <div className="lg:col-span-5 relative h-[400px] sm:h-[540px] lg:h-[700px] flex items-center justify-center pointer-events-none">
-            {/* <HeroButterfly /> */}
-            <HeroButterfly />
+            {/* Same assembled butterfly, larger + blurred behind */}
+            <div className="absolute inset-0 z-0 -translate-x-5 scale-150 blur-sm">
+              <HeroButterfly />
+            </div>
+
+            {/* Crisp foreground butterfly */}
+            <div className="absolute inset-0 z-10">
+              <HeroButterfly />
+            </div>
           </div>
         </div>
       </section>

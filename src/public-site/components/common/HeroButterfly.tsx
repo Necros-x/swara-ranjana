@@ -340,42 +340,82 @@ function ButterflyAssembly({
   );
 }
 
-export function HeroButterfly() {
+type HeroButterflyProps = {
+  variant?: "foreground" | "backdrop";
+};
+
+export function HeroButterfly({
+  variant = "foreground",
+}: HeroButterflyProps) {
   const reduceMotion = useReducedMotion();
   const global = BUTTERFLY_GLOBAL;
+  const isBackdrop = variant === "backdrop";
 
-  const hoverDistance = global.hover.enabled ? global.hover.distance : 0;
-  const hoverRotate = global.hover.enabled ? global.hover.rotate : 0;
+  const baseX = isBackdrop ? global.x + global.backdrop.x : global.x;
+  const baseY = isBackdrop ? global.y + global.backdrop.y : global.y;
+  const baseScale = isBackdrop
+    ? global.scale * global.backdrop.scale
+    : global.scale;
+
+  const hoverDistance = isBackdrop
+    ? global.backdrop.drift
+    : global.hover.enabled
+      ? global.hover.distance
+      : 0;
+
+  const hoverRotate = isBackdrop
+    ? 0.06
+    : global.hover.enabled
+      ? global.hover.rotate
+      : 0;
+
+  const duration = isBackdrop
+    ? global.backdrop.duration
+    : global.hover.duration;
 
   return (
     <div className="absolute inset-0 flex items-center justify-center">
       <motion.div
         className="relative h-[440px] w-[390px] sm:h-[590px] sm:w-[520px] lg:h-[740px] lg:w-[650px] xl:h-[800px] xl:w-[720px]"
+        style={
+          isBackdrop
+            ? {
+                filter: `blur(${global.backdrop.blur}px)`,
+                transformOrigin: "50% 45%",
+              }
+            : undefined
+        }
         initial={{
-          opacity: 0,
-          x: global.x,
-          y: global.y,
-          scale: global.scale * 0.97,
+          opacity: isBackdrop ? global.backdrop.opacity : 0,
+          x: baseX,
+          y: baseY,
+          scale: baseScale * (isBackdrop ? 1 : 0.97),
           rotate: global.rotate,
         }}
         animate={
           reduceMotion
             ? {
-                opacity: 1,
-                x: global.x,
-                y: global.y,
-                scale: global.scale,
+                opacity: isBackdrop ? global.backdrop.opacity : 1,
+                x: baseX,
+                y: baseY,
+                scale: baseScale,
                 rotate: global.rotate,
               }
             : {
-                opacity: 1,
-                x: global.x,
+                opacity: isBackdrop ? global.backdrop.opacity : 1,
+                x: baseX,
                 y: [
-                  global.y - hoverDistance,
-                  global.y + hoverDistance,
-                  global.y - hoverDistance,
+                  baseY - hoverDistance,
+                  baseY + hoverDistance,
+                  baseY - hoverDistance,
                 ],
-                scale: global.scale,
+                scale: isBackdrop
+                  ? [
+                      baseScale,
+                      baseScale + global.backdrop.breathe,
+                      baseScale,
+                    ]
+                  : baseScale,
                 rotate: [
                   global.rotate - hoverRotate,
                   global.rotate + hoverRotate,
@@ -388,66 +428,33 @@ export function HeroButterfly() {
             ? { duration: 0.5 }
             : {
                 opacity: { duration: 1 },
-                scale: { duration: 1 },
+                scale: isBackdrop
+                  ? {
+                      duration,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }
+                  : { duration: 1 },
                 x: { duration: 1 },
                 y: {
-                  duration: global.hover.duration,
+                  duration,
                   repeat: Infinity,
                   ease: "easeInOut",
                 },
                 rotate: {
-                  duration: global.hover.duration,
+                  duration,
                   repeat: Infinity,
                   ease: "easeInOut",
                 },
               }
         }
       >
-        {/* BACKDROP: same seven layers, enlarged + blurred */}
-        {global.backdrop.enabled && (
-          <motion.div
-            className="absolute inset-0"
-            style={{
-              opacity: global.backdrop.opacity,
-              filter: `blur(${global.backdrop.blur}px)`,
-              transformOrigin: "50% 45%",
-            }}
-            animate={
-              reduceMotion
-                ? {
-                    x: global.backdrop.x,
-                    y: global.backdrop.y,
-                    scale: global.backdrop.scale,
-                  }
-                : {
-                    x: global.backdrop.x,
-                    y: [
-                      global.backdrop.y + global.backdrop.drift,
-                      global.backdrop.y - global.backdrop.drift,
-                      global.backdrop.y + global.backdrop.drift,
-                    ],
-                    scale: [
-                      global.backdrop.scale,
-                      global.backdrop.scale + global.backdrop.breathe,
-                      global.backdrop.scale,
-                    ],
-                  }
-            }
-            transition={{
-              duration: global.backdrop.duration,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          >
-            <ButterflyAssembly animatePieces={false} />
-          </motion.div>
+        {!isBackdrop && (
+          <div className="absolute left-1/2 top-[42%] h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#2271B1]/5 blur-3xl sm:h-80 sm:w-80" />
         )}
 
-        {/* Subtle cobalt atmosphere */}
-        <div className="absolute left-1/2 top-[42%] h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#2271B1]/5 blur-3xl sm:h-80 sm:w-80" />
-
-        {/* Foreground: all seven Photoshop layers animate independently */}
-        <ButterflyAssembly />
+        {/* Same seven layers. Backdrop is static pieces; foreground keeps part motion. */}
+        <ButterflyAssembly animatePieces={!isBackdrop} />
       </motion.div>
     </div>
   );
