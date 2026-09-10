@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Check, Calendar, MapPin, Clock, ShieldCheck, Ticket as TicketIcon, Sparkles } from 'lucide-react';
 import { TICKET_TIERS, CONCERT_META } from '../../data/concertData';
@@ -25,6 +26,7 @@ export const TicketReservationModal: React.FC<TicketModalProps> = ({
   ticketTiers,
   concertMeta,
 }) => {
+  const router = useRouter();
   const tiers = useMemo(
     () => (ticketTiers?.length ? ticketTiers : TICKET_TIERS),
     [ticketTiers],
@@ -481,10 +483,11 @@ export const TicketReservationModal: React.FC<TicketModalProps> = ({
 
                 <button
                   type="button"
-                  disabled
-                  className="w-full px-8 py-3.5 bg-[#0E1721]/50 text-white text-xs uppercase tracking-[0.22em] rounded-sm cursor-not-allowed mb-3"
+                  disabled={!reservation}
+                  onClick={() => reservation && router.push(`/payment/${reservation.orderNumber}?token=${encodeURIComponent(reservation.accessToken)}`)}
+                  className="w-full px-8 py-3.5 bg-[#0E1721] hover:bg-[#2271B1] disabled:bg-[#0E1721]/50 text-white text-xs uppercase tracking-[0.22em] rounded-sm mb-3 transition-colors"
                 >
-                  Continue to Secure Payment — Next Phase
+                  Continue to Payment →
                 </button>
 
                 <button

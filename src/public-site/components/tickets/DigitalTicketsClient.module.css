@@ -1,0 +1,27 @@
+.ticketCanvas {
+  position: relative;
+  overflow: hidden;
+}
+
+.ticketWatermark {
+  pointer-events: none;
+  user-select: none;
+}
+
+@media print {
+  .pageChrome {
+    display: none !important;
+  }
+
+  .ticketShell {
+    margin: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+    box-shadow: none !important;
+  }
+
+  .ticketCanvas {
+    break-inside: avoid;
+    border: 1px solid #c2cbd2 !important;
+  }
+}

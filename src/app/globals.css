@@ -30,6 +30,15 @@
     --color-muted: #7D8A95;
   }
 
+
+  :where(a, button, summary, select, [role="button"], input[type="checkbox"], input[type="radio"]) {
+    cursor: pointer;
+  }
+
+  :where(button:disabled, input:disabled, select:disabled, [aria-disabled="true"]) {
+    cursor: not-allowed;
+  }
+
   body {
     background-color: #FEFFFF;
     color: #0E1721;

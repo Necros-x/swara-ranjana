@@ -2,6 +2,9 @@ import { notFound } from "next/navigation";
 import PublicApp from "@/public-site/App";
 import { getPublicTicketCatalog } from "@/lib/catalog/public";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const publicRoutes = new Set([
   "about",
   "artists",

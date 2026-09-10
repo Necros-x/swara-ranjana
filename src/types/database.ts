@@ -15,6 +15,8 @@ export type EventStatus =
 
 export type TicketTypeStatus = "DRAFT" | "AVAILABLE" | "PAUSED" | "SOLD_OUT";
 export type OrderStatus = "PENDING" | "CONFIRMED" | "CANCELLED" | "REFUNDED";
+export type PaymentMethod = "CARD" | "ON_ARRIVAL" | "BANK_SLIP";
+export type PaymentSubmissionStatus = "PENDING" | "APPROVED" | "REJECTED";
 export type PaymentStatus =
   | "PENDING"
   | "PAID"
@@ -148,6 +150,7 @@ type OrderRow = {
   discount_lkr: number;
   total_lkr: number;
   currency: string;
+  payment_method: PaymentMethod | null;
   payment_provider: string | null;
   payment_reference: string | null;
   expires_at: string | null;
@@ -171,6 +174,7 @@ type OrderInsert = {
   discount_lkr?: number;
   total_lkr?: number;
   currency?: string;
+  payment_method?: PaymentMethod | null;
   payment_provider?: string | null;
   payment_reference?: string | null;
   expires_at?: string | null;
@@ -242,6 +246,16 @@ type TicketInsert = {
   updated_at?: string;
 };
 
+
+type PaymentSubmissionRow = {
+  id: string; order_id: string; storage_path: string; original_filename: string; mime_type: string; file_size: number;
+  status: PaymentSubmissionStatus; submitted_at: string; reviewed_at: string | null; reviewed_by: string | null; rejection_reason: string | null;
+};
+type PaymentSubmissionInsert = {
+  id?: string; order_id: string; storage_path: string; original_filename: string; mime_type: string; file_size: number;
+  status?: PaymentSubmissionStatus; submitted_at?: string; reviewed_at?: string | null; reviewed_by?: string | null; rejection_reason?: string | null;
+};
+
 type StaffProfileRow = {
   user_id: string;
   display_name: string;
@@ -295,6 +309,7 @@ export interface Database {
       orders: TableDefinition<OrderRow, OrderInsert>;
       order_items: TableDefinition<OrderItemRow, OrderItemInsert>;
       tickets: TableDefinition<TicketRow, TicketInsert>;
+      payment_submissions: TableDefinition<PaymentSubmissionRow, PaymentSubmissionInsert>;
       staff_profiles: TableDefinition<StaffProfileRow, StaffProfileInsert>;
       scan_logs: TableDefinition<ScanLogRow, ScanLogInsert>;
     };
@@ -317,6 +332,11 @@ export interface Database {
         };
         Returns: Json;
       };
+      select_payment_method: { Args: { p_order_number: string; p_access_token: string; p_method: string }; Returns: Json; };
+      confirm_on_arrival: { Args: { p_order_number: string; p_access_token: string }; Returns: Json; };
+      submit_bank_slip_metadata: { Args: { p_order_number: string; p_access_token: string; p_storage_path: string; p_original_filename: string; p_mime_type: string; p_file_size: number }; Returns: Json; };
+      review_bank_slip: { Args: { p_submission_id: string; p_approve: boolean; p_reason?: string | null }; Returns: Json; };
+      issue_order_tickets: { Args: { p_order_id: string }; Returns: number; };
       redeem_ticket: {
         Args: {
           p_token: string;

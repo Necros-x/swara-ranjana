@@ -1,9 +1,12 @@
 import "server-only";
 
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type {
   OrderStatus,
+  PaymentMethod,
   PaymentStatus,
+  PaymentSubmissionStatus,
   TicketStatus,
 } from "@/types/database";
 
@@ -45,6 +48,15 @@ export interface AdminOrderDetailData extends AdminOrderListItem {
   notes: string | null;
   paymentProvider: string | null;
   paymentReference: string | null;
+  paymentMethod: PaymentMethod | null;
+  paymentSubmission: {
+    id: string;
+    status: PaymentSubmissionStatus;
+    originalFilename: string;
+    submittedAt: string;
+    signedUrl: string | null;
+    rejectionReason: string | null;
+  } | null;
   paidAt: string | null;
   items: AdminOrderDetailItem[];
   tickets: AdminOrderDetailTicket[];
@@ -175,7 +187,7 @@ export async function getAdminOrderDetail(
   const { data: order, error: orderError } = await supabase
     .from("orders")
     .select(
-      "id, customer_id, order_number, status, payment_status, subtotal_lkr, discount_lkr, total_lkr, currency, payment_provider, payment_reference, expires_at, paid_at, notes, created_at",
+      "id, customer_id, order_number, status, payment_status, payment_method, subtotal_lkr, discount_lkr, total_lkr, currency, payment_provider, payment_reference, expires_at, paid_at, notes, created_at",
     )
     .eq("id", orderId)
     .maybeSingle();
@@ -191,6 +203,7 @@ export async function getAdminOrderDetail(
     { data: customer },
     { data: rawItems },
     { data: rawTickets },
+    { data: submissions },
   ] = await Promise.all([
     supabase
       .from("customers")
@@ -210,6 +223,12 @@ export async function getAdminOrderDetail(
       )
       .eq("order_id", order.id)
       .order("issued_at", { ascending: true }),
+    supabase
+      .from("payment_submissions")
+      .select("id, status, storage_path, original_filename, submitted_at, rejection_reason")
+      .eq("order_id", order.id)
+      .order("submitted_at", { ascending: false })
+      .limit(1),
   ]);
 
   const itemRows = (rawItems ?? []) as OrderItemLite[];
@@ -253,6 +272,16 @@ export async function getAdminOrderDetail(
 
   const customerRow = customer as CustomerLite | null;
 
+  const latestSubmission = submissions?.[0] ?? null;
+  let signedUrl: string | null = null;
+  if (latestSubmission?.storage_path) {
+    const admin = createAdminClient();
+    const { data } = await admin.storage
+      .from("payment-slips")
+      .createSignedUrl(latestSubmission.storage_path, 300);
+    signedUrl = data?.signedUrl ?? null;
+  }
+
   return {
     id: order.id,
     orderNumber: order.order_number,
@@ -269,6 +298,17 @@ export async function getAdminOrderDetail(
     orderStatus: order.status,
     paymentProvider: order.payment_provider,
     paymentReference: order.payment_reference,
+    paymentMethod: (order.payment_method as PaymentMethod | null) ?? null,
+    paymentSubmission: latestSubmission
+      ? {
+          id: latestSubmission.id,
+          status: latestSubmission.status as PaymentSubmissionStatus,
+          originalFilename: latestSubmission.original_filename,
+          submittedAt: latestSubmission.submitted_at,
+          signedUrl,
+          rejectionReason: latestSubmission.rejection_reason,
+        }
+      : null,
     expiresAt: order.expires_at,
     paidAt: order.paid_at,
     notes: order.notes,

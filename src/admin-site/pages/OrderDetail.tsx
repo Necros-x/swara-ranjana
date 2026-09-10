@@ -1,12 +1,13 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/admin-site/components/ui/Card';
 import { Badge } from '@/admin-site/components/ui/Badge';
 import { formatCurrency, formatDate } from '@/admin-site/lib/utils';
 import { ArrowLeft, Clock3, CreditCard, Ticket as TicketIcon } from 'lucide-react';
 import type { AdminOrderDetailData } from '@/lib/admin/orders';
+import { reviewBankSlip } from '@/app/actions/payment';
 
 function paymentClass(status: AdminOrderDetailData['paymentStatus']) {
   if (status === 'PAID') return 'border-green-500 text-green-700';
@@ -16,6 +17,15 @@ function paymentClass(status: AdminOrderDetailData['paymentStatus']) {
 }
 
 export default function OrderDetail({ order }: { order: AdminOrderDetailData }) {
+  const [reviewReason, setReviewReason] = useState('');
+  const [reviewMessage, setReviewMessage] = useState('');
+  const [reviewPending, startReview] = useTransition();
+  const reviewSlip = (approve: boolean) => startReview(async () => {
+    if (!order.paymentSubmission) return;
+    const result = await reviewBankSlip(order.paymentSubmission.id, approve, reviewReason);
+    if (!result.ok) setReviewMessage(result.message || 'Unable to review payment slip.');
+    else window.location.reload();
+  });
   const holdExpired = order.orderStatus === 'PENDING' && order.expiresAt
     ? new Date(order.expiresAt).getTime() <= Date.now()
     : false;
@@ -103,10 +113,26 @@ export default function OrderDetail({ order }: { order: AdminOrderDetailData }) 
           <Card>
             <CardHeader><CardTitle className="text-lg">Payment</CardTitle></CardHeader>
             <CardContent className="space-y-4 text-sm">
-              <div className="flex items-center gap-2"><CreditCard className="w-4 h-4 text-[#7D8A95]" /><span className="font-medium">{order.paymentProvider || 'Awaiting payment gateway'}</span></div>
+              <div className="flex items-center gap-2"><CreditCard className="w-4 h-4 text-[#7D8A95]" /><span className="font-medium">{order.paymentMethod?.replaceAll('_', ' ') || order.paymentProvider || 'Awaiting payment method'}</span></div>
               <Badge variant="outline" className={paymentClass(order.paymentStatus)}>Payment {order.paymentStatus.replaceAll('_', ' ')}</Badge>
               {order.paymentReference && <div className="text-xs text-[#7D8A95]">Ref: <span className="font-mono text-[#31465A]">{order.paymentReference}</span></div>}
               {order.paidAt && <div className="text-xs text-[#7D8A95]">Paid {formatDate(order.paidAt)}</div>}
+              {order.paymentSubmission && (
+                <div className="pt-4 mt-4 border-t border-[#C2CBD2]/60 space-y-3">
+                  <div className="text-xs font-semibold text-[#31465A]">Bank slip: {order.paymentSubmission.status}</div>
+                  {order.paymentSubmission.signedUrl && <a href={order.paymentSubmission.signedUrl} target="_blank" rel="noreferrer" className="text-xs text-[#2271B1] hover:underline">View uploaded slip</a>}
+                  {order.paymentSubmission.status === 'PENDING' && (
+                    <>
+                      <textarea value={reviewReason} onChange={(e) => setReviewReason(e.target.value)} placeholder="Reason if rejecting (optional)" className="w-full min-h-20 border border-[#C2CBD2] rounded-md p-2 text-xs" />
+                      <div className="grid grid-cols-2 gap-2">
+                        <button disabled={reviewPending} onClick={() => reviewSlip(true)} className="px-3 py-2 bg-emerald-600 text-white text-xs rounded-md disabled:opacity-50">Approve</button>
+                        <button disabled={reviewPending} onClick={() => reviewSlip(false)} className="px-3 py-2 bg-red-600 text-white text-xs rounded-md disabled:opacity-50">Reject</button>
+                      </div>
+                      {reviewMessage && <p className="text-xs text-red-600">{reviewMessage}</p>}
+                    </>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
 
