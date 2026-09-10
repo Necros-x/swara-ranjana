@@ -1,15 +1,28 @@
-import React from 'react';
-import { motion } from 'motion/react';
-import { PageId, Artist } from '../../types';
-import { ARTISTS_DATA, CONCERT_META, PROGRAMME_ACTS, TICKET_TIERS, GALLERY_ITEMS } from '../../data/concertData';
-import { SwaraRanjanaLogo } from '../common/SwaraRanjanaLogo';
-import { ButterflyArtwork } from '../common/ButterflyArtwork';
-import { ParallaxImage } from '../common/ParallaxImage';
-import { EventCountdown } from '../common/EventCountdown';
-import { SectionLabel } from '../common/SectionLabel';
-import { EditorialHeading } from '../common/EditorialHeading';
-import { playHoverChime } from '../../lib/audioInteraction';
-import { ArrowRight, Calendar, MapPin, Clock, ArrowUpRight, Sparkles } from 'lucide-react';
+import React from "react";
+import { motion } from "motion/react";
+import { PageId, Artist } from "../../types";
+import {
+  ARTISTS_DATA,
+  CONCERT_META,
+  PROGRAMME_ACTS,
+  TICKET_TIERS,
+  GALLERY_ITEMS,
+} from "../../data/concertData";
+import { SwaraRanjanaLogo } from "../common/SwaraRanjanaLogo";
+import { ButterflyArtwork } from "../common/ButterflyArtwork";
+import { ParallaxImage } from "../common/ParallaxImage";
+import { EventCountdown } from "../common/EventCountdown";
+import { SectionLabel } from "../common/SectionLabel";
+import { EditorialHeading } from "../common/EditorialHeading";
+import { playHoverChime } from "../../lib/audioInteraction";
+import {
+  ArrowRight,
+  Calendar,
+  MapPin,
+  Clock,
+  ArrowUpRight,
+  Sparkles,
+} from "lucide-react";
 
 interface HomePageProps {
   onNavigate: (page: PageId) => void;
@@ -56,14 +69,19 @@ export const HomePage: React.FC<HomePageProps> = ({
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+              transition={{
+                duration: 0.9,
+                delay: 0.15,
+                ease: [0.16, 1, 0.3, 1],
+              }}
               className="mb-6 sm:mb-8"
             >
-              <h1 
+              <h1
                 className="font-gemola font-light text-[#0E1721] tracking-tighter mb-8 text-[6rem] sm:text-[8rem] lg:text-[130px] leading-[0.85]"
                 style={{ fontWeight: 200 }}
               >
-                SWARA<br />
+                SWARA
+                <br />
                 <span className="font-normal italic">RANJANA</span>
               </h1>
             </motion.div>
@@ -72,10 +90,15 @@ export const HomePage: React.FC<HomePageProps> = ({
             <motion.p
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              transition={{
+                duration: 0.8,
+                delay: 0.3,
+                ease: [0.16, 1, 0.3, 1],
+              }}
               className="text-[14px] leading-relaxed text-[#7D8A95] italic font-serif max-w-sm mb-8 sm:mb-10"
             >
-              “An evening where voices, melodies and memories become one. A contemporary exploration of classical resonance.”
+              “An evening where voices, melodies and memories become one. A
+              contemporary exploration of classical resonance.”
             </motion.p>
 
             {/* Event Key Coordinates */}
@@ -94,7 +117,11 @@ export const HomePage: React.FC<HomePageProps> = ({
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              transition={{
+                duration: 0.8,
+                delay: 0.45,
+                ease: [0.16, 1, 0.3, 1],
+              }}
               className="flex flex-wrap items-center gap-8 sm:gap-12"
             >
               <button
@@ -109,8 +136,8 @@ export const HomePage: React.FC<HomePageProps> = ({
               <button
                 id="hero-discover-experience-btn"
                 onClick={() => {
-                  const el = document.getElementById('experience-section');
-                  el?.scrollIntoView({ behavior: 'smooth' });
+                  const el = document.getElementById("experience-section");
+                  el?.scrollIntoView({ behavior: "smooth" });
                 }}
                 className="text-[11px] uppercase tracking-[0.2em] font-bold border-b border-[#0E1721] pb-1 hover:text-[#2271B1] hover:border-[#2271B1] transition-all"
               >
@@ -119,29 +146,55 @@ export const HomePage: React.FC<HomePageProps> = ({
             </motion.div>
           </div>
 
-          {/* Right Column: Enormous Cropped Butterfly Artwork extending beyond edges */}
-          <div className="lg:col-span-5 relative h-[420px] sm:h-[550px] lg:h-[700px] flex items-center justify-center pointer-events-none">
-            <motion.div
-              className="absolute -right-8 sm:-right-20 lg:-right-28 top-1/2 w-[340px] sm:w-[500px] lg:w-[680px] xl:w-[780px] h-[550px] sm:h-[750px] lg:h-[900px]"
-              animate={{
-                y: ['-50%', '-52%', '-50%'],
-                rotate: [0, 0.4, 0],
-              }}
-              transition={{
-                duration: 9,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
-            >
-              {/* Massive cropped wing composition entering from right edge */}
-              <ButterflyArtwork
-                variant="right-wing-hero"
-                className="w-full h-full filter drop-shadow-[0_20px_40px_rgba(34,113,177,0.12)]"
-              />
-            </motion.div>
+           {/* Right Column: layered hovering butterfly — concept 04 */}
+          <div className="lg:col-span-5 relative h-[400px] sm:h-[540px] lg:h-[700px] flex items-center justify-center pointer-events-none">
+            {/* Positioning wrapper stays static so Motion transforms do not fight translateY */}
+            <div className="absolute inset-0 flex items-center justify-center translate-x-[5%] sm:translate-x-[8%] lg:translate-x-[12%]">
+              <motion.div
+                className="relative w-[430px] h-[480px] sm:w-[560px] sm:h-[620px] lg:w-[680px] lg:h-[760px] xl:w-[760px] xl:h-[820px]"
+                animate={{
+                  y: [-8, 10, -8],
+                  rotate: [-0.18, 0.18, -0.18],
+                }}
+                transition={{
+                  duration: 6.8,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                }}
+              >
+                {/* Large dreamy echo behind the real butterfly */}
+                <motion.div
+                  className="absolute inset-[-4%] sm:inset-[-6%] opacity-[0.10] blur-[10px] sm:blur-[14px] lg:blur-[18px]"
+                  animate={{
+                    y: [4, -5, 4],
+                    scale: [1.13, 1.15, 1.13],
+                  }}
+                  transition={{
+                    duration: 10.5,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                >
+                  <ButterflyArtwork
+                    variant="full"
+                    animate={false}
+                    glow={false}
+                    className="w-full h-full"
+                  />
+                </motion.div>
 
-            {/* Subtle blue ambient glow behind wing */}
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-[#2271B1]/5 blur-3xl pointer-events-none" />
+                {/* Foreground butterfly — your current full variant already has the gentle wing flap */}
+                <div className="absolute inset-0 z-10">
+                  <ButterflyArtwork
+                    variant="full"
+                    className="w-full h-full filter drop-shadow-[0_20px_40px_rgba(34,113,177,0.14)]"
+                  />
+                </div>
+
+                {/* Soft cobalt atmosphere */}
+                <div className="absolute left-1/2 top-[42%] -translate-x-1/2 -translate-y-1/2 w-56 h-56 sm:w-72 sm:h-72 rounded-full bg-[#2271B1]/5 blur-3xl" />
+              </motion.div>
+            </div>
           </div>
         </div>
       </section>
@@ -159,33 +212,48 @@ export const HomePage: React.FC<HomePageProps> = ({
         className="py-24 sm:py-32 px-4 sm:px-6 lg:px-12 relative overflow-hidden"
       >
         <div className="max-w-7xl mx-auto">
-          <SectionLabel label="The Experience" number="01" className="mb-8 sm:mb-12" />
+          <SectionLabel
+            label="The Experience"
+            number="01"
+            className="mb-8 sm:mb-12"
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
             {/* Asymmetric Left: Large Editorial Statement */}
             <div className="lg:col-span-7">
               <EditorialHeading size="xl" className="mb-8">
-                Music heard.<br />
-                <span className="italic font-normal text-[#2271B1]">Emotion</span> remembered.
+                Music heard.
+                <br />
+                <span className="italic font-normal text-[#2271B1]">
+                  Emotion
+                </span>{" "}
+                remembered.
               </EditorialHeading>
 
               <div className="space-y-6 text-sm sm:text-base text-[#31465A] font-light leading-relaxed max-w-xl">
                 <p>
-                  Swara Ranjana 2026 is an immersive indoor live musical concert engineered for deep acoustic intimacy and visual grandeur.
-                  We celebrate the organic dialogue between ancient South Asian ragas, the resonant bow of the chamber cello, soaring vocal poetry, and electrifying Sri Lankan polyrhythms.
+                  Swara Ranjana 2026 is an immersive indoor live musical concert
+                  engineered for deep acoustic intimacy and visual grandeur. We
+                  celebrate the organic dialogue between ancient South Asian
+                  ragas, the resonant bow of the chamber cello, soaring vocal
+                  poetry, and electrifying Sri Lankan polyrhythms.
                 </p>
                 <p>
-                  Bathed in pure porcelain whitespace and ethereal cobalt reflections, this performance strips away commercial excess to reveal the unvarnished soul of live composition.
+                  Bathed in pure porcelain whitespace and ethereal cobalt
+                  reflections, this performance strips away commercial excess to
+                  reveal the unvarnished soul of live composition.
                 </p>
               </div>
 
               <div className="mt-10 flex items-center gap-6">
                 <button
-                  onClick={() => onNavigate('about')}
+                  onClick={() => onNavigate("about")}
                   className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] font-medium text-[#0E1721] hover:text-[#2271B1] transition-colors group"
                 >
                   <span>Explore The Full Vision</span>
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  <span className="group-hover:translate-x-1 transition-transform">
+                    →
+                  </span>
                 </button>
               </div>
             </div>
@@ -206,16 +274,22 @@ export const HomePage: React.FC<HomePageProps> = ({
                 </h3>
 
                 <p className="text-xs text-[#31465A] font-light leading-relaxed mb-6">
-                  Performed within the acoustically calibrated Nelum Pokuna Symphony Hall, every instrument is amplified with pristine natural transparency without harsh digital artifacts.
+                  Performed within the acoustically calibrated Nelum Pokuna
+                  Symphony Hall, every instrument is amplified with pristine
+                  natural transparency without harsh digital artifacts.
                 </p>
 
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t border-ink-10 text-[11px] font-mono text-[#7D8A95]">
                   <div>
-                    <span className="block text-[#0E1721] font-semibold">1,280</span>
+                    <span className="block text-[#0E1721] font-semibold">
+                      1,280
+                    </span>
                     Sanctuary Seats
                   </div>
                   <div>
-                    <span className="block text-[#0E1721] font-semibold">30+</span>
+                    <span className="block text-[#0E1721] font-semibold">
+                      30+
+                    </span>
                     Symphonic Musicians
                   </div>
                 </div>
@@ -223,7 +297,8 @@ export const HomePage: React.FC<HomePageProps> = ({
 
               {/* Spaced micro quote */}
               <div className="mt-8 pl-4 border-l border-ink-20 italic font-serif text-xs text-[#7D8A95] leading-relaxed">
-                “A rare encounter between classical discipline and high-fashion stagecraft.”
+                “A rare encounter between classical discipline and high-fashion
+                stagecraft.”
               </div>
             </div>
           </div>
@@ -240,14 +315,16 @@ export const HomePage: React.FC<HomePageProps> = ({
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-16 sm:mb-20 gap-6">
             <div>
-              <SectionLabel label="Mastery & Voices" number="02" className="mb-4" />
-              <EditorialHeading size="lg">
-                Featured Maestros
-              </EditorialHeading>
+              <SectionLabel
+                label="Mastery & Voices"
+                number="02"
+                className="mb-4"
+              />
+              <EditorialHeading size="lg">Featured Maestros</EditorialHeading>
             </div>
 
             <button
-              onClick={() => onNavigate('artists')}
+              onClick={() => onNavigate("artists")}
               className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] font-medium text-[#0E1721] hover:text-[#2271B1] transition-colors"
             >
               <span>View All 6 Maestros</span>
@@ -264,13 +341,13 @@ export const HomePage: React.FC<HomePageProps> = ({
                 <div
                   key={artist.id}
                   className={`grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center ${
-                    isEven ? 'lg:flex-row-reverse' : ''
+                    isEven ? "lg:flex-row-reverse" : ""
                   }`}
                 >
                   {/* Portrait Column */}
                   <div
                     className={`lg:col-span-6 relative group cursor-pointer ${
-                      isEven ? 'lg:order-2' : 'lg:order-1'
+                      isEven ? "lg:order-2" : "lg:order-1"
                     }`}
                     onClick={() => onOpenArtistModal(artist)}
                   >
@@ -295,7 +372,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                   {/* Copy Column */}
                   <div
                     className={`lg:col-span-6 flex flex-col justify-center ${
-                      isEven ? 'lg:order-1' : 'lg:order-2'
+                      isEven ? "lg:order-1" : "lg:order-2"
                     }`}
                   >
                     <div className="flex items-center gap-3 mb-3">
@@ -365,8 +442,10 @@ export const HomePage: React.FC<HomePageProps> = ({
             </span>
 
             <h2 className="font-gemola text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-light tracking-tight text-white leading-tight">
-              ONE NIGHT.<br />
-              <span className="italic text-[#C2CBD2]">ONE STAGE.</span><br />
+              ONE NIGHT.
+              <br />
+              <span className="italic text-[#C2CBD2]">ONE STAGE.</span>
+              <br />
               ONE MEMORY.
             </h2>
 
@@ -390,13 +469,11 @@ export const HomePage: React.FC<HomePageProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-16 gap-6">
             <div>
               <SectionLabel label="The Evening" number="03" className="mb-4" />
-              <EditorialHeading size="lg">
-                Programme
-              </EditorialHeading>
+              <EditorialHeading size="lg">Programme</EditorialHeading>
             </div>
 
             <button
-              onClick={() => onNavigate('programme')}
+              onClick={() => onNavigate("programme")}
               className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] font-medium text-[#0E1721] hover:text-[#2271B1] transition-colors"
             >
               <span>View Full Schedule (8 Acts)</span>
@@ -443,7 +520,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
           <div className="mt-10 text-center">
             <button
-              onClick={() => onNavigate('programme')}
+              onClick={() => onNavigate("programme")}
               className="px-8 py-3 border border-ink-20 hover:border-[#2271B1] text-xs uppercase tracking-[0.25em] font-medium text-[#0E1721] hover:text-[#2271B1] transition-colors rounded-sm"
             >
               View Full Concert Schedule →
@@ -462,14 +539,16 @@ export const HomePage: React.FC<HomePageProps> = ({
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-16 gap-6">
             <div>
-              <SectionLabel label="Visual Archive" number="04" className="mb-4" />
-              <EditorialHeading size="lg">
-                The Atmosphere
-              </EditorialHeading>
+              <SectionLabel
+                label="Visual Archive"
+                number="04"
+                className="mb-4"
+              />
+              <EditorialHeading size="lg">The Atmosphere</EditorialHeading>
             </div>
 
             <button
-              onClick={() => onNavigate('gallery')}
+              onClick={() => onNavigate("gallery")}
               className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] font-medium text-[#0E1721] hover:text-[#2271B1] transition-colors"
             >
               <span>Explore Gallery (All Photographs)</span>
@@ -493,7 +572,9 @@ export const HomePage: React.FC<HomePageProps> = ({
                 <span className="text-[10px] font-mono text-[#2271B1] tracking-widest uppercase">
                   {GALLERY_ITEMS[0].category}
                 </span>
-                <h4 className="font-gemola text-2xl font-light">{GALLERY_ITEMS[0].title}</h4>
+                <h4 className="font-gemola text-2xl font-light">
+                  {GALLERY_ITEMS[0].title}
+                </h4>
               </div>
             </div>
 
@@ -512,7 +593,9 @@ export const HomePage: React.FC<HomePageProps> = ({
                   <span className="text-[10px] font-mono text-[#2271B1] tracking-widest uppercase">
                     {GALLERY_ITEMS[1].category}
                   </span>
-                  <h4 className="font-gemola text-2xl font-light">{GALLERY_ITEMS[1].title}</h4>
+                  <h4 className="font-gemola text-2xl font-light">
+                    {GALLERY_ITEMS[1].title}
+                  </h4>
                 </div>
               </div>
 
@@ -529,7 +612,9 @@ export const HomePage: React.FC<HomePageProps> = ({
                   <span className="text-[9px] font-mono text-[#2271B1] tracking-widest uppercase">
                     {GALLERY_ITEMS[2].category}
                   </span>
-                  <h4 className="font-gemola text-xl font-light">{GALLERY_ITEMS[2].title}</h4>
+                  <h4 className="font-gemola text-xl font-light">
+                    {GALLERY_ITEMS[2].title}
+                  </h4>
                 </div>
               </div>
 
@@ -546,7 +631,9 @@ export const HomePage: React.FC<HomePageProps> = ({
                   <span className="text-[9px] font-mono text-[#2271B1] tracking-widest uppercase">
                     {GALLERY_ITEMS[3].category}
                   </span>
-                  <h4 className="font-gemola text-xl font-light">{GALLERY_ITEMS[3].title}</h4>
+                  <h4 className="font-gemola text-xl font-light">
+                    {GALLERY_ITEMS[3].title}
+                  </h4>
                 </div>
               </div>
             </div>
@@ -567,15 +654,25 @@ export const HomePage: React.FC<HomePageProps> = ({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start mb-16">
             <div className="lg:col-span-7">
               <EditorialHeading size="xl">
-                BE PART OF<br />
+                BE PART OF
+                <br />
                 <span className="italic text-[#2271B1]">THE EVENING.</span>
               </EditorialHeading>
             </div>
 
             <div className="lg:col-span-5 text-xs font-mono text-[#31465A] space-y-2 border-l border-ink-10 pl-6">
-              <p><strong className="text-[#0E1721]">DATE:</strong> {CONCERT_META.date}</p>
-              <p><strong className="text-[#0E1721]">TIME:</strong> Doors {CONCERT_META.doorsOpen} • Showtime 06:00 PM</p>
-              <p><strong className="text-[#0E1721]">VENUE:</strong> {CONCERT_META.venue}, Colombo</p>
+              <p>
+                <strong className="text-[#0E1721]">DATE:</strong>{" "}
+                {CONCERT_META.date}
+              </p>
+              <p>
+                <strong className="text-[#0E1721]">TIME:</strong> Doors{" "}
+                {CONCERT_META.doorsOpen} • Showtime 06:00 PM
+              </p>
+              <p>
+                <strong className="text-[#0E1721]">VENUE:</strong>{" "}
+                {CONCERT_META.venue}, Colombo
+              </p>
             </div>
           </div>
 
@@ -667,15 +764,21 @@ export const HomePage: React.FC<HomePageProps> = ({
 
               <div className="space-y-4 text-xs sm:text-sm text-[#31465A] font-light leading-relaxed mb-8">
                 <p>
-                  Sri Lanka’s premier architectural performing arts venue, designed in homage to the historic 12th-century Lotus Pond in Polonnaruwa.
+                  Sri Lanka’s premier architectural performing arts venue,
+                  designed in homage to the historic 12th-century Lotus Pond in
+                  Polonnaruwa.
                 </p>
                 <div className="grid grid-cols-2 gap-4 pt-2 font-mono text-xs text-[#0E1721]">
                   <div>
-                    <span className="block text-[10px] text-[#7D8A95] uppercase">Location</span>
+                    <span className="block text-[10px] text-[#7D8A95] uppercase">
+                      Location
+                    </span>
                     Colombo 07, Sri Lanka
                   </div>
                   <div>
-                    <span className="block text-[10px] text-[#7D8A95] uppercase">Doors Open</span>
+                    <span className="block text-[10px] text-[#7D8A95] uppercase">
+                      Doors Open
+                    </span>
                     05:30 PM Promptly
                   </div>
                 </div>
@@ -683,7 +786,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
               <div className="flex flex-wrap items-center gap-4">
                 <button
-                  onClick={() => onNavigate('venue')}
+                  onClick={() => onNavigate("venue")}
                   className="px-6 py-3 bg-[#0E1721] hover:bg-[#2271B1] text-white text-xs uppercase tracking-[0.2em] font-medium transition-colors rounded-sm"
                 >
                   Venue Information & Map →
@@ -710,15 +813,23 @@ export const HomePage: React.FC<HomePageProps> = ({
         className="py-32 sm:py-44 px-4 sm:px-6 lg:px-12 text-center relative overflow-hidden"
       >
         <div className="max-w-4xl mx-auto relative z-10">
-          <SectionLabel label="Swara Ranjana 2026" align="center" className="mb-6" />
+          <SectionLabel
+            label="Swara Ranjana 2026"
+            align="center"
+            className="mb-6"
+          />
 
           <h2 className="font-gemola text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-light text-[#0E1721] tracking-tight leading-[0.95] mb-8">
-            See you<br />
-            <span className="italic font-normal text-[#2271B1]">under the lights.</span>
+            See you
+            <br />
+            <span className="italic font-normal text-[#2271B1]">
+              under the lights.
+            </span>
           </h2>
 
           <p className="text-sm sm:text-base text-[#31465A] font-light max-w-md mx-auto leading-relaxed mb-10">
-            Secure your seat for an unforgettable evening of live South Asian orchestral music.
+            Secure your seat for an unforgettable evening of live South Asian
+            orchestral music.
           </p>
 
           <button

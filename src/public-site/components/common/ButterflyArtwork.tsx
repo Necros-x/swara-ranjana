@@ -1,40 +1,57 @@
-import React from 'react';
-import { motion } from 'motion/react';
+import React from "react";
+import { motion } from "motion/react";
 
 export interface ButterflyArtworkProps {
   className?: string;
-  variant?: 'full' | 'right-wing-hero' | 'left-wing' | 'mirrored-backdrop' | 'subtle-watermark' | 'cobalt-focus';
+  variant?:
+    | "full"
+    | "right-wing-hero"
+    | "left-wing"
+    | "mirrored-backdrop"
+    | "subtle-watermark"
+    | "cobalt-focus";
   animate?: boolean;
   opacity?: number;
   glow?: boolean;
 }
 
 export const ButterflyArtwork: React.FC<ButterflyArtworkProps> = ({
-  className = '',
-  variant = 'full',
+  className = "",
+  variant = "full",
   animate = true,
   opacity = 1,
   glow = true,
 }) => {
   // Base SVG rendering an intricate, organic, sharp editorial butterfly
   const renderSingleWing = (isRight: boolean = true) => {
-    const transform = isRight ? '' : 'scale(-1, 1) translate(-300, 0)';
+    const rightWingTransform = "translate(20, 0) rotate(-5)";
+
+    const leftWingTransform = "scale(-1, 1) translate(20, 0) rotate(-5)";
+
+    const transform = isRight ? rightWingTransform : leftWingTransform;
 
     return (
-      <g
-        transform={transform}
-        style={{ transformOrigin: '150px 250px' }}
-      >
+      <g transform={transform} style={{ transformOrigin: "150px 250px" }}>
         <defs>
           {/* Vibrant Cobalt Gradient matching cvr 1.jpg and cvr 2-2.jpg */}
-          <radialGradient id={`cobaltEyeUpper_${isRight ? 'R' : 'L'}`} cx="68%" cy="38%" r="48%">
+          <radialGradient
+            id={`cobaltEyeUpper_${isRight ? "R" : "L"}`}
+            cx="68%"
+            cy="38%"
+            r="48%"
+          >
             <stop offset="0%" stopColor="#4BB0FF" />
             <stop offset="35%" stopColor="#2271B1" />
             <stop offset="70%" stopColor="#124A7A" />
             <stop offset="100%" stopColor="#0B253D" />
           </radialGradient>
 
-          <radialGradient id={`cobaltEyeLower_${isRight ? 'R' : 'L'}`} cx="55%" cy="50%" r="55%">
+          <radialGradient
+            id={`cobaltEyeLower_${isRight ? "R" : "L"}`}
+            cx="55%"
+            cy="50%"
+            r="55%"
+          >
             <stop offset="0%" stopColor="#3FA4F5" />
             <stop offset="45%" stopColor="#2271B1" />
             <stop offset="80%" stopColor="#0F385B" />
@@ -42,7 +59,13 @@ export const ButterflyArtwork: React.FC<ButterflyArtworkProps> = ({
           </radialGradient>
 
           {/* Ethereal Smudge Filter */}
-          <filter id={`smokeBlur_${isRight ? 'R' : 'L'}`} x="-20%" y="-20%" width="140%" height="140%">
+          <filter
+            id={`smokeBlur_${isRight ? "R" : "L"}`}
+            x="-20%"
+            y="-20%"
+            width="140%"
+            height="140%"
+          >
             <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" />
           </filter>
         </defs>
@@ -94,7 +117,7 @@ export const ButterflyArtwork: React.FC<ButterflyArtworkProps> = ({
              C 215 110, 250 100, 265 115
              C 275 130, 255 158, 225 170
              C 200 178, 182 165, 188 140 Z"
-          fill={`url(#cobaltEyeUpper_${isRight ? 'R' : 'L'})`}
+          fill={`url(#cobaltEyeUpper_${isRight ? "R" : "L"})`}
           stroke="#0E1721"
           strokeWidth="2"
         />
@@ -110,14 +133,8 @@ export const ButterflyArtwork: React.FC<ButterflyArtworkProps> = ({
         />
 
         {/* Upper Wing Outer Spikes / Flame Points */}
-        <path
-          d="M 240 45 Q 260 22 285 10 Q 265 35 258 35"
-          fill="#0E1721"
-        />
-        <path
-          d="M 290 85 Q 318 70 340 60 Q 312 85 305 92"
-          fill="#0E1721"
-        />
+        <path d="M 240 45 Q 260 22 285 10 Q 265 35 258 35" fill="#0E1721" />
+        <path d="M 290 85 Q 318 70 340 60 Q 312 85 305 92" fill="#0E1721" />
         <path
           d="M 310 175 Q 338 170 355 172 Q 330 188 320 192"
           fill="#0E1721"
@@ -145,7 +162,7 @@ export const ButterflyArtwork: React.FC<ButterflyArtworkProps> = ({
              C 188 395, 168 410, 152 400
              C 142 385, 145 350, 152 315
              C 155 300, 156 290, 160 280 Z"
-          fill={`url(#cobaltEyeLower_${isRight ? 'R' : 'L'})`}
+          fill={`url(#cobaltEyeLower_${isRight ? "R" : "L"})`}
           stroke="#0E1721"
           strokeWidth="2"
         />
@@ -196,7 +213,7 @@ export const ButterflyArtwork: React.FC<ButterflyArtworkProps> = ({
     );
   };
 
-  if (variant === 'right-wing-hero') {
+  if (variant === "right-wing-hero") {
     return (
       <motion.div
         className={`relative select-none pointer-events-none ${className}`}
@@ -207,7 +224,7 @@ export const ButterflyArtwork: React.FC<ButterflyArtworkProps> = ({
         <svg
           viewBox="140 0 250 720"
           className="w-full h-full object-contain overflow-visible drop-shadow-[0_15px_30px_rgba(14,23,33,0.06)]"
-          style={{ maxHeight: '100%' }}
+          style={{ maxHeight: "100%" }}
         >
           {renderSingleWing(true)}
         </svg>
@@ -215,7 +232,7 @@ export const ButterflyArtwork: React.FC<ButterflyArtworkProps> = ({
     );
   }
 
-  if (variant === 'left-wing') {
+  if (variant === "left-wing") {
     return (
       <motion.div
         className={`relative select-none pointer-events-none ${className}`}
@@ -233,9 +250,12 @@ export const ButterflyArtwork: React.FC<ButterflyArtworkProps> = ({
     );
   }
 
-  if (variant === 'subtle-watermark') {
+  if (variant === "subtle-watermark") {
     return (
-      <div className={`absolute select-none pointer-events-none overflow-hidden ${className}`} style={{ opacity }}>
+      <div
+        className={`absolute select-none pointer-events-none overflow-hidden ${className}`}
+        style={{ opacity }}
+      >
         <svg
           viewBox="0 0 300 720"
           className="w-full h-full object-contain opacity-25 filter blur-[0.5px]"
@@ -258,7 +278,7 @@ export const ButterflyArtwork: React.FC<ButterflyArtworkProps> = ({
       <svg
         viewBox="-80 0 460 740"
         className={`w-full h-full object-contain overflow-visible ${
-          glow ? 'drop-shadow-[0_10px_35px_rgba(34,113,177,0.12)]' : ''
+          glow ? "drop-shadow-[0_10px_35px_rgba(34,113,177,0.12)]" : ""
         }`}
       >
         {/* Center Body & Antennae */}
@@ -288,11 +308,49 @@ export const ButterflyArtwork: React.FC<ButterflyArtworkProps> = ({
           <ellipse cx="150" cy="210" rx="2.5" ry="12" fill="#2271B1" />
         </g>
 
-        {/* Left Wing */}
-        {renderSingleWing(false)}
+        {/* Left Wing - gentle flap */}
+        <motion.g
+          style={{
+            transformOrigin: "150px 210px",
+          }}
+          animate={
+            animate
+              ? {
+                  scaleX: [1, 0.955, 1],
+                  rotate: [0, 1.2, 0],
+                }
+              : undefined
+          }
+          transition={{
+            duration: 4.2,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        >
+          {renderSingleWing(false)}
+        </motion.g>
 
-        {/* Right Wing */}
-        {renderSingleWing(true)}
+        {/* Right Wing - gentle flap */}
+        <motion.g
+          style={{
+            transformOrigin: "150px 210px",
+          }}
+          animate={
+            animate
+              ? {
+                  scaleX: [1, 0.955, 1],
+                  rotate: [0, -1.2, 0],
+                }
+              : undefined
+          }
+          transition={{
+            duration: 4.2,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        >
+          {renderSingleWing(true)}
+        </motion.g>
       </svg>
     </motion.div>
   );
