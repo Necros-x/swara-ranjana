@@ -150,7 +150,7 @@ export const HomePage: React.FC<HomePageProps> = ({
            {/* Right Column: two complete Photoshop-layered butterflies */}
           <div className="lg:col-span-5 relative h-[400px] sm:h-[540px] lg:h-[700px] flex items-center justify-center pointer-events-none">
             {/* Same assembled butterfly, larger + blurred behind */}
-            <div className="absolute inset-0 z-0 -translate-x-5 scale-150 blur-sm">
+            <div className="absolute inset-0 z-0 -translate-x-5 scale-150 blur-md">
               <HeroButterfly />
             </div>
 

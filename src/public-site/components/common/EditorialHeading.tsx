@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import type { Variants } from 'motion/react'; // 1. Imported Variants type
 
 interface EditorialHeadingProps {
   children: React.ReactNode;
@@ -11,7 +12,8 @@ interface EditorialHeadingProps {
   animate?: boolean;
 }
 
-const containerVariants = {
+// 2. Applied Variants type here
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -22,7 +24,8 @@ const containerVariants = {
   }
 };
 
-const childVariants = {
+// 3. Applied Variants type here to fix the "number[]" ease curve error
+const childVariants: Variants = {
   hidden: { opacity: 0, y: 40 },
   visible: { 
     opacity: 1, 
