@@ -1,1 +1,41 @@
-import { redirect } from "next/navigation";\nimport { createClient } from "@/lib/supabase/server";\nimport type { Tables } from "@/types/database";\n\nexport type CustomerProfile = Pick<\n  Tables<"customers">,\n  "id" | "full_name" | "email" | "phone" | "auth_user_id"\n>;\n\nexport async function getCurrentCustomer() {\n  const supabase = await createClient();\n  const { data: { user } } = await supabase.auth.getUser();\n  if (!user) return null;\n\n  let { data: customer } = await supabase\n    .from("customers")\n    .select("id,full_name,email,phone,auth_user_id")\n    .eq("auth_user_id", user.id)\n    .maybeSingle();\n\n  if (!customer && user.email) {\n    const { error } = await supabase.rpc("claim_customer_account", {});\n    if (!error) {\n      const retry = await supabase\n        .from("customers")\n        .select("id,full_name,email,phone,auth_user_id")\n        .eq("auth_user_id", user.id)\n        .maybeSingle();\n      customer = retry.data;\n    }\n  }\n\n  if (!customer) return null;\n  return { supabase, user, customer: customer as CustomerProfile };\n}\n\nexport async function requireCustomer() {\n  const current = await getCurrentCustomer();\n  if (!current) redirect("/account/login");\n  return current;\n}\n
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import type { Tables } from "@/types/database";
+
+export type CustomerProfile = Pick<
+  Tables<"customers">,
+  "id" | "full_name" | "email" | "phone" | "auth_user_id"
+>;
+
+export async function getCurrentCustomer() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  let { data: customer } = await supabase
+    .from("customers")
+    .select("id,full_name,email,phone,auth_user_id")
+    .eq("auth_user_id", user.id)
+    .maybeSingle();
+
+  if (!customer && user.email) {
+    const { error } = await supabase.rpc("claim_customer_account", {});
+    if (!error) {
+      const retry = await supabase
+        .from("customers")
+        .select("id,full_name,email,phone,auth_user_id")
+        .eq("auth_user_id", user.id)
+        .maybeSingle();
+      customer = retry.data;
+    }
+  }
+
+  if (!customer) return null;
+  return { supabase, user, customer: customer as CustomerProfile };
+}
+
+export async function requireCustomer() {
+  const current = await getCurrentCustomer();
+  if (!current) redirect("/account/login");
+  return current;
+}
