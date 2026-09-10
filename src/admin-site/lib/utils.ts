@@ -17,9 +17,11 @@ export function formatDate(dateStr: string | null) {
   }).format(date);
 }
 
-export function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('en-US', {
+export function formatCurrency(amount: number, currency = 'LKR') {
+  return new Intl.NumberFormat('en-LK', {
     style: 'currency',
-    currency: 'USD', // Adjust to relevant currency if needed
+    currency,
+    currencyDisplay: 'code',
+    maximumFractionDigits: 0,
   }).format(amount);
 }

@@ -4,6 +4,8 @@ import { X, Check, Calendar, MapPin, Clock, ShieldCheck, Ticket as TicketIcon, S
 import { TICKET_TIERS, CONCERT_META } from '../../data/concertData';
 import { TicketTier } from '../../types';
 import type { LiveConcertMeta } from '@/lib/catalog/types';
+import { createCheckoutReservation } from '@/app/actions/checkout';
+import type { CheckoutReservationSuccess } from '@/lib/checkout/types';
 import { SwaraRanjanaLogo } from './SwaraRanjanaLogo';
 import { ButterflyArtwork } from './ButterflyArtwork';
 import { playHoverChime } from '../../lib/audioInteraction';
@@ -54,6 +56,9 @@ export const TicketReservationModal: React.FC<TicketModalProps> = ({
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [requestId, setRequestId] = useState<string | null>(null);
+  const [reservation, setReservation] = useState<CheckoutReservationSuccess | null>(null);
 
   if (!isOpen) return null;
 
@@ -61,17 +66,57 @@ export const TicketReservationModal: React.FC<TicketModalProps> = ({
   const quantityOptions = Array.from({ length: maxQuantity }, (_, index) => index + 1);
   const totalAmount = selectedTier.priceLKR * Math.min(quantity, maxQuantity);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const checkoutEnabled = Boolean(concertMeta?.id && ticketTiers?.length);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
+    if (!checkoutEnabled || !concertMeta?.id) {
+      setSubmitError('Online ticket reservations are not available yet. Please refresh the page or try again later.');
+      return;
+    }
+
+    const safeQuantity = Math.min(quantity, maxQuantity);
+    const nextRequestId = requestId ?? crypto.randomUUID();
+    if (!requestId) setRequestId(nextRequestId);
+
+    setSubmitError(null);
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+
+    try {
+      const result = await createCheckoutReservation({
+        eventId: concertMeta.id,
+        ticketTypeId: selectedTier.id,
+        quantity: safeQuantity,
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        notes: formData.specialRequest,
+        requestId: nextRequestId,
+      });
+
+      if (!result.ok) {
+        setSubmitError(result.message);
+        return;
+      }
+
+      setReservation(result);
+      setQuantity(result.quantity ?? safeQuantity);
       setIsSubmitted(true);
-    }, 800);
+    } catch {
+      setSubmitError('The reservation request was interrupted. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const resetAndClose = () => {
     setIsSubmitted(false);
+    setIsSubmitting(false);
+    setSubmitError(null);
+    setRequestId(null);
+    setReservation(null);
     onClose();
   };
 
@@ -131,6 +176,8 @@ export const TicketReservationModal: React.FC<TicketModalProps> = ({
                         onClick={() => {
                           if (tier.availability === 'Sold Out') return;
                           setSelectedTier(tier);
+                          setRequestId(null);
+                          setSubmitError(null);
                           setQuantity((current) => Math.min(current, Math.max(1, Math.min(tier.maxPerOrder ?? 6, tier.remainingSeats ?? 20))));
                         }}
                         className={`p-4 border rounded-sm transition-all duration-200 flex items-center justify-between ${tier.availability === 'Sold Out' ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${
@@ -177,7 +224,7 @@ export const TicketReservationModal: React.FC<TicketModalProps> = ({
                       <button
                         key={num}
                         type="button"
-                        onClick={() => setQuantity(num)}
+                        onClick={() => { setQuantity(num); setRequestId(null); setSubmitError(null); }}
                         className={`w-10 h-10 rounded-sm font-mono text-xs font-medium border transition-all ${
                           quantity === num
                             ? 'bg-[#0E1721] text-white border-[#0E1721]'
@@ -201,7 +248,7 @@ export const TicketReservationModal: React.FC<TicketModalProps> = ({
                       required
                       placeholder="e.g. Maya Wickremesinghe"
                       value={formData.fullName}
-                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                      onChange={(e) => { setFormData({ ...formData, fullName: e.target.value }); setRequestId(null); setSubmitError(null); }}
                       className="w-full px-3.5 py-2.5 text-xs bg-white border border-ink-10 rounded-sm focus:outline-none focus:border-[#2271B1] transition-colors"
                     />
                   </div>
@@ -216,7 +263,7 @@ export const TicketReservationModal: React.FC<TicketModalProps> = ({
                         required
                         placeholder="your.email@domain.com"
                         value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        onChange={(e) => { setFormData({ ...formData, email: e.target.value }); setRequestId(null); setSubmitError(null); }}
                         className="w-full px-3.5 py-2.5 text-xs bg-white border border-ink-10 rounded-sm focus:outline-none focus:border-[#2271B1] transition-colors"
                       />
                     </div>
@@ -229,28 +276,54 @@ export const TicketReservationModal: React.FC<TicketModalProps> = ({
                         required
                         placeholder="+94 77 000 0000"
                         value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        onChange={(e) => { setFormData({ ...formData, phone: e.target.value }); setRequestId(null); setSubmitError(null); }}
                         className="w-full px-3.5 py-2.5 text-xs bg-white border border-ink-10 rounded-sm focus:outline-none focus:border-[#2271B1] transition-colors"
                       />
                     </div>
                   </div>
 
+                  <div>
+                    <label className="block text-[11px] uppercase font-mono tracking-widest text-[#31465A] mb-1">
+                      Special Request <span className="normal-case tracking-normal text-[#7D8A95]">(optional)</span>
+                    </label>
+                    <textarea
+                      rows={3}
+                      maxLength={500}
+                      placeholder="Accessibility or booking notes"
+                      value={formData.specialRequest}
+                      onChange={(e) => {
+                        setFormData({ ...formData, specialRequest: e.target.value });
+                        setRequestId(null);
+                        setSubmitError(null);
+                      }}
+                      className="w-full px-3.5 py-2.5 text-xs bg-white border border-ink-10 rounded-sm focus:outline-none focus:border-[#2271B1] transition-colors resize-none"
+                    />
+                  </div>
+
+                  {submitError && (
+                    <div role="alert" className="px-3.5 py-3 border border-red-200 bg-red-50 text-red-700 text-[11px] leading-relaxed rounded-sm">
+                      {submitError}
+                    </div>
+                  )}
+
                   <button
                     id="confirm-seat-reservation-submit-btn"
                     type="submit"
-                    disabled={isSubmitting || selectedTier.availability === 'Sold Out'}
+                    disabled={isSubmitting || selectedTier.availability === 'Sold Out' || !checkoutEnabled}
                     onMouseEnter={playHoverChime}
-                    className="w-full mt-4 py-3.5 bg-[#0E1721] hover:bg-[#2271B1] text-white text-xs font-medium uppercase tracking-[0.25em] transition-colors rounded-sm flex items-center justify-center gap-2"
+                    className="w-full mt-4 py-3.5 bg-[#0E1721] hover:bg-[#2271B1] disabled:hover:bg-[#0E1721] disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-medium uppercase tracking-[0.25em] transition-colors rounded-sm flex items-center justify-center gap-2"
                   >
                     {isSubmitting ? (
-                      <span>Allocating Sanctuary Seats...</span>
+                      <span>Securing Your Seats...</span>
+                    ) : checkoutEnabled ? (
+                      <span>Hold Seats & Continue →</span>
                     ) : (
-                      <span>Proceed to Reservation Confirmation →</span>
+                      <span>Online Reservations Unavailable</span>
                     )}
                   </button>
 
                   <p className="text-[10px] text-center text-[#7D8A95] pt-1">
-                    * Interactive demonstration. Instant reservation pass will be generated.
+                    Seats are held for 10 minutes. Your ticket is issued only after payment is verified.
                   </p>
                 </form>
               </div>
@@ -333,73 +406,91 @@ export const TicketReservationModal: React.FC<TicketModalProps> = ({
               </div>
             </div>
           ) : (
-            /* Reservation Success Pass View */
+            /* Secure reservation hold view */
             <div className="p-8 sm:p-12 text-center relative overflow-hidden">
-              <div className="max-w-md mx-auto">
+              <div className="max-w-xl mx-auto">
                 <div className="w-12 h-12 rounded-full bg-[#2271B1]/10 text-[#2271B1] flex items-center justify-center mx-auto mb-4">
                   <Check className="w-6 h-6" />
                 </div>
 
                 <span className="text-[10px] font-mono text-[#2271B1] tracking-[0.3em] uppercase block mb-1">
-                  Seat Reservation Confirmed
+                  Seats Temporarily Held
                 </span>
 
                 <h2 className="font-gemola text-3xl sm:text-4xl text-[#0E1721] font-light mb-3">
-                  See you under the lights.
+                  Your reservation is ready.
                 </h2>
 
-                <p className="text-xs sm:text-sm text-[#31465A] font-light mb-8">
-                  Dear <strong className="text-[#0E1721]">{formData.fullName || 'Concert Patron'}</strong>, your seats in the{' '}
-                  <strong className="text-[#2271B1]">{selectedTier.tierName}</strong> ({quantity} Seats) have been reserved for Swara Ranjana 2026. A digital pass has been sent to{' '}
-                  <span className="underline">{formData.email || 'your email'}</span>.
+                <p className="text-xs sm:text-sm text-[#31465A] font-light mb-8 max-w-lg mx-auto">
+                  We are holding {reservation?.quantity ?? quantity} {reservation?.quantity === 1 ? 'seat' : 'seats'} for{' '}
+                  <strong className="text-[#0E1721]">{formData.fullName || 'Concert Patron'}</strong>. Complete payment before the hold expires to receive your individual QR ticket{(reservation?.quantity ?? quantity) === 1 ? '' : 's'}.
                 </p>
 
-                {/* Digital Ticket Pass Card */}
-                <div className="bg-[#0E1721] text-white p-6 rounded-sm text-left relative overflow-hidden shadow-xl mb-8 border border-white/10">
-                  <div className="flex justify-between items-start mb-6">
+                <div className="bg-[#0E1721] text-white p-6 sm:p-7 rounded-sm text-left relative overflow-hidden shadow-xl mb-6 border border-white/10">
+                  <div className="flex justify-between items-start gap-5 mb-6">
                     <div>
                       <SwaraRanjanaLogo size="sm" theme="light" />
                       <span className="text-[9px] font-mono text-[#2271B1] tracking-widest block mt-1">
-                        OFFICIAL CONCERT PASS
+                        SECURE CHECKOUT HOLD
                       </span>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right shrink-0">
                       <span className="font-mono text-xs text-[#C2CBD2]">
-                        SR26-{(Math.random() * 89999 + 10000).toFixed(0)}
+                        {reservation?.orderNumber ?? '—'}
                       </span>
-                      <span className="block text-[9px] text-[#7D8A95] uppercase">
-                        {quantity} {quantity === 1 ? 'Seat' : 'Seats'}
+                      <span className="block text-[9px] text-[#7D8A95] uppercase mt-1">
+                        Order Reference
                       </span>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 text-xs mb-6 border-y border-white/10 py-3">
+                  <div className="grid grid-cols-2 gap-x-5 gap-y-4 text-xs mb-6 border-y border-white/10 py-4">
                     <div>
-                      <span className="text-[9px] text-[#7D8A95] uppercase block">Seating Zone</span>
-                      <span className="font-medium text-white">{selectedTier.tierName}</span>
+                      <span className="text-[9px] text-[#7D8A95] uppercase block">Ticket Category</span>
+                      <span className="font-medium text-white">{reservation?.ticketTypeName || selectedTier.tierName}</span>
                     </div>
                     <div>
-                      <span className="text-[9px] text-[#7D8A95] uppercase block">Date & Time</span>
-                      <span className="font-medium text-white">28 Nov 2026 • 06:00 PM</span>
+                      <span className="text-[9px] text-[#7D8A95] uppercase block">Quantity</span>
+                      <span className="font-medium text-white">{reservation?.quantity ?? quantity}</span>
+                    </div>
+                    <div>
+                      <span className="text-[9px] text-[#7D8A95] uppercase block">Amount Due</span>
+                      <span className="font-medium text-white">
+                        {reservation?.currency ?? 'LKR'} {(reservation?.totalLkr ?? totalAmount).toLocaleString('en-LK')}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[9px] text-[#7D8A95] uppercase block">Hold Expires</span>
+                      <span className="font-medium text-white">
+                        {reservation?.expiresAt
+                          ? new Intl.DateTimeFormat('en-LK', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Colombo' }).format(new Date(reservation.expiresAt))
+                          : '—'}
+                      </span>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between text-[10px] text-[#C2CBD2]">
-                    <span>Nelum Pokuna Main Symphony Hall</span>
-                    <span className="font-mono text-[#2271B1]">CONFIRMED</span>
+                  <div className="flex items-start gap-2.5 text-[10px] text-[#C2CBD2] leading-relaxed">
+                    <ShieldCheck className="w-4 h-4 text-[#2271B1] shrink-0" />
+                    <span>No QR admission ticket has been issued yet. Tickets become valid only after the payment provider confirms payment on the server.</span>
                   </div>
 
-                  {/* Cropped Wing Accent on pass */}
                   <div className="absolute -right-8 -bottom-8 w-32 h-32 opacity-25 pointer-events-none">
                     <ButterflyArtwork variant="right-wing-hero" />
                   </div>
                 </div>
 
                 <button
+                  type="button"
+                  disabled
+                  className="w-full px-8 py-3.5 bg-[#0E1721]/50 text-white text-xs uppercase tracking-[0.22em] rounded-sm cursor-not-allowed mb-3"
+                >
+                  Continue to Secure Payment — Next Phase
+                </button>
+
+                <button
                   id="close-ticket-success-btn"
                   onClick={resetAndClose}
-                  onMouseEnter={playHoverChime}
-                  className="px-8 py-3 bg-[#0E1721] hover:bg-[#2271B1] text-white text-xs uppercase tracking-[0.25em] transition-colors rounded-sm"
+                  className="text-[10px] uppercase tracking-[0.2em] text-[#7D8A95] hover:text-[#0E1721] transition-colors"
                 >
                   Return to Website
                 </button>

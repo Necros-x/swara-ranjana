@@ -140,6 +140,7 @@ type OrderRow = {
   event_id: string;
   customer_id: string;
   order_number: string;
+  checkout_request_id: string | null;
   access_token: string;
   status: OrderStatus;
   payment_status: PaymentStatus;
@@ -162,6 +163,7 @@ type OrderInsert = {
   event_id: string;
   customer_id: string;
   order_number?: string;
+  checkout_request_id?: string | null;
   access_token?: string;
   status?: OrderStatus;
   payment_status?: PaymentStatus;
@@ -300,6 +302,19 @@ export interface Database {
     Functions: {
       get_public_event_catalog: {
         Args: { p_slug?: string };
+        Returns: Json;
+      };
+      create_checkout_reservation: {
+        Args: {
+          p_event_id: string;
+          p_ticket_type_id: string;
+          p_quantity: number;
+          p_full_name: string;
+          p_email: string;
+          p_phone: string;
+          p_notes?: string | null;
+          p_request_id?: string;
+        };
         Returns: Json;
       };
       redeem_ticket: {
