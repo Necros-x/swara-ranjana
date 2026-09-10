@@ -27,11 +27,23 @@ export async function proxy(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    const isLogin = request.nextUrl.pathname === "/admin/login";
-    if (!isLogin && !user) {
+    const pathname = request.nextUrl.pathname;
+    const isAdmin = pathname.startsWith("/admin");
+    const isAccount = pathname.startsWith("/account");
+    const isAdminLogin = pathname === "/admin/login";
+    const isAccountLogin = pathname === "/account/login";
+
+    if (!user && isAdmin && !isAdminLogin) {
       const loginUrl = request.nextUrl.clone();
       loginUrl.pathname = "/admin/login";
-      loginUrl.searchParams.set("next", request.nextUrl.pathname);
+      loginUrl.searchParams.set("next", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    if (!user && isAccount && !isAccountLogin) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = "/account/login";
+      loginUrl.searchParams.set("next", pathname);
       return NextResponse.redirect(loginUrl);
     }
   } catch {
@@ -43,5 +55,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/account/:path*"],
 };

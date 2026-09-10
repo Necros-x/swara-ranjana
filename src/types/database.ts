@@ -28,6 +28,7 @@ export type StaffRole = "SUPER_ADMIN" | "ADMIN" | "BOX_OFFICE" | "SCANNER";
 export type StaffStatus = "ACTIVE" | "DISABLED";
 export type ScanResult =
   | "ADMITTED"
+  | "PAYMENT_DUE"
   | "DUPLICATE"
   | "INVALID"
   | "REVOKED"
@@ -124,6 +125,10 @@ type CustomerRow = {
   full_name: string;
   email: string;
   phone: string | null;
+  auth_user_id: string | null;
+  account_created_at: string;
+  account_activated_at: string | null;
+  last_login_at: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -133,6 +138,10 @@ type CustomerInsert = {
   full_name: string;
   email: string;
   phone?: string | null;
+  auth_user_id?: string | null;
+  account_created_at?: string;
+  account_activated_at?: string | null;
+  last_login_at?: string | null;
   created_at?: string;
   updated_at?: string;
 };
@@ -331,6 +340,10 @@ export interface Database {
           p_request_id?: string;
         };
         Returns: Json;
+      };
+      claim_customer_account: {
+        Args: Record<string, never>;
+        Returns: string;
       };
       select_payment_method: { Args: { p_order_number: string; p_access_token: string; p_method: string }; Returns: Json; };
       confirm_on_arrival: { Args: { p_order_number: string; p_access_token: string }; Returns: Json; };

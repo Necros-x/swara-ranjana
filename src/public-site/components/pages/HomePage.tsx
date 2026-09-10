@@ -388,7 +388,7 @@ export const HomePage: React.FC<HomePageProps> = ({
         {/* Full Symmetrical Butterfly with high contrast in background */}
         <div className="absolute inset-0 flex items-center justify-center opacity-30 pointer-events-none">
           <div className="w-[650px] sm:w-[900px] lg:w-[1200px] h-full">
-            <ButterflyArtwork variant="full" glow={true} animate={false} />
+            <HeroButterfly />
           </div>
         </div>
 
@@ -806,7 +806,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
         {/* Subtle butterfly wings in background of final CTA */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] sm:w-[700px] h-[500px] opacity-10 pointer-events-none">
-          <ButterflyArtwork variant="full" glow={false} />
+          <HeroButterfly />
         </div>
       </section>
     </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Calendar, MapPin, Ticket } from 'lucide-react';
+import { X, Ticket, UserRound } from 'lucide-react';
 import { PageId } from '../../types';
 import { SwaraRanjanaLogo } from './SwaraRanjanaLogo';
 import { ButterflyArtwork } from './ButterflyArtwork';
@@ -111,16 +111,27 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
             <p>Colombo, Sri Lanka</p>
           </div>
 
-          <button
-            onClick={() => {
-              onClose();
-              onOpenTicketsModal();
-            }}
-            className="w-full sm:w-auto px-6 py-3 bg-[#0E1721] text-[#FEFFFF] text-xs uppercase tracking-[0.2em] font-medium rounded-sm flex items-center justify-center gap-2"
-          >
-            <Ticket className="w-3.5 h-3.5 text-[#2271B1]" />
-            <span>Reserve Seat (LKR 5,000+)</span>
-          </button>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+            <a
+              href="/account"
+              onClick={onClose}
+              className="flex items-center justify-center gap-2 border border-[#0E1721]/10 px-5 py-3 text-xs font-medium uppercase tracking-[0.18em] text-[#31465A] transition hover:border-[#2271B1] hover:text-[#2271B1]"
+            >
+              <UserRound className="h-3.5 w-3.5" />
+              My Tickets
+            </a>
+
+            <button
+              onClick={() => {
+                onClose();
+                onOpenTicketsModal();
+              }}
+              className="w-full sm:w-auto px-6 py-3 bg-[#0E1721] text-[#FEFFFF] text-xs uppercase tracking-[0.2em] font-medium rounded-sm flex items-center justify-center gap-2"
+            >
+              <Ticket className="w-3.5 h-3.5 text-[#2271B1]" />
+              <span>Reserve Seat (LKR 5,000+)</span>
+            </button>
+          </div>
         </div>
       </motion.div>
     </AnimatePresence>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Ticket } from 'lucide-react';
+import { Menu, UserRound } from 'lucide-react';
 import { PageId } from '../../types';
 import { SwaraRanjanaLogo } from './SwaraRanjanaLogo';
 import { playHoverChime } from '../../lib/audioInteraction';
@@ -88,6 +88,15 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Right: Actions & Mobile Hamburger */}
         <div className="flex items-center gap-3 sm:gap-4">
+          <a
+            href="/account"
+            aria-label="My tickets"
+            title="My tickets"
+            className="hidden sm:inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#0E1721]/10 text-[#31465A] transition-colors hover:border-[#2271B1] hover:text-[#2271B1]"
+          >
+            <UserRound className="h-4 w-4" />
+          </a>
+
           <button
             id="nav-reserve-seat-btn"
             onClick={onOpenTicketsModal}
