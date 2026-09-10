@@ -1,4 +1,9 @@
 @import "tailwindcss";
+@font-face{
+    font-family: 'gemola';
+    src: url(/fonts/gemola-wooyn.ttf);
+
+}
 
 @theme {
   --color-background: #FEFFFF;
@@ -13,8 +18,8 @@
 
 @layer base {
   :root {
-    --font-gemola: Georgia, serif;
-    --font-display: Georgia, serif;
+    --font-gemola: 'gemola', serif;
+    --font-display: 'gemola', serif;
     --font-sans: 'Manrope', system-ui, -apple-system, sans-serif;
     --font-syne: 'Syne', sans-serif;
     --color-porcelain: #FEFFFF;
@@ -35,11 +40,11 @@
 
 /* Custom Typography Utilities */
 .font-gemola {
-  font-family: Georgia, serif;
+  font-family: 'gemola', serif;
 }
 
 .font-display {
-  font-family: Georgia, serif;
+  font-family: 'gemola', serif;
 }
 
 .font-syne {
