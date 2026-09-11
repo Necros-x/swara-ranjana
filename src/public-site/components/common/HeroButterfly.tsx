@@ -592,7 +592,7 @@ export function HeroButterfly({
         )}
 
         <ButterflyAssembly
-          animatePieces={wingMotionEnabled}
+          animatePieces
           pose={pose}
           rapidFlap={wingMotionEnabled && rapidFlap}
         />
