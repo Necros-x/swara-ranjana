@@ -202,7 +202,7 @@ export async function reviewBankSlip(
       ok: false,
       message:
         error?.message ??
-        "Unable to review slip.",
+        msg(data, "Unable to review slip."),
     };
   }
 
@@ -216,6 +216,7 @@ export async function reviewBankSlip(
 
   revalidatePath("/account");
   revalidatePath("/admin/orders");
+  revalidatePath("/admin/requests");
 
   return { ok: true };
 }
