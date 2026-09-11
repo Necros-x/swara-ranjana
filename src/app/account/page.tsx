@@ -83,9 +83,9 @@ export default async function AccountPage() {
                             <span className="inline-flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" />{order.venueName}</span>
                           </div>
                         </div>
-                        <div className="flex flex-wrap gap-2">
-                          <span className="border border-[#C2CBD2] px-2.5 py-1 text-[10px] font-semibold">{expired ? "EXPIRED" : order.status}</span>
-                          <span className={`border px-2.5 py-1 text-[10px] font-semibold ${order.paymentStatus === "PAID" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-amber-200 bg-amber-50 text-amber-700"}`}>{order.paymentStatus.replaceAll("_", " ")}</span>
+                        <div className="flex flex-wrap items-start gap-1.5">
+                          <span className="inline-flex items-center border border-[#C2CBD2] px-2 py-[3px] text-[9px] font-semibold uppercase leading-none tracking-[0.08em]">{expired ? "EXPIRED" : order.status}</span>
+                          <span className={`inline-flex items-center border px-2 py-[3px] text-[9px] font-semibold uppercase leading-none tracking-[0.08em] ${order.paymentStatus === "PAID" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-amber-200 bg-amber-50 text-amber-700"}`}>{order.paymentStatus.replaceAll("_", " ")}</span>
                         </div>
                       </div>
 

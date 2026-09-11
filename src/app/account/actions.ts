@@ -252,12 +252,14 @@ export async function requestCustomerOrderAction(
     };
   }
 
-  const rpc = supabase.rpc as unknown as (
+  const admin = createAdminClient();
+  const rpc = admin.rpc as unknown as (
     name: string,
     args: Record<string, unknown>,
   ) => Promise<CustomerOrderRpcResponse>;
 
-  const { data, error } = await rpc("customer_order_action", {
+  const { data, error } = await rpc("customer_order_action_server", {
+    p_auth_user_id: user.id,
     p_order_id: orderId,
     p_reason: reason.trim() || null,
   });

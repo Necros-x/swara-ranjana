@@ -147,6 +147,10 @@
     min-height: 84px;
   }
 
+  #ticket-reservation-overlay [class*="p-6"] {
+    scroll-margin-top: 12px;
+  }
+
   #hero-section h1 {
     font-size: clamp(4rem, 22vw, 6rem) !important;
   }
@@ -167,13 +171,8 @@
     display: none !important;
   }
 
-  #mobile-fullscreen-menu svg,
-  #ticket-reservation-overlay svg,
-  #editorial-footer svg {
-    width: 100%;
-    height: auto;
-    max-height: 100%;
-  }
+  /* Do not resize every SVG in menus/modals. Lucide icons already carry
+     explicit sizes; the old broad selector made them fill the whole panel. */
 }
 
 @media (min-width: 640px) and (max-width: 1023px) {

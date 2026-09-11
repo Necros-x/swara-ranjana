@@ -810,7 +810,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
         {/* Subtle butterfly wings in background of final CTA */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] sm:w-[700px] h-[500px] opacity-10 pointer-events-none">
-          <HeroButterfly />
+          <HeroButterfly pose="corrected"/>
         </div>
       </section>
     </div>

@@ -111,13 +111,13 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
             <p>Colombo, Sri Lanka</p>
           </div>
 
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+          <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-row">
             <a
               href="/account"
               onClick={onClose}
-              className="flex items-center justify-center gap-2 border border-[#0E1721]/10 px-5 py-3 text-xs font-medium uppercase tracking-[0.18em] text-[#31465A] transition hover:border-[#2271B1] hover:text-[#2271B1]"
+              className="flex min-h-10 items-center justify-center gap-1.5 border border-[#0E1721]/10 px-3 py-2 text-[10px] font-medium uppercase tracking-[0.12em] text-[#31465A] transition hover:border-[#2271B1] hover:text-[#2271B1] sm:px-5 sm:py-3 sm:text-xs sm:tracking-[0.18em]"
             >
-              <UserRound className="h-3.5 w-3.5" />
+              <UserRound className="h-3.5 w-3.5 shrink-0" />
               My Tickets
             </a>
 
@@ -126,10 +126,11 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                 onClose();
                 onOpenTicketsModal();
               }}
-              className="w-full sm:w-auto px-6 py-3 bg-[#0E1721] text-[#FEFFFF] text-xs uppercase tracking-[0.2em] font-medium rounded-sm flex items-center justify-center gap-2"
+              className="flex min-h-10 w-full items-center justify-center gap-1.5 rounded-sm bg-[#0E1721] px-3 py-2 text-[10px] font-medium uppercase tracking-[0.12em] text-[#FEFFFF] sm:w-auto sm:px-6 sm:py-3 sm:text-xs sm:tracking-[0.2em]"
             >
-              <Ticket className="w-3.5 h-3.5 text-[#2271B1]" />
-              <span>Reserve Seat (LKR 5,000+)</span>
+              <Ticket className="h-3.5 w-3.5 shrink-0 text-[#2271B1]" />
+              <span className="sm:hidden">Reserve</span>
+              <span className="hidden sm:inline">Reserve Seat (LKR 5,000+)</span>
             </button>
           </div>
         </div>
