@@ -8,67 +8,48 @@ interface LogoProps {
   onClick?: () => void;
 }
 
+const sizeClasses: Record<NonNullable<LogoProps['size']>, string> = {
+  sm: 'w-[118px] sm:w-[132px]',
+  md: 'w-[178px] sm:w-[210px]',
+  lg: 'w-[260px] sm:w-[300px]',
+  xl: 'w-[360px] sm:w-[430px]',
+  hero: 'w-[min(82vw,620px)]',
+};
+
 export const SwaraRanjanaLogo: React.FC<LogoProps> = ({
   className = '',
   size = 'md',
-  showSubtitle = true,
   theme = 'dark',
   onClick,
 }) => {
-  const sizeStyles = {
-    sm: {
-      swara: 'text-xl tracking-[0.2em]',
-      ranjana: 'text-[7px] tracking-[0.6em] mt-0.5',
-    },
-    md: {
-      swara: 'text-2xl sm:text-3xl tracking-[0.22em]',
-      ranjana: 'text-[9px] sm:text-[10px] tracking-[0.7em] mt-1',
-    },
-    lg: {
-      swara: 'text-4xl sm:text-5xl tracking-[0.25em]',
-      ranjana: 'text-xs sm:text-sm tracking-[0.8em] mt-1.5',
-    },
-    xl: {
-      swara: 'text-6xl sm:text-7xl lg:text-8xl tracking-[0.28em]',
-      ranjana: 'text-sm sm:text-base lg:text-lg tracking-[0.9em] mt-2',
-    },
-    hero: {
-      swara: 'text-7xl sm:text-8xl md:text-9xl lg:text-[11rem] tracking-[0.18em] leading-none',
-      ranjana: 'text-base sm:text-xl md:text-2xl lg:text-3xl tracking-[0.75em] sm:tracking-[0.9em] mt-3 sm:mt-6',
-    },
-  };
+  const image = (
+    <img
+      src="/brand/swara-ranjana-logo.webp"
+      alt="Swara Ranjana"
+      className={`block h-auto object-contain ${sizeClasses[size]} ${theme === 'dark' ? 'invert' : ''}`}
+    />
+  );
 
-  const textColor = theme === 'light' ? 'text-white' : 'text-[#0E1721]';
-  const subtitleColor = theme === 'light' ? 'text-white/80' : 'text-[#0E1721]/90';
+  if (onClick) {
+    return (
+      <button
+        id="swara-ranjana-wordmark"
+        type="button"
+        onClick={onClick}
+        className={`inline-flex select-none items-center justify-center cursor-pointer transition-opacity hover:opacity-85 ${className}`}
+        aria-label="Swara Ranjana home"
+      >
+        {image}
+      </button>
+    );
+  }
 
   return (
     <div
       id="swara-ranjana-wordmark"
-      onClick={onClick}
-      className={`inline-flex flex-col items-center justify-center select-none cursor-pointer transition-opacity hover:opacity-90 ${className}`}
+      className={`inline-flex select-none items-center justify-center ${className}`}
     >
-      {/* Primary SWARA with bespoke editorial serif styling */}
-      <span
-        className={`font-gemola font-light uppercase inline-block ${sizeStyles[size].swara} ${textColor}`}
-        style={{
-          fontFeatureSettings: '"salt" on, "swsh" on',
-        }}
-      >
-        <span className="inline-block transition-transform duration-300">S</span>
-        <span className="inline-block -ml-[0.04em] font-normal italic">W</span>
-        <span className="inline-block -ml-[0.03em]">A</span>
-        <span className="inline-block -ml-[0.02em]">R</span>
-        <span className="inline-block -ml-[0.03em]">A</span>
-      </span>
-
-      {/* Subtitle R A N J A N A with ultra wide tracking */}
-      {showSubtitle && (
-        <span
-          className={`font-sans font-light uppercase text-center pl-[0.7em] ${sizeStyles[size].ranjana} ${subtitleColor}`}
-        >
-          R A N J A N A
-        </span>
-      )}
+      {image}
     </div>
   );
 };
