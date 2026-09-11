@@ -16,6 +16,7 @@ import {
   Menu,
   LogOut,
   WalletCards,
+  RotateCcw,
 } from 'lucide-react';
 import { cn } from '@/admin-site/lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -39,6 +40,7 @@ const navItems: Array<{
   { name: 'Events', path: '/admin/events', icon: Calendar, roles: ['SUPER_ADMIN', 'ADMIN'] },
   { name: 'Ticket Types', path: '/admin/ticket-types', icon: Ticket, roles: ['SUPER_ADMIN', 'ADMIN'] },
   { name: 'Orders', path: '/admin/orders', icon: ShoppingCart, roles: ['SUPER_ADMIN', 'ADMIN', 'BOX_OFFICE'] },
+  { name: 'Refunds', path: '/admin/requests', icon: RotateCcw, roles: ['SUPER_ADMIN', 'ADMIN'] },
   { name: 'Payment Counter', path: '/admin/payment-counter', icon: WalletCards, roles: ['SUPER_ADMIN', 'ADMIN', 'BOX_OFFICE'] },
   { name: 'Tickets', path: '/admin/tickets', icon: Ticket, roles: ['SUPER_ADMIN', 'ADMIN', 'BOX_OFFICE'] },
   { name: 'Customers', path: '/admin/customers', icon: Users, roles: ['SUPER_ADMIN', 'ADMIN', 'BOX_OFFICE'] },
