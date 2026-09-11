@@ -20,9 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/admin-site/components/ui/Table";
-import {
-  issueInternalTicketBatch,
-} from "@/app/admin/actions/tickets";
+import { issueInternalTicketBatch } from "@/app/admin/actions/tickets";
 import type {
   AdminTicketListItem,
   InternalIssueCatalog,
@@ -229,7 +227,19 @@ export default function Tickets({
                   </TableRow>
                 ) : (
                   filtered.map((ticket) => (
-                    <TableRow key={ticket.id}>
+                    <TableRow
+                      key={ticket.id}
+                      role="link"
+                      tabIndex={0}
+                      onClick={() => router.push(`/admin/tickets/${ticket.id}`)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          router.push(`/admin/tickets/${ticket.id}`);
+                        }
+                      }}
+                      className="cursor-pointer transition-colors hover:bg-[#F8FAFB] focus:bg-[#F8FAFB] focus:outline-none"
+                    >
                       <TableCell>
                         <div className="font-mono text-xs font-bold text-[#2271B1]">
                           {ticket.ticketNumber}
@@ -361,9 +371,7 @@ export default function Tickets({
                   </span>
                   <select
                     value={effectiveTypeId}
-                    onChange={(event) =>
-                      setTicketTypeId(event.target.value)
-                    }
+                    onChange={(event) => setTicketTypeId(event.target.value)}
                     disabled={!issueTypes.length}
                     className="h-11 w-full rounded-md border border-[#C2CBD2] bg-white px-3 text-sm disabled:opacity-50"
                   >

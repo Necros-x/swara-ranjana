@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { PageId, Artist, GalleryItem } from "./types";
@@ -13,10 +13,6 @@ import { GALLERY_ITEMS } from "./data/concertData";
 import { Navbar } from "./components/common/Navbar";
 import { Footer } from "./components/common/Footer";
 import { MobileMenu } from "./components/common/MobileMenu";
-import {
-  AudioAmbiencePlayer,
-  type AudioAmbiencePlayerHandle,
-} from "./components/common/AudioAmbiencePlayer";
 import { PublicPageLoader } from "./components/common/PublicPageLoader";
 import { ArtistModal } from "./components/common/ArtistModal";
 import { TicketReservationModal } from "./components/common/TicketReservationModal";
@@ -47,7 +43,6 @@ export default function App({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const audioPlayerRef = useRef<AudioAmbiencePlayerHandle>(null);
   const [showExperienceLoader, setShowExperienceLoader] = useState(
     () => !hasLoadedPublicExperience,
   );
@@ -95,49 +90,6 @@ export default function App({
     const item = GALLERY_ITEMS.find((galleryItem) => galleryItem.id === id);
     if (item) setLightboxItem(item);
   };
-
-  // Attempt to start the concert ambience immediately. Browsers that allow
-  // audible autoplay will begin it during the loader. If a browser blocks it,
-  // the first normal pointer/keyboard interaction retries playback silently in
-  // the background; the existing sound button remains available at all times.
-  useEffect(() => {
-    let disposed = false;
-    let removeGestureRetry = () => {};
-
-    const attemptAutoplay = async () => {
-      const started = (await audioPlayerRef.current?.start()) ?? false;
-
-      if (disposed || started) return;
-
-      const retryFromGesture = () => {
-        removeGestureRetry();
-        void audioPlayerRef.current?.start();
-      };
-
-      document.addEventListener("pointerdown", retryFromGesture, {
-        capture: true,
-      });
-      document.addEventListener("keydown", retryFromGesture, {
-        capture: true,
-      });
-
-      removeGestureRetry = () => {
-        document.removeEventListener("pointerdown", retryFromGesture, {
-          capture: true,
-        });
-        document.removeEventListener("keydown", retryFromGesture, {
-          capture: true,
-        });
-      };
-    };
-
-    void attemptAutoplay();
-
-    return () => {
-      disposed = true;
-      removeGestureRetry();
-    };
-  }, []);
 
   // The branded loader is visual only; it disappears automatically with no
   // extra enter button or user action required.
@@ -233,9 +185,6 @@ export default function App({
         onNavigate={handleNavigate}
         onOpenTicketsModal={() => handleOpenTicketsModal()}
       />
-
-      {/* Starts automatically when the browser permits it; always user-mutable. */}
-      <AudioAmbiencePlayer ref={audioPlayerRef} />
 
       {/* Fullscreen Mobile Navigation Menu */}
       <MobileMenu

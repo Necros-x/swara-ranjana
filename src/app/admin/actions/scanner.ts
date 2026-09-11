@@ -11,12 +11,6 @@ const SCAN_ROLES: StaffRole[] = [
   "SCANNER",
 ];
 
-const PAYMENT_ROLES: StaffRole[] = [
-  "SUPER_ADMIN",
-  "ADMIN",
-  "BOX_OFFICE",
-];
-
 export type ScannerResultCode =
   | "ADMITTED"
   | "PAYMENT_DUE"
@@ -52,10 +46,13 @@ export interface ScannerActionInput {
 
 type JsonRecord = Record<string, Json | undefined>;
 
-type RpcResponse = {
-  data: Json | null;
-  error: { message?: string } | null;
-};
+function scannerError(message: string): ScannerActionResult {
+  return {
+    ok: false,
+    result: "ERROR",
+    message,
+  };
+}
 
 function isRecord(value: Json | undefined): value is JsonRecord {
   return !!value && typeof value === "object" && !Array.isArray(value);
@@ -75,11 +72,7 @@ function numberValue(record: JsonRecord, key: string) {
 
 function parseResult(data: Json | null): ScannerActionResult {
   if (!isRecord(data)) {
-    return {
-      ok: false,
-      result: "ERROR",
-      message: "The scanner received an invalid server response.",
-    };
+    return scannerError("The scanner received an invalid server response.");
   }
 
   const rawResult = stringValue(data, "result");
@@ -122,14 +115,22 @@ async function resolveIdentifier(identifier: string) {
   if (!clean) return "";
 
   if (/^SR\d{2}-T\d{7}$/i.test(clean)) {
-    const admin = createAdminClient();
-    const { data } = await admin
-      .from("tickets")
-      .select("qr_token")
-      .ilike("ticket_number", clean)
-      .maybeSingle();
+    try {
+      const admin = createAdminClient();
+      const { data, error } = await admin
+        .from("tickets")
+        .select("qr_token")
+        .ilike("ticket_number", clean)
+        .maybeSingle();
 
-    if (data?.qr_token) return data.qr_token;
+      if (error) {
+        console.error("Ticket-number lookup failed:", error);
+      }
+
+      if (data?.qr_token) return data.qr_token;
+    } catch (error) {
+      console.error("Ticket-number lookup crashed:", error);
+    }
   }
 
   return clean;
@@ -138,82 +139,37 @@ async function resolveIdentifier(identifier: string) {
 export async function redeemScannedTicket(
   input: ScannerActionInput,
 ): Promise<ScannerActionResult> {
-  const { supabase } = await requireStaff(SCAN_ROLES);
-  const token = await resolveIdentifier(input.identifier);
+  try {
+    const { supabase } = await requireStaff(SCAN_ROLES);
+    const token = await resolveIdentifier(input.identifier);
 
-  if (!token || !input.eventId) {
-    return {
-      ok: false,
-      result: "INVALID",
-      message: "Enter or scan a valid ticket.",
-    };
-  }
+    if (!token || !input.eventId) {
+      return {
+        ok: false,
+        result: "INVALID",
+        message: "Enter or scan a valid ticket.",
+      };
+    }
 
-  const { data, error } = await supabase.rpc("redeem_ticket", {
-    p_token: token,
-    p_event_id: input.eventId,
-    p_gate: input.gate?.trim() || null,
-    p_device: input.device ?? {},
-  });
-
-  if (error) {
-    console.error("Ticket redemption failed:", error);
-    return {
-      ok: false,
-      result: "ERROR",
-      message:
-        "The ticket could not be validated. Check the connection and try again.",
-    };
-  }
-
-  return parseResult(data);
-}
-
-export async function collectOnArrivalAndAdmit(
-  input: ScannerActionInput,
-): Promise<ScannerActionResult> {
-  // Authenticate and authorize with the staff session first, then perform the
-  // atomic payment + admission through a service-role-only RPC. This avoids
-  // losing auth.uid() in the second scanner action while keeping the browser
-  // completely unable to call the payment mutation itself.
-  const { user } = await requireStaff(PAYMENT_ROLES);
-  const token = await resolveIdentifier(input.identifier);
-
-  if (!token || !input.eventId) {
-    return {
-      ok: false,
-      result: "INVALID",
-      message: "Enter or scan a valid ticket.",
-    };
-  }
-
-  const admin = createAdminClient();
-  const untypedRpc = admin.rpc as unknown as (
-    fn: string,
-    args: Record<string, unknown>,
-  ) => Promise<RpcResponse>;
-
-  const { data, error } = await untypedRpc(
-    "collect_on_arrival_and_redeem_server",
-    {
-      p_staff_user_id: user.id,
+    const { data, error } = await supabase.rpc("redeem_ticket", {
       p_token: token,
       p_event_id: input.eventId,
       p_gate: input.gate?.trim() || null,
       p_device: input.device ?? {},
-    },
-  );
+    });
 
-  if (error) {
-    console.error("On-arrival payment collection failed:", error);
-    return {
-      ok: false,
-      result: "ERROR",
-      message:
-        error.message ||
-        "Payment could not be recorded. Do not admit the guest yet.",
-    };
+    if (error) {
+      console.error("Ticket redemption failed:", error);
+      return scannerError(
+        "The ticket could not be validated. Check the connection and try again.",
+      );
+    }
+
+    return parseResult(data);
+  } catch (error) {
+    console.error("Ticket scanner action crashed:", error);
+    return scannerError(
+      "The ticket could not be validated. Refresh the scanner and try again.",
+    );
   }
-
-  return parseResult(data);
 }

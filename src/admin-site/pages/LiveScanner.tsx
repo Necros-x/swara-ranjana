@@ -20,14 +20,11 @@ import {
   useEffect,
   useRef,
   useState,
-  useTransition,
 } from "react";
 import {
-  collectOnArrivalAndAdmit,
   redeemScannedTicket,
   type ScannerActionResult,
 } from "@/app/admin/actions/scanner";
-import type { StaffRole } from "@/types/database";
 
 type FacingMode = "environment" | "user";
 
@@ -67,7 +64,7 @@ function resultAppearance(result: ScannerActionResult["result"]) {
       foreground: "text-[#18130A]",
       Icon: WalletCards,
       title: "Payment Due",
-      description: "Do not admit until on-arrival payment is recorded.",
+      description: "Send the guest to the payment counter before admission.",
     };
   }
 
@@ -110,17 +107,15 @@ function resultAppearance(result: ScannerActionResult["result"]) {
 
 export default function LiveScanner({
   event,
-  staffRole,
 }: {
   event: ScannerEvent;
-  staffRole: StaffRole;
+  staffRole?: string;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const controlsRef = useRef<ScannerControls | null>(null);
   const processingRef = useRef(false);
 
   const [result, setResult] = useState<ScannerActionResult | null>(null);
-  const [lastIdentifier, setLastIdentifier] = useState("");
   const [facingMode, setFacingMode] =
     useState<FacingMode>("environment");
   const [restartKey, setRestartKey] = useState(0);
@@ -131,12 +126,6 @@ export default function LiveScanner({
   const [manualOpen, setManualOpen] = useState(false);
   const [manualValue, setManualValue] = useState("");
   const [gate, setGate] = useState("Main Gate");
-  const [pending, startTransition] = useTransition();
-
-  const canCollectPayment =
-    staffRole === "SUPER_ADMIN" ||
-    staffRole === "ADMIN" ||
-    staffRole === "BOX_OFFICE";
 
   useEffect(() => {
     const saved = window.localStorage.getItem("sr-scanner-gate");
@@ -154,7 +143,6 @@ export default function LiveScanner({
       if (!clean || processingRef.current) return;
 
       processingRef.current = true;
-      setLastIdentifier(clean);
       setCameraError("");
 
       const response = await redeemScannedTicket({
@@ -206,9 +194,7 @@ export default function LiveScanner({
           },
           videoRef.current,
           (decoded) => {
-            if (decoded) {
-              void scanIdentifier(decoded.getText(), "camera");
-            }
+            if (decoded) void scanIdentifier(decoded.getText(), "camera");
           },
         );
 
@@ -247,7 +233,6 @@ export default function LiveScanner({
   const reset = () => {
     processingRef.current = false;
     setResult(null);
-    setLastIdentifier("");
     setCameraError("");
   };
 
@@ -267,29 +252,6 @@ export default function LiveScanner({
   const submitManual = (eventSubmit: React.FormEvent) => {
     eventSubmit.preventDefault();
     void scanIdentifier(manualValue, "manual");
-  };
-
-  const collectPayment = () => {
-    if (!lastIdentifier || pending) return;
-
-    startTransition(async () => {
-      const response = await collectOnArrivalAndAdmit({
-        identifier: lastIdentifier,
-        eventId: event.id,
-        gate,
-        device: {
-          source: "payment-due-resolution",
-          userAgent: navigator.userAgent.slice(0, 180),
-        },
-      });
-
-      if ("vibrate" in navigator) {
-        navigator.vibrate?.(
-          response.result === "ADMITTED" ? 140 : [90, 70, 90],
-        );
-      }
-      setResult(response);
-    });
   };
 
   if (result) {
@@ -357,29 +319,19 @@ export default function LiveScanner({
             </div>
           )}
 
-          {result.result === "PAYMENT_DUE" && !canCollectPayment && (
+          {result.result === "PAYMENT_DUE" && (
             <div className="mt-6 flex max-w-sm gap-3 rounded-xl border border-black/10 bg-white/35 p-4 text-left text-sm">
               <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" />
               <span>
-                Send this guest to box office staff. Scanner-only accounts
-                cannot mark payments as received.
+                Payment is handled at the payment counter. Do not admit this
+                guest until the counter marks the reservation as paid; then
+                scan the ticket again at the gate.
               </span>
             </div>
           )}
         </div>
 
         <div className="mt-8 grid gap-3">
-          {result.result === "PAYMENT_DUE" && canCollectPayment && (
-            <button
-              type="button"
-              disabled={pending}
-              onClick={collectPayment}
-              className="h-14 rounded-xl bg-[#0E1721] px-5 text-sm font-bold uppercase tracking-wider text-white transition hover:bg-black disabled:opacity-50"
-            >
-              {pending ? "Recording payment…" : "Payment received — admit"}
-            </button>
-          )}
-
           <button
             type="button"
             onClick={reset}
