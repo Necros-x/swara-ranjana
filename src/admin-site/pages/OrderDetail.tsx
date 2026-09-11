@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/admin-site/components/ui/Card';
 import { Badge } from '@/admin-site/components/ui/Badge';
 import { formatCurrency, formatDate } from '@/admin-site/lib/utils';
-import { ArrowLeft, Clock3, CreditCard, Ticket as TicketIcon } from 'lucide-react';
+import { ArrowLeft, Clock3, CreditCard, FileText, Ticket as TicketIcon } from 'lucide-react';
 import type { AdminOrderDetailData } from '@/lib/admin/orders';
 import { reviewBankSlip } from '@/app/actions/payment';
 
@@ -29,6 +29,9 @@ export default function OrderDetail({ order }: { order: AdminOrderDetailData }) 
   const holdExpired = order.orderStatus === 'PENDING' && order.expiresAt
     ? new Date(order.expiresAt).getTime() <= Date.now()
     : false;
+  const slipIsImage = !!order.paymentSubmission?.originalFilename.match(
+    /\.(jpe?g|png|webp)$/i,
+  );
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -120,7 +123,38 @@ export default function OrderDetail({ order }: { order: AdminOrderDetailData }) 
               {order.paymentSubmission && (
                 <div className="pt-4 mt-4 border-t border-[#C2CBD2]/60 space-y-3">
                   <div className="text-xs font-semibold text-[#31465A]">Bank slip: {order.paymentSubmission.status}</div>
-                  {order.paymentSubmission.signedUrl && <a href={order.paymentSubmission.signedUrl} target="_blank" rel="noreferrer" className="text-xs text-[#2271B1] hover:underline">View uploaded slip</a>}
+                  {order.paymentSubmission.signedUrl && (
+                    <a
+                      href={order.paymentSubmission.signedUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group block overflow-hidden rounded-md border border-[#C2CBD2]/70 bg-[#F8FAFB] transition hover:border-[#2271B1]"
+                      title="Open uploaded slip"
+                    >
+                      {slipIsImage ? (
+                        <img
+                          src={order.paymentSubmission.signedUrl}
+                          alt="Uploaded bank transfer slip"
+                          className="h-36 w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                        />
+                      ) : (
+                        <div className="flex h-32 flex-col items-center justify-center gap-2 bg-[#F3F6F8] text-[#31465A]">
+                          <FileText className="h-8 w-8 text-[#2271B1]" />
+                          <span className="text-[10px] font-semibold uppercase tracking-[0.14em]">
+                            PDF payment slip
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between gap-3 border-t border-[#C2CBD2]/50 px-3 py-2">
+                        <span className="truncate text-[10px] text-[#7D8A95]">
+                          {order.paymentSubmission.originalFilename}
+                        </span>
+                        <span className="shrink-0 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#2271B1]">
+                          Open ↗
+                        </span>
+                      </div>
+                    </a>
+                  )}
                   {order.paymentSubmission.status === 'PENDING' && (
                     <>
                       <textarea value={reviewReason} onChange={(e) => setReviewReason(e.target.value)} placeholder="Reason if rejecting (optional)" className="w-full min-h-20 border border-[#C2CBD2] rounded-md p-2 text-xs" />

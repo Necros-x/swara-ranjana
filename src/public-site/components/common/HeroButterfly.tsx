@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 
 type PartName =
   | "body"
@@ -113,6 +114,47 @@ export const BUTTERFLY_GLOBAL = {
     duration: 11,
   },
 } as const;
+
+export type ButterflyPose = "hero" | "corrected";
+
+/**
+ * Corrected pose for compact/mobile containers and every HeroButterfly use
+ * outside the desktop homepage hero.
+ *
+ * TWEAK ONLY THESE THREE VALUES:
+ * topWingY:    more negative = top wings move UP
+ * bottomWingY: more positive = bottom wings move DOWN
+ * tailY:       more positive = tails move DOWN
+ *
+ * The "hero" pose always returns zero offsets, so the current desktop homepage
+ * butterfly stays exactly as it is.
+ */
+export const BUTTERFLY_CORRECTION = {
+  topWingY: -4,
+  bottomWingY: 7,
+  tailY: 10,
+} as const;
+
+function getPartYOffset(name: PartName, pose: ButterflyPose) {
+  if (pose === "hero") return 0;
+
+  switch (name) {
+    case "RTop":
+    case "LTop":
+      return BUTTERFLY_CORRECTION.topWingY;
+
+    case "RBottom":
+    case "LBottom":
+      return BUTTERFLY_CORRECTION.bottomWingY;
+
+    case "RTail":
+    case "LTail":
+      return BUTTERFLY_CORRECTION.tailY;
+
+    default:
+      return 0;
+  }
+}
 
 export const BUTTERFLY_PARTS: Record<PartName, PartConfig> = {
   body: {
@@ -257,13 +299,60 @@ const DRAW_ORDER: PartName[] = [
 function ButterflyPiece({
   name,
   animatePiece = true,
+  pose = "corrected",
+  rapidFlap = false,
 }: {
   name: PartName;
   animatePiece?: boolean;
+  pose?: ButterflyPose;
+  rapidFlap?: boolean;
 }) {
   const part = BUTTERFLY_PARTS[name];
   const reduceMotion = useReducedMotion();
   const enabled = animatePiece && !reduceMotion && Boolean(part.motion);
+  const topWing = name === "RTop" || name === "LTop";
+  const bottomWing = name === "RBottom" || name === "LBottom";
+  const flapWing = topWing || bottomWing;
+  const direction = name.startsWith("R") ? -1 : 1;
+
+  const rapidAnimation =
+    rapidFlap && flapWing
+      ? {
+          rotate: topWing
+            ? [
+                part.rotate,
+                part.rotate + 12 * direction,
+                part.rotate,
+                part.rotate + 10 * direction,
+                part.rotate,
+              ]
+            : [
+                part.rotate,
+                part.rotate + 6 * direction,
+                part.rotate,
+                part.rotate + 5 * direction,
+                part.rotate,
+              ],
+          x: [0, 0, 0, 0, 0],
+          y: topWing ? [0, -3, 0, -2, 0] : [0, 2, 0, 2, 0],
+          scaleX: topWing
+            ? [
+                part.scaleX,
+                part.scaleX * 0.88,
+                part.scaleX,
+                part.scaleX * 0.9,
+                part.scaleX,
+              ]
+            : [
+                part.scaleX,
+                part.scaleX * 0.94,
+                part.scaleX,
+                part.scaleX * 0.95,
+                part.scaleX,
+              ],
+          scaleY: part.scaleY,
+        }
+      : null;
 
   return (
     <motion.img
@@ -274,7 +363,7 @@ function ButterflyPiece({
       className="absolute h-auto select-none object-contain"
       style={{
         left: `${part.left}%`,
-        top: `${part.top}%`,
+        top: `${part.top + getPartYOffset(name, pose)}%`,
         width: `${part.width}%`,
         zIndex: part.zIndex,
         transformOrigin: part.origin,
@@ -286,7 +375,8 @@ function ButterflyPiece({
         scaleY: part.scaleY,
       }}
       animate={
-        enabled && part.motion
+        rapidAnimation ??
+        (enabled && part.motion
           ? {
               rotate:
                 part.motion.rotate?.map((value) => value + part.rotate) ??
@@ -306,11 +396,17 @@ function ButterflyPiece({
               y: 0,
               scaleX: part.scaleX,
               scaleY: part.scaleY,
-            }
+            })
       }
       transition={
-        enabled && part.motion
+        rapidAnimation
           ? {
+              duration: 0.58,
+              repeat: 0,
+              ease: "easeInOut",
+            }
+          : enabled && part.motion
+            ? {
               duration: part.motion.duration,
               delay: part.motion.delay ?? 0,
               repeat: Infinity,
@@ -324,8 +420,12 @@ function ButterflyPiece({
 
 function ButterflyAssembly({
   animatePieces = true,
+  pose = "corrected",
+  rapidFlap = false,
 }: {
   animatePieces?: boolean;
+  pose?: ButterflyPose;
+  rapidFlap?: boolean;
 }) {
   return (
     <div className="absolute inset-0">
@@ -334,6 +434,8 @@ function ButterflyAssembly({
           key={name}
           name={name}
           animatePiece={animatePieces}
+          pose={pose}
+          rapidFlap={rapidFlap}
         />
       ))}
     </div>
@@ -342,14 +444,41 @@ function ButterflyAssembly({
 
 type HeroButterflyProps = {
   variant?: "foreground" | "backdrop";
+  pose?: ButterflyPose;
 };
 
 export function HeroButterfly({
   variant = "foreground",
+  pose = "corrected",
 }: HeroButterflyProps) {
   const reduceMotion = useReducedMotion();
   const global = BUTTERFLY_GLOBAL;
   const isBackdrop = variant === "backdrop";
+  const [rapidFlap, setRapidFlap] = useState(false);
+  const hoverLocked = useRef(false);
+  const flapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (flapTimer.current) clearTimeout(flapTimer.current);
+    };
+  }, []);
+
+  const startHoverFlap = () => {
+    if (isBackdrop || reduceMotion || hoverLocked.current) return;
+
+    hoverLocked.current = true;
+    setRapidFlap(true);
+
+    if (flapTimer.current) clearTimeout(flapTimer.current);
+    flapTimer.current = setTimeout(() => {
+      setRapidFlap(false);
+    }, 620);
+  };
+
+  const resetHoverFlap = () => {
+    hoverLocked.current = false;
+  };
 
   const baseX = isBackdrop ? global.x + global.backdrop.x : global.x;
   const baseY = isBackdrop ? global.y + global.backdrop.y : global.y;
@@ -374,7 +503,11 @@ export function HeroButterfly({
     : global.hover.duration;
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center">
+    <div
+      className="absolute inset-0 flex items-center justify-center pointer-events-auto"
+      onMouseEnter={startHoverFlap}
+      onMouseLeave={resetHoverFlap}
+    >
       <motion.div
         className="relative h-[440px] w-[390px] sm:h-[590px] sm:w-[520px] lg:h-[740px] lg:w-[650px] xl:h-[800px] xl:w-[720px]"
         style={
@@ -454,7 +587,11 @@ export function HeroButterfly({
         )}
 
         {/* Same seven layers. Backdrop is static pieces; foreground keeps part motion. */}
-        <ButterflyAssembly animatePieces={!isBackdrop} />
+        <ButterflyAssembly
+          animatePieces={!isBackdrop}
+          pose={pose}
+          rapidFlap={rapidFlap}
+        />
       </motion.div>
     </div>
   );

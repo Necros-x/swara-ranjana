@@ -147,16 +147,20 @@ export const HomePage: React.FC<HomePageProps> = ({
             </motion.div>
           </div>
 
-           {/* Right Column: two complete Photoshop-layered butterflies */}
+          {/* Right Column: keep the perfect desktop hero pose unchanged. */}
           <div className="lg:col-span-5 relative h-[400px] sm:h-[540px] lg:h-[700px] flex items-center justify-center pointer-events-none">
-            {/* Same assembled butterfly, larger + blurred behind */}
-            <div className="absolute inset-0 z-0 -translate-x-5 scale-150 blur-md">
-              <HeroButterfly />
+            {/* Desktop: original pose, including the soft duplicate behind it. */}
+            <div className="absolute inset-0 z-0 hidden -translate-x-5 scale-150 blur-md lg:block">
+              <HeroButterfly pose="hero" />
             </div>
 
-            {/* Crisp foreground butterfly */}
-            <div className="absolute inset-0 z-10">
-              <HeroButterfly />
+            <div className="absolute inset-0 z-10 hidden lg:block">
+              <HeroButterfly pose="hero" />
+            </div>
+
+            {/* Mobile/tablet: corrected layer spacing, no duplicate backdrop. */}
+            <div className="absolute inset-0 z-10 lg:hidden">
+              <HeroButterfly pose="corrected" />
             </div>
           </div>
         </div>
@@ -806,7 +810,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
         {/* Subtle butterfly wings in background of final CTA */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] sm:w-[700px] h-[500px] opacity-10 pointer-events-none">
-          <HeroButterfly />
+          <HeroButterfly pose="corrected"/>
         </div>
       </section>
     </div>
