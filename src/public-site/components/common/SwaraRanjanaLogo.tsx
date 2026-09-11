@@ -45,10 +45,7 @@ export const SwaraRanjanaLogo: React.FC<LogoProps> = ({
   }
 
   return (
-    <div
-      id="swara-ranjana-wordmark"
-      className={`inline-flex select-none items-center justify-center ${className}`}
-    >
+    <div id="swara-ranjana-wordmark" className={`inline-flex select-none items-center justify-center ${className}`}>
       {image}
     </div>
   );
