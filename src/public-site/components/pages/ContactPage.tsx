@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { SectionLabel } from '../common/SectionLabel';
 import { EditorialHeading } from '../common/EditorialHeading';
 import { ButterflyArtwork } from '../common/ButterflyArtwork';
-import { Mail, Phone, MapPin, ChevronDown, Check, Send } from 'lucide-react';
+import { ChevronDown, Check, Send } from 'lucide-react';
 
 export const ContactPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -44,15 +44,11 @@ export const ContactPage: React.FC = () => {
 
   return (
     <div id="contact-page-root" className="pt-28 sm:pt-36 pb-24 relative overflow-hidden">
-      {/* Background Wing Crop */}
       <div className="absolute top-10 -right-20 w-[450px] h-[650px] opacity-10 pointer-events-none">
         <ButterflyArtwork variant="right-wing-hero" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
-        {/* ========================================================================= */}
-        {/* HERO                                                                      */}
-        {/* ========================================================================= */}
         <div className="max-w-3xl mb-16 sm:mb-20">
           <SectionLabel label="Inquiries & Concierge" number="01" className="mb-4" />
 
@@ -66,11 +62,7 @@ export const ContactPage: React.FC = () => {
           </p>
         </div>
 
-        {/* ========================================================================= */}
-        {/* CONTACT CHANNELS & EDITORIAL FORM GRID                                   */}
-        {/* ========================================================================= */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 mb-24">
-          {/* Left Column: Direct Channels */}
           <div className="lg:col-span-5 space-y-8">
             <div className="p-6 bg-[#F9FBFC] border border-ink-10 rounded-sm">
               <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-[#2271B1] block mb-2">
@@ -92,7 +84,7 @@ export const ContactPage: React.FC = () => {
 
             <div className="p-6 bg-[#F9FBFC] border border-ink-10 rounded-sm">
               <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-[#2271B1] block mb-2">
-                02 / Box Office & VIP Concierge
+                02 / Swara Ranjana
               </span>
               <h4 className="font-medium text-[#0E1721] text-sm mb-1">
                 Patron Hospitality
@@ -125,7 +117,6 @@ export const ContactPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: Clean Editorial Form */}
           <div className="lg:col-span-7 bg-[#FEFFFF] border border-ink-10 p-8 sm:p-12 rounded-sm shadow-sm">
             <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-[#2271B1] block mb-2">
               Send A Direct Message
@@ -224,9 +215,6 @@ export const ContactPage: React.FC = () => {
           </div>
         </div>
 
-        {/* ========================================================================= */}
-        {/* FAQ ACCORDION                                                            */}
-        {/* ========================================================================= */}
         <div className="py-16 border-t border-ink-10 max-w-4xl mx-auto">
           <SectionLabel label="Common Inquiries" number="02" className="mb-4" />
           <EditorialHeading size="md" className="mb-10">

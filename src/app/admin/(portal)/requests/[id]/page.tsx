@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import RefundRequestDetail from "@/admin-site/pages/RefundRequestDetail";
+import { AdminRealtimeRefresh } from "@/admin-site/components/AdminRealtimeRefresh";
 import { requireStaff } from "@/lib/auth/requireStaff";
 import { getAdminRequestDetail } from "@/lib/admin/requests";
 
@@ -16,5 +17,11 @@ export default async function Page({
   const request = await getAdminRequestDetail(id);
   if (!request) notFound();
 
-  return <RefundRequestDetail request={request} />;
+  return (
+    <AdminRealtimeRefresh
+      tables={["customer_order_requests", "orders", "tickets", "payment_submissions"]}
+    >
+      <RefundRequestDetail request={request} />
+    </AdminRealtimeRefresh>
+  );
 }
