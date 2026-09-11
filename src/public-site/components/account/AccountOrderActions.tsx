@@ -12,6 +12,8 @@ import type {
   TicketStatus,
 } from "@/types/database";
 
+const REFUND_CUTOFF_MS = 48 * 60 * 60 * 1000;
+
 interface PendingRequest {
   kind: "CANCEL" | "REFUND";
   status: "PENDING" | "APPROVED";
@@ -57,8 +59,12 @@ export default function AccountOrderActions({
   const [success, setSuccess] = useState("");
   const [pending, startTransition] = useTransition();
 
-  const eventStarted =
-    !!eventStartsAt && new Date(eventStartsAt).getTime() <= Date.now();
+  const eventStartMs = eventStartsAt
+    ? new Date(eventStartsAt).getTime()
+    : Number.NaN;
+  const cutoffReached =
+    Number.isFinite(eventStartMs) &&
+    Date.now() >= eventStartMs - REFUND_CUTOFF_MS;
   const closed =
     orderStatus === "CANCELLED" || orderStatus === "REFUNDED";
   const isRefund =
@@ -71,8 +77,10 @@ export default function AccountOrderActions({
     .filter((ticket) => selectedTicketIds.includes(ticket.id))
     .reduce((sum, ticket) => sum + ticket.refundValue, 0);
 
-  if (closed || eventStarted) return null;
+  if (closed) return null;
 
+  // Requests created before the cutoff stay visible and can still be resolved
+  // by staff. The 48-hour rule only blocks new customer-initiated requests.
   if (pendingRequest) {
     const approved = pendingRequest.status === "APPROVED";
     return (
@@ -82,6 +90,35 @@ export default function AccountOrderActions({
             ? `${pendingRequest.scope} refund approved • awaiting completion`
             : `${pendingRequest.scope} refund request pending`
           : "Cancellation pending"}
+      </div>
+    );
+  }
+
+  if (cutoffReached) {
+    return (
+      <div className="basis-full border border-[#C2CBD2]/70 bg-[#F8FAFB] px-4 py-3 text-xs leading-relaxed text-[#5F6D79]">
+        <span className="font-semibold text-[#0E1721]">
+          Refund & cancellation window closed.
+        </span>{" "}
+        Online requests close 48 hours before showtime. For an urgent exception, {" "}
+        <a href="/contact" className="font-medium text-[#2271B1] hover:underline">
+          contact the Box Office
+        </a>
+        , email {" "}
+        <a
+          href="mailto:concierge@swararanjana.lk"
+          className="font-medium text-[#2271B1] hover:underline"
+        >
+          concierge@swararanjana.lk
+        </a>
+        {" "}or call {" "}
+        <a
+          href="tel:+94112689000"
+          className="font-medium text-[#2271B1] hover:underline"
+        >
+          +94 11 268 9000
+        </a>
+        .
       </div>
     );
   }
@@ -195,13 +232,17 @@ export default function AccountOrderActions({
 
             <p className="mt-4 text-sm leading-relaxed text-[#7D8A95]">
               {isRefund
-                ? "You can refund the whole order or only selected unused tickets. Refunds are unavailable once the show begins. Selected tickets stay valid until staff approve and actually complete the refund."
+                ? "You can refund the whole order or only selected unused tickets. Selected tickets stay valid until staff approve and actually complete the refund."
                 : needsReview
                   ? "A payment slip is already awaiting review, so staff must resolve your cancellation before that payment can be approved."
                   : paymentMethod === "ON_ARRIVAL"
                     ? "This immediately cancels the reservation and revokes its unused tickets. No payment has been collected."
                     : "This immediately releases the reservation because no payment has been accepted."}
             </p>
+
+            <div className="mt-4 border-l-2 border-[#2271B1] bg-[#F7FAFC] px-4 py-3 text-xs leading-relaxed text-[#5F6D79]">
+              Refund and cancellation requests must be submitted at least 48 hours before showtime. After the cutoff, urgent exceptions must be discussed directly with the Box Office.
+            </div>
 
             {isRefund && (
               <div className="mt-5 border border-[#C2CBD2]/70 bg-[#F8FAFB] p-4">
