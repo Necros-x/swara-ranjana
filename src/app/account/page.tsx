@@ -72,6 +72,8 @@ export default async function AccountPage() {
               <div className="mt-5 space-y-4">
                 {account.orders.map((order) => {
                   const expired = order.status === "PENDING" && !!order.expiresAt && new Date(order.expiresAt).getTime() <= Date.now();
+                  const paymentPaid = order.paymentStatus === "PAID";
+                  const paymentRefunded = order.paymentStatus.includes("REFUNDED");
                   return (
                     <article key={order.id} className="min-w-0 border border-[#C2CBD2]/70 bg-white p-5 sm:p-6">
                       <div className="flex flex-col justify-between gap-4 sm:flex-row">
@@ -85,7 +87,7 @@ export default async function AccountPage() {
                         </div>
                         <div className="flex flex-wrap items-start gap-1.5">
                           <span className="inline-flex items-center border border-[#C2CBD2] px-2 py-[3px] text-[9px] font-semibold uppercase leading-none tracking-[0.08em]">{expired ? "EXPIRED" : order.status}</span>
-                          <span className={`inline-flex items-center border px-2 py-[3px] text-[9px] font-semibold uppercase leading-none tracking-[0.08em] ${order.paymentStatus === "PAID" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-amber-200 bg-amber-50 text-amber-700"}`}>{order.paymentStatus.replaceAll("_", " ")}</span>
+                          <span className={`inline-flex items-center border px-2 py-[3px] text-[9px] font-semibold uppercase leading-none tracking-[0.08em] ${paymentPaid ? "border-emerald-200 bg-emerald-50 text-emerald-700" : paymentRefunded ? "border-sky-200 bg-sky-50 text-sky-700" : "border-amber-200 bg-amber-50 text-amber-700"}`}>{order.paymentStatus.replaceAll("_", " ")}</span>
                         </div>
                       </div>
 
@@ -118,7 +120,17 @@ export default async function AccountPage() {
                       <div className="mt-5 flex flex-wrap gap-2">
                         {order.tickets.length > 0 && <Link href={`/account/orders/${order.id}`} className="inline-flex h-10 items-center gap-2 bg-[#0E1721] px-4 text-xs text-white hover:bg-[#2271B1]"><Ticket className="h-4 w-4" />View all {order.tickets.length === 1 ? "ticket" : "tickets"}</Link>}
                         {order.status === "PENDING" && !expired && <Link href={`/payment/${order.orderNumber}?token=${encodeURIComponent(order.accessToken)}`} className="inline-flex h-10 items-center gap-2 border border-[#C2CBD2] px-4 text-xs text-[#31465A] hover:border-[#2271B1] hover:text-[#2271B1]"><CreditCard className="h-4 w-4" />Continue payment</Link>}
-                        <AccountOrderActions orderId={order.id} orderStatus={order.status} paymentStatus={order.paymentStatus} paymentMethod={order.paymentMethod} slipStatus={order.slipStatus} eventStartsAt={order.eventStartsAt} pendingRequest={order.pendingRequest} />
+                        <AccountOrderActions
+                          orderId={order.id}
+                          orderStatus={order.status}
+                          paymentStatus={order.paymentStatus}
+                          paymentMethod={order.paymentMethod}
+                          slipStatus={order.slipStatus}
+                          eventStartsAt={order.eventStartsAt}
+                          pendingRequest={order.pendingRequest}
+                          tickets={order.tickets}
+                          currency={order.currency}
+                        />
                       </div>
                     </article>
                   );
