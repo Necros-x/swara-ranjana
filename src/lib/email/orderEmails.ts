@@ -491,7 +491,7 @@ export async function sendTicketsIssuedEmail(orderId: string) {
   `);
 
   const text = [
-    `Your Swara Ranjana tickets — ${context.orderNumber}`,
+    `Your Swara Ranjana tickets - ${context.orderNumber} has arrived`,
     "",
     `Hi ${context.customerName}, your tickets are ready.`,
     `Event: ${context.eventName}`,
@@ -509,7 +509,7 @@ export async function sendTicketsIssuedEmail(orderId: string) {
   ].join("\n");
 
   return sendTracked(context, "TICKETS_ISSUED", {
-    subject: `Your Swara Ranjana tickets — ${context.orderNumber}`,
+    subject: `Your Swara Ranjana tickets - ${context.orderNumber} has arrived`,
     html,
     text,
   });
