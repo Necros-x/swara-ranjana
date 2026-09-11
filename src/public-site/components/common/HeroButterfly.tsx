@@ -407,12 +407,12 @@ function ButterflyPiece({
             }
           : enabled && part.motion
             ? {
-              duration: part.motion.duration,
-              delay: part.motion.delay ?? 0,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }
-          : { duration: 0 }
+                duration: part.motion.duration,
+                delay: part.motion.delay ?? 0,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }
+            : { duration: 0 }
       }
     />
   );
@@ -445,15 +445,18 @@ function ButterflyAssembly({
 type HeroButterflyProps = {
   variant?: "foreground" | "backdrop";
   pose?: ButterflyPose;
+  flap?: boolean;
 };
 
 export function HeroButterfly({
   variant = "foreground",
   pose = "corrected",
+  flap = false,
 }: HeroButterflyProps) {
   const reduceMotion = useReducedMotion();
   const global = BUTTERFLY_GLOBAL;
   const isBackdrop = variant === "backdrop";
+  const wingMotionEnabled = flap && !isBackdrop;
   const [rapidFlap, setRapidFlap] = useState(false);
   const hoverLocked = useRef(false);
   const flapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -465,7 +468,7 @@ export function HeroButterfly({
   }, []);
 
   const startHoverFlap = () => {
-    if (isBackdrop || reduceMotion || hoverLocked.current) return;
+    if (!wingMotionEnabled || reduceMotion || hoverLocked.current) return;
 
     hoverLocked.current = true;
     setRapidFlap(true);
@@ -477,7 +480,7 @@ export function HeroButterfly({
   };
 
   const resetHoverFlap = () => {
-    hoverLocked.current = false;
+    if (wingMotionEnabled) hoverLocked.current = false;
   };
 
   const baseX = isBackdrop ? global.x + global.backdrop.x : global.x;
@@ -504,9 +507,11 @@ export function HeroButterfly({
 
   return (
     <div
-      className="absolute inset-0 flex items-center justify-center pointer-events-auto"
-      onMouseEnter={startHoverFlap}
-      onMouseLeave={resetHoverFlap}
+      className={`absolute inset-0 flex items-center justify-center ${
+        wingMotionEnabled ? "pointer-events-auto" : "pointer-events-none"
+      }`}
+      onMouseEnter={wingMotionEnabled ? startHoverFlap : undefined}
+      onMouseLeave={wingMotionEnabled ? resetHoverFlap : undefined}
     >
       <motion.div
         className="relative h-[440px] w-[390px] sm:h-[590px] sm:w-[520px] lg:h-[740px] lg:w-[650px] xl:h-[800px] xl:w-[720px]"
@@ -586,11 +591,10 @@ export function HeroButterfly({
           <div className="absolute left-1/2 top-[42%] h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#2271B1]/5 blur-3xl sm:h-80 sm:w-80" />
         )}
 
-        {/* Same seven layers. Backdrop is static pieces; foreground keeps part motion. */}
         <ButterflyAssembly
-          animatePieces={!isBackdrop}
+          animatePieces={wingMotionEnabled}
           pose={pose}
-          rapidFlap={rapidFlap}
+          rapidFlap={wingMotionEnabled && rapidFlap}
         />
       </motion.div>
     </div>

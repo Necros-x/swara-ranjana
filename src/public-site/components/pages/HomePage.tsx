@@ -151,15 +151,15 @@ export const HomePage: React.FC<HomePageProps> = ({
           <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none opacity-[0.14] translate-x-[18%] -translate-y-[3%] scale-[1.03] lg:relative lg:inset-auto lg:col-span-5 lg:h-[700px] lg:translate-x-0 lg:translate-y-0 lg:scale-100 lg:opacity-100">
             {/* Desktop soft duplicate: static wing layers, so it never flaps. */}
             <div className="absolute inset-0 z-0 hidden -translate-x-5 scale-150 blur-md lg:block">
-              <HeroButterfly pose="hero" />
+              <HeroButterfly variant="backdrop" pose="hero" />
             </div>
 
-            {/* Desktop crisp foreground keeps the perfect original pose. */}
+            {/* Desktop crisp foreground is the only butterfly allowed to flap. */}
             <div className="absolute inset-0 z-10 hidden lg:block">
-              <HeroButterfly pose="hero" />
+              <HeroButterfly pose="hero" flap />
             </div>
 
-            {/* Mobile/tablet: one corrected butterfly behind the hero copy. */}
+            {/* Mobile/tablet: static corrected butterfly behind the hero copy. */}
             <div className="absolute inset-0 z-0 lg:hidden">
               <HeroButterfly pose="corrected" />
             </div>
