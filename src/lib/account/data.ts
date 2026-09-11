@@ -23,11 +23,14 @@ export interface AccountTicketSummary {
   ticketNumber: string;
   ticketTypeName: string;
   status: TicketStatus;
+  refundValue: number;
 }
 
 export interface AccountPendingRequest {
   kind: "CANCEL" | "REFUND";
-  status: "PENDING";
+  status: "PENDING" | "APPROVED";
+  scope: "FULL" | "PARTIAL";
+  requestedAmount: number;
   createdAt: string;
 }
 
@@ -92,7 +95,9 @@ const unique = (values: string[]) => [
 type RequestRow = {
   order_id: string;
   kind: "CANCEL" | "REFUND";
-  status: "PENDING";
+  status: "PENDING" | "APPROVED";
+  scope: "FULL" | "PARTIAL";
+  requested_amount_lkr: number | null;
   created_at: string;
 };
 
@@ -103,7 +108,7 @@ export async function getCustomerAccountData(
   const { data: orders, error } = await supabase
     .from("orders")
     .select(
-      "id,event_id,order_number,access_token,status,payment_status,payment_method,total_lkr,currency,created_at,expires_at",
+      "id,event_id,order_number,access_token,status,payment_status,payment_method,subtotal_lkr,total_lkr,currency,created_at,expires_at",
     )
     .eq("customer_id", customer.id)
     .order("created_at", { ascending: false });
@@ -124,13 +129,13 @@ export async function getCustomerAccountData(
       supabase
         .from("order_items")
         .select(
-          "id,order_id,ticket_type_id,quantity,total_price_lkr",
+          "id,order_id,ticket_type_id,quantity,unit_price_lkr,total_price_lkr",
         )
         .in("order_id", orderIds),
       supabase
         .from("tickets")
         .select(
-          "id,order_id,ticket_type_id,ticket_number,status",
+          "id,order_id,order_item_id,ticket_type_id,ticket_number,status",
         )
         .in("order_id", orderIds)
         .order("ticket_number"),
@@ -149,9 +154,11 @@ export async function getCustomerAccountData(
   const requestDb = supabase as any;
   const requestResult = await requestDb
     .from("customer_order_requests")
-    .select("order_id,kind,status,created_at")
+    .select(
+      "order_id,kind,status,scope,requested_amount_lkr,created_at",
+    )
     .in("order_id", orderIds)
-    .eq("status", "PENDING")
+    .in("status", ["PENDING", "APPROVED"])
     .order("created_at", { ascending: false });
   const requests = (requestResult.data ?? []) as RequestRow[];
 
@@ -169,6 +176,8 @@ export async function getCustomerAccountData(
 
   const eventMap = new Map(events.map((event) => [event.id, event]));
   const typeMap = new Map(types.map((type) => [type.id, type.name]));
+  const itemMap = new Map(items.map((item) => [item.id, item]));
+  const orderMap = new Map(orders.map((order) => [order.id, order]));
 
   return {
     customer,
@@ -185,13 +194,28 @@ export async function getCustomerAccountData(
         }));
       const orderTickets = tickets
         .filter((ticket) => ticket.order_id === order.id)
-        .map((ticket) => ({
-          id: ticket.id,
-          ticketNumber: ticket.ticket_number,
-          ticketTypeName:
-            typeMap.get(ticket.ticket_type_id) ?? "Admission",
-          status: ticket.status,
-        }));
+        .map((ticket) => {
+          const item = itemMap.get(ticket.order_item_id);
+          const ownerOrder = orderMap.get(ticket.order_id);
+          const refundValue =
+            item && ownerOrder
+              ? ownerOrder.subtotal_lkr > 0
+                ? Math.round(
+                    (item.unit_price_lkr * ownerOrder.total_lkr) /
+                      ownerOrder.subtotal_lkr,
+                  )
+                : item.unit_price_lkr
+              : 0;
+
+          return {
+            id: ticket.id,
+            ticketNumber: ticket.ticket_number,
+            ticketTypeName:
+              typeMap.get(ticket.ticket_type_id) ?? "Admission",
+            status: ticket.status,
+            refundValue,
+          };
+        });
       const slip = submissions.find(
         (submission) => submission.order_id === order.id,
       );
@@ -221,6 +245,8 @@ export async function getCustomerAccountData(
           ? {
               kind: request.kind,
               status: request.status,
+              scope: request.scope,
+              requestedAmount: request.requested_amount_lkr ?? 0,
               createdAt: request.created_at,
             }
           : null,
