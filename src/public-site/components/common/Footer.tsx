@@ -14,12 +14,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenTicketsModal }
   return (
     <footer
       id="editorial-footer"
-      className="relative bg-white text-[#0E1721] pt-20 pb-12 overflow-hidden border-t border-[#0E1721]/5 z-50"
+      className="relative overflow-hidden border-t border-[#0E1721]/5 bg-white pt-20 pb-12 text-[#0E1721] z-50"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-16 pb-16">
-          {/* Col 1: Wordmark & Statement */}
-          <div className="md:col-span-5 flex flex-col justify-between">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-12 pb-16 md:grid-cols-12 lg:gap-16">
+          <div className="flex flex-col justify-between md:col-span-5">
             <div>
               <div className="flex items-start">
                 <SwaraRanjanaLogo
@@ -29,7 +28,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenTicketsModal }
                 />
               </div>
 
-              <p className="mt-6 text-sm text-[#31465A] font-light max-w-sm leading-relaxed">
+              <p className="mt-6 max-w-sm text-sm font-light leading-relaxed text-[#31465A]">
                 An ethereal evening where voices, melodies and memories become one.
                 A live symphonic performance uniting South Asian classical mastery with contemporary orchestral soundscapes.
               </p>
@@ -41,16 +40,15 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenTicketsModal }
               </div>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-ink-10 flex items-center gap-3 text-[11px] uppercase font-mono tracking-widest text-[#7D8A95]">
+            <div className="mt-8 flex items-center gap-3 border-t border-ink-10 pt-6 text-[11px] uppercase font-mono tracking-widest text-[#7D8A95]">
               <span>Curated in Colombo</span>
               <span>/</span>
               <span>2026 Edition</span>
             </div>
           </div>
 
-          {/* Col 2: Navigation Links */}
           <div className="md:col-span-3">
-            <span className="text-[10px] font-mono tracking-[0.35em] uppercase text-[#7D8A95] block mb-4">
+            <span className="mb-4 block text-[10px] font-mono tracking-[0.35em] uppercase text-[#7D8A95]">
               Navigation
             </span>
             <ul className="space-y-2.5">
@@ -67,10 +65,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenTicketsModal }
                 <li key={item.id}>
                   <button
                     onClick={() => onNavigate(item.id as PageId)}
-                    className="text-xs text-[#31465A] hover:text-[#0E1721] transition-colors flex items-center gap-1.5 group font-light"
+                    className="group flex items-center gap-1.5 text-xs font-light text-[#31465A] transition-colors hover:text-[#0E1721]"
                   >
                     <span>{item.label}</span>
-                    <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[#2271B1]">
+                    <span className="text-[#2271B1] opacity-0 transition-opacity group-hover:opacity-100">
                       →
                     </span>
                   </button>
@@ -79,20 +77,19 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenTicketsModal }
             </ul>
           </div>
 
-          {/* Col 3: Contact & Inquiries */}
           <div className="md:col-span-4">
-            <span className="text-[10px] font-mono tracking-[0.35em] uppercase text-[#7D8A95] block mb-4">
+            <span className="mb-4 block text-[10px] font-mono tracking-[0.35em] uppercase text-[#7D8A95]">
               Inquiries & Hospitality
             </span>
-            <div className="space-y-3 text-xs text-[#31465A] font-light">
+            <div className="space-y-3 text-xs font-light text-[#31465A]">
               <p>
-                <strong className="font-medium text-[#0E1721] block">Concert Secretariat</strong>
+                <strong className="block font-medium text-[#0E1721]">Concert Secretariat</strong>
                 Nelum Pokuna Mahinda Rajapaksa Theatre<br />
                 110 Ananda Coomaraswamy Mawatha, Colombo 00700
               </p>
               <p>
-                <strong className="font-medium text-[#0E1721] block">Box Office & VIP Concierge</strong>
-                <a href="mailto:concierge@swararanjana.lk" className="hover:text-[#2271B1] transition-colors">
+                <strong className="block font-medium text-[#0E1721]">Swara Ranjana</strong>
+                <a href="mailto:concierge@swararanjana.lk" className="transition-colors hover:text-[#2271B1]">
                   concierge@swararanjana.lk
                 </a><br />
                 <span>+94 11 268 9000</span>
@@ -100,7 +97,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenTicketsModal }
             </div>
 
             <div className="mt-6">
-              <span className="text-[10px] font-mono tracking-[0.35em] uppercase text-[#7D8A95] block mb-3">
+              <span className="mb-3 block text-[10px] font-mono tracking-[0.35em] uppercase text-[#7D8A95]">
                 Digital Presence
               </span>
               <div className="flex flex-wrap gap-2">
@@ -110,10 +107,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenTicketsModal }
                     href={`https://${network.toLowerCase()}.com`}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1 px-3 py-1.5 border border-ink-10 hover:border-[#2271B1] rounded-xs text-[11px] text-[#31465A] hover:text-[#0E1721] transition-all"
+                    className="inline-flex items-center gap-1 rounded-xs border border-ink-10 px-3 py-1.5 text-[11px] text-[#31465A] transition-all hover:border-[#2271B1] hover:text-[#0E1721]"
                   >
                     <span>{network}</span>
-                    <ArrowUpRight className="w-3 h-3 text-[#2271B1]" />
+                    <ArrowUpRight className="h-3 w-3 text-[#2271B1]" />
                   </a>
                 ))}
               </div>
@@ -121,29 +118,23 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenTicketsModal }
           </div>
         </div>
 
-        {/* Bottom Giant Typography & Watermark Extension */}
-        <div className="relative pt-12 border-t border-ink-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-mono text-[#7D8A95]">
-          <div>
-            © 2026 SWARA RANJANA. ALL RIGHTS RESERVED.
-          </div>
+        <div className="relative flex flex-col items-center justify-between gap-4 border-t border-ink-10 pt-12 text-[11px] font-mono text-[#7D8A95] sm:flex-row">
+          <div>© 2026 SWARA RANJANA. ALL RIGHTS RESERVED.</div>
           <div>
             <span className="text-[#31465A]">LIVE MUSICAL EXPERIENCE</span> • COLOMBO, SRI LANKA
           </div>
-          <div>
-            DESIGNED FOR SWARA RANJANA 2026
-          </div>
-        </div>
-
-        {/* Subliminal Cropped Giant Wordmark extending beyond bottom edge */}
-        <div className="mt-12 -mb-20 text-center select-none pointer-events-none opacity-[0.04]">
-          <span className="font-gemola text-[12vw] tracking-[0.25em] text-[#0E1721] leading-none uppercase inline-block whitespace-nowrap">
-            SWARA RANJANA
-          </span>
+          <div>DESIGNED FOR SWARA RANJANA 2026</div>
         </div>
       </div>
 
-      {/* Extreme Cropped Butterfly Wing extending past right boundary */}
-      <div className="absolute -bottom-24 -right-24 w-96 h-96 opacity-10 pointer-events-none">
+      {/* Full-bleed footer wordmark: deliberately escapes the content max-width. */}
+      <div className="relative z-10 mt-12 -mb-16 w-full select-none overflow-hidden text-left pointer-events-none opacity-[0.04]">
+        <span className="-ml-[0.035em] block w-max whitespace-nowrap font-gemola text-[13.2vw] leading-[0.72] tracking-[0.045em] uppercase text-[#0E1721]">
+          SWARA RANJANA
+        </span>
+      </div>
+
+      <div className="pointer-events-none absolute -right-24 -bottom-24 h-96 w-96 opacity-10">
         <ButterflyArtwork variant="right-wing-hero" />
       </div>
     </footer>
