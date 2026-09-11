@@ -158,7 +158,7 @@ export const ContactPage: React.FC = () => {
                     <input
                       type="email"
                       required
-                      placeholder="your.email@domain.com"
+                      placeholder="yourmail@email.com"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="w-full px-4 py-3 text-xs bg-white border border-ink-10 rounded-sm focus:outline-none focus:border-[#2271B1] transition-colors"
