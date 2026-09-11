@@ -114,6 +114,47 @@ export const BUTTERFLY_GLOBAL = {
   },
 } as const;
 
+export type ButterflyPose = "hero" | "corrected";
+
+/**
+ * Corrected pose for compact/mobile containers and every HeroButterfly use
+ * outside the desktop homepage hero.
+ *
+ * TWEAK ONLY THESE THREE VALUES:
+ * topWingY:    more negative = top wings move UP
+ * bottomWingY: more positive = bottom wings move DOWN
+ * tailY:       more positive = tails move DOWN
+ *
+ * The "hero" pose always returns zero offsets, so the current desktop homepage
+ * butterfly stays exactly as it is.
+ */
+export const BUTTERFLY_CORRECTION = {
+  topWingY: -6,
+  bottomWingY: 7,
+  tailY: 10,
+} as const;
+
+function getPartYOffset(name: PartName, pose: ButterflyPose) {
+  if (pose === "hero") return 0;
+
+  switch (name) {
+    case "RTop":
+    case "LTop":
+      return BUTTERFLY_CORRECTION.topWingY;
+
+    case "RBottom":
+    case "LBottom":
+      return BUTTERFLY_CORRECTION.bottomWingY;
+
+    case "RTail":
+    case "LTail":
+      return BUTTERFLY_CORRECTION.tailY;
+
+    default:
+      return 0;
+  }
+}
+
 export const BUTTERFLY_PARTS: Record<PartName, PartConfig> = {
   body: {
     src: "/butterfly/body.webp",
@@ -257,9 +298,11 @@ const DRAW_ORDER: PartName[] = [
 function ButterflyPiece({
   name,
   animatePiece = true,
+  pose = "corrected",
 }: {
   name: PartName;
   animatePiece?: boolean;
+  pose?: ButterflyPose;
 }) {
   const part = BUTTERFLY_PARTS[name];
   const reduceMotion = useReducedMotion();
@@ -274,7 +317,7 @@ function ButterflyPiece({
       className="absolute h-auto select-none object-contain"
       style={{
         left: `${part.left}%`,
-        top: `${part.top}%`,
+        top: `${part.top + getPartYOffset(name, pose)}%`,
         width: `${part.width}%`,
         zIndex: part.zIndex,
         transformOrigin: part.origin,
@@ -324,8 +367,10 @@ function ButterflyPiece({
 
 function ButterflyAssembly({
   animatePieces = true,
+  pose = "corrected",
 }: {
   animatePieces?: boolean;
+  pose?: ButterflyPose;
 }) {
   return (
     <div className="absolute inset-0">
@@ -334,6 +379,7 @@ function ButterflyAssembly({
           key={name}
           name={name}
           animatePiece={animatePieces}
+          pose={pose}
         />
       ))}
     </div>
@@ -342,10 +388,12 @@ function ButterflyAssembly({
 
 type HeroButterflyProps = {
   variant?: "foreground" | "backdrop";
+  pose?: ButterflyPose;
 };
 
 export function HeroButterfly({
   variant = "foreground",
+  pose = "corrected",
 }: HeroButterflyProps) {
   const reduceMotion = useReducedMotion();
   const global = BUTTERFLY_GLOBAL;
@@ -454,7 +502,10 @@ export function HeroButterfly({
         )}
 
         {/* Same seven layers. Backdrop is static pieces; foreground keeps part motion. */}
-        <ButterflyAssembly animatePieces={!isBackdrop} />
+        <ButterflyAssembly
+          animatePieces={!isBackdrop}
+          pose={pose}
+        />
       </motion.div>
     </div>
   );
