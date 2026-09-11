@@ -52,6 +52,11 @@ export interface ScannerActionInput {
 
 type JsonRecord = Record<string, Json | undefined>;
 
+type RpcResponse = {
+  data: Json | null;
+  error: { message?: string } | null;
+};
+
 function isRecord(value: Json | undefined): value is JsonRecord {
   return !!value && typeof value === "object" && !Array.isArray(value);
 }
@@ -96,7 +101,9 @@ function parseResult(data: Json | null): ScannerActionResult {
     result,
     message:
       stringValue(data, "message") ??
-      (result === "ADMITTED" ? "Ticket admitted." : "Ticket could not be admitted."),
+      (result === "ADMITTED"
+        ? "Ticket admitted."
+        : "Ticket could not be admitted."),
     ticketId: stringValue(data, "ticketId"),
     ticketNumber: stringValue(data, "ticketNumber"),
     customerName: stringValue(data, "customerName"),
@@ -154,7 +161,8 @@ export async function redeemScannedTicket(
     return {
       ok: false,
       result: "ERROR",
-      message: "The ticket could not be validated. Check the connection and try again.",
+      message:
+        "The ticket could not be validated. Check the connection and try again.",
     };
   }
 
@@ -164,7 +172,11 @@ export async function redeemScannedTicket(
 export async function collectOnArrivalAndAdmit(
   input: ScannerActionInput,
 ): Promise<ScannerActionResult> {
-  const { supabase } = await requireStaff(PAYMENT_ROLES);
+  // Authenticate and authorize with the staff session first, then perform the
+  // atomic payment + admission through a service-role-only RPC. This avoids
+  // losing auth.uid() in the second scanner action while keeping the browser
+  // completely unable to call the payment mutation itself.
+  const { user } = await requireStaff(PAYMENT_ROLES);
   const token = await resolveIdentifier(input.identifier);
 
   if (!token || !input.eventId) {
@@ -175,19 +187,16 @@ export async function collectOnArrivalAndAdmit(
     };
   }
 
-  type RpcResponse = {
-    data: Json | null;
-    error: { message?: string } | null;
-  };
-
-  const untypedRpc = supabase.rpc as unknown as (
+  const admin = createAdminClient();
+  const untypedRpc = admin.rpc as unknown as (
     fn: string,
     args: Record<string, unknown>,
   ) => Promise<RpcResponse>;
 
   const { data, error } = await untypedRpc(
-    "collect_on_arrival_and_redeem",
+    "collect_on_arrival_and_redeem_server",
     {
+      p_staff_user_id: user.id,
       p_token: token,
       p_event_id: input.eventId,
       p_gate: input.gate?.trim() || null,
