@@ -214,11 +214,11 @@ export async function getAdminRequestDetail(
         .in("id", typeIds)).data ?? [])
     : [];
   const typeMap = new Map(types.map((type) => [type.id, type.name]));
-  const selectedAmounts = new Map(
+  const selectedAmounts = new Map<string, number>(
     (requestTicketsResult.data ?? []).map((row: any) => [
-      row.ticket_id,
-      row.amount_lkr,
-    ]),
+      String(row.ticket_id),
+      Number(row.amount_lkr ?? 0),
+    ] as [string, number]),
   );
 
   const orderTickets: AdminRequestTicket[] = tickets.map((ticket) => ({
