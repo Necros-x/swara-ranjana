@@ -23,7 +23,7 @@ export async function requireStaff(allowedRoles?: StaffRole[]) {
   }
 
   if (allowedRoles && !allowedRoles.includes(profile.role)) {
-    redirect(profile.role === "SCANNER" ? "/admin/scanner" : "/admin/dashboard");
+    redirect("/403");
   }
 
   return { supabase, user, profile };
