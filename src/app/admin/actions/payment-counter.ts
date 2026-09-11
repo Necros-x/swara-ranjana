@@ -45,20 +45,24 @@ export async function findPaymentCounterOrder(
 ): Promise<PaymentCounterResult> {
   await requireStaff(PAYMENT_ROLES);
 
-  const identifier = identifierInput.trim().toUpperCase();
-  if (!identifier) {
-    return { ok: false, message: "Enter an order or ticket number." };
+  const rawIdentifier = identifierInput.trim();
+  const normalizedIdentifier = rawIdentifier.toUpperCase();
+  if (!rawIdentifier) {
+    return {
+      ok: false,
+      message: "Enter an order number, ticket number or scan a ticket QR.",
+    };
   }
 
   const admin = createAdminClient();
   let orderId: string | null = null;
   let ticketNumber: string | undefined;
 
-  if (/^SR\d{2}-T\d{7}$/i.test(identifier)) {
+  if (/^SR\d{2}-T\d{7}$/i.test(normalizedIdentifier)) {
     const { data: ticket, error } = await admin
       .from("tickets")
       .select("order_id,ticket_number")
-      .ilike("ticket_number", identifier)
+      .ilike("ticket_number", normalizedIdentifier)
       .maybeSingle();
 
     if (error) {
@@ -68,11 +72,11 @@ export async function findPaymentCounterOrder(
 
     orderId = ticket?.order_id ?? null;
     ticketNumber = ticket?.ticket_number;
-  } else {
+  } else if (/^SR\d{2}-\d{6}$/i.test(normalizedIdentifier)) {
     const { data: order, error } = await admin
       .from("orders")
       .select("id")
-      .ilike("order_number", identifier)
+      .ilike("order_number", normalizedIdentifier)
       .maybeSingle();
 
     if (error) {
@@ -81,6 +85,20 @@ export async function findPaymentCounterOrder(
     }
 
     orderId = order?.id ?? null;
+  } else {
+    const { data: ticket, error } = await admin
+      .from("tickets")
+      .select("order_id,ticket_number")
+      .eq("qr_token", rawIdentifier)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Payment counter QR lookup failed:", error);
+      return { ok: false, message: "Unable to look up that QR ticket." };
+    }
+
+    orderId = ticket?.order_id ?? null;
+    ticketNumber = ticket?.ticket_number;
   }
 
   if (!orderId) {
