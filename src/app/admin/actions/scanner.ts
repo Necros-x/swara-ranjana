@@ -11,12 +11,6 @@ const SCAN_ROLES: StaffRole[] = [
   "SCANNER",
 ];
 
-const PAYMENT_ROLES: StaffRole[] = [
-  "SUPER_ADMIN",
-  "ADMIN",
-  "BOX_OFFICE",
-];
-
 export type ScannerResultCode =
   | "ADMITTED"
   | "PAYMENT_DUE"
@@ -135,9 +129,6 @@ async function resolveIdentifier(identifier: string) {
 
       if (data?.qr_token) return data.qr_token;
     } catch (error) {
-      // A manual ticket-number lookup should never take down the whole scanner.
-      // The raw identifier is returned below so the database can respond with
-      // INVALID instead of Next.js returning an unhandled 500.
       console.error("Ticket-number lookup crashed:", error);
     }
   }
@@ -179,52 +170,6 @@ export async function redeemScannedTicket(
     console.error("Ticket scanner action crashed:", error);
     return scannerError(
       "The ticket could not be validated. Refresh the scanner and try again.",
-    );
-  }
-}
-
-export async function collectOnArrivalAndAdmit(
-  input: ScannerActionInput,
-): Promise<ScannerActionResult> {
-  try {
-    // Keep this mutation on the same authenticated Supabase client as the
-    // scanner session. The database function already performs the role check
-    // and updates payment + admission atomically. This removes the extra
-    // service-role dependency that could throw before an RPC response reached
-    // the UI and surface as a generic Next.js 500.
-    const { supabase } = await requireStaff(PAYMENT_ROLES);
-    const token = await resolveIdentifier(input.identifier);
-
-    if (!token || !input.eventId) {
-      return {
-        ok: false,
-        result: "INVALID",
-        message: "Enter or scan a valid ticket.",
-      };
-    }
-
-    const { data, error } = await supabase.rpc(
-      "collect_on_arrival_and_redeem",
-      {
-        p_token: token,
-        p_event_id: input.eventId,
-        p_gate: input.gate?.trim() || null,
-        p_device: input.device ?? {},
-      },
-    );
-
-    if (error) {
-      console.error("On-arrival payment collection failed:", error);
-      return scannerError(
-        "Payment could not be recorded. Do not admit the guest yet.",
-      );
-    }
-
-    return parseResult(data);
-  } catch (error) {
-    console.error("On-arrival admit action crashed:", error);
-    return scannerError(
-      "Payment could not be recorded. Refresh the scanner and try again.",
     );
   }
 }
