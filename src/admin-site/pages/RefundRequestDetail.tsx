@@ -20,9 +20,7 @@ function formatDate(value: string, timezone = "Asia/Colombo") {
 function statusVariant(status: AdminRequestDetail["status"]) {
   if (status === "COMPLETED") return "success" as const;
   if (status === "PENDING") return "warning" as const;
-  if (status === "REJECTED" || status === "CANCELLED") {
-    return "destructive" as const;
-  }
+  if (status === "REJECTED" || status === "CANCELLED") return "destructive" as const;
   return "default" as const;
 }
 
@@ -33,18 +31,13 @@ export default function RefundRequestDetail({
 }) {
   const router = useRouter();
   const [staffNote, setStaffNote] = useState(request.staffNote ?? "");
-  const [refundReference, setRefundReference] = useState(
-    request.refundReference ?? "",
-  );
+  const [refundReference, setRefundReference] = useState(request.refundReference ?? "");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
-  const refundWindowClosed =
-    new Date(request.eventStartsAt).getTime() <= Date.now();
+  const refundWindowClosed = new Date(request.eventStartsAt).getTime() <= Date.now();
 
-  const run = (
-    action: "APPROVE" | "REJECT" | "COMPLETE_REFUND",
-  ) => {
+  const run = (action: "APPROVE" | "REJECT" | "COMPLETE_REFUND") => {
     setError("");
     setMessage("");
 
@@ -91,9 +84,7 @@ export default function RefundRequestDetail({
             <Badge variant={statusVariant(request.status)}>{request.status}</Badge>
           </div>
           <h1 className="mt-3 font-gemola text-4xl text-[#0E1721]">
-            {request.kind === "REFUND"
-              ? "Refund request"
-              : "Cancellation request"}
+            {request.kind === "REFUND" ? "Refund request" : "Cancellation request"}
           </h1>
           <p className="mt-2 text-sm text-[#7D8A95]">
             {request.orderNumber} • submitted {formatDate(request.createdAt)}
@@ -127,9 +118,7 @@ export default function RefundRequestDetail({
                       >
                         {ticket.ticketNumber}
                       </Link>
-                      <div className="mt-1 text-sm text-[#31465A]">
-                        {ticket.ticketTypeName}
-                      </div>
+                      <div className="mt-1 text-sm text-[#31465A]">{ticket.ticketTypeName}</div>
                     </div>
                     <div className="flex items-center gap-3">
                       {request.kind === "REFUND" && (
@@ -170,18 +159,14 @@ export default function RefundRequestDetail({
             </CardHeader>
             <CardContent className="space-y-5">
               <div>
-                <div className="text-[10px] uppercase tracking-[0.14em] text-[#7D8A95]">
-                  Customer reason
-                </div>
+                <div className="text-[10px] uppercase tracking-[0.14em] text-[#7D8A95]">Customer reason</div>
                 <p className="mt-2 text-sm leading-relaxed text-[#31465A]">
                   {request.reason || "No reason supplied."}
                 </p>
               </div>
 
               <label className="block">
-                <span className="mb-2 block text-[10px] uppercase tracking-[0.14em] text-[#7D8A95]">
-                  Staff note
-                </span>
+                <span className="mb-2 block text-[10px] uppercase tracking-[0.14em] text-[#7D8A95]">Staff note</span>
                 <textarea
                   value={staffNote}
                   onChange={(event) => setStaffNote(event.target.value.slice(0, 1000))}
@@ -194,9 +179,7 @@ export default function RefundRequestDetail({
 
               {request.kind === "REFUND" && request.status === "APPROVED" && (
                 <label className="block">
-                  <span className="mb-2 block text-[10px] uppercase tracking-[0.14em] text-[#7D8A95]">
-                    Refund reference
-                  </span>
+                  <span className="mb-2 block text-[10px] uppercase tracking-[0.14em] text-[#7D8A95]">Refund reference</span>
                   <input
                     value={refundReference}
                     onChange={(event) => setRefundReference(event.target.value.slice(0, 160))}
@@ -210,14 +193,10 @@ export default function RefundRequestDetail({
               )}
 
               {error && (
-                <div className="border border-red-200 bg-red-50 p-3 text-xs text-red-700">
-                  {error}
-                </div>
+                <div className="border border-red-200 bg-red-50 p-3 text-xs text-red-700">{error}</div>
               )}
               {message && (
-                <div className="border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-700">
-                  {message}
-                </div>
+                <div className="border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-700">{message}</div>
               )}
 
               {request.status === "PENDING" && (
@@ -256,12 +235,12 @@ export default function RefundRequestDetail({
                   </button>
                   <button
                     type="button"
-                    disabled={pending}
-                    onClick={() => run("REJECT")}
-                    className="inline-flex h-11 items-center justify-center gap-2 border border-red-200 px-4 text-xs font-bold uppercase tracking-[0.12em] text-red-700 hover:bg-red-50 disabled:opacity-50"
+                    disabled
+                    title="Approved refunds cannot be rejected. Complete the refund instead."
+                    className="inline-flex h-11 cursor-not-allowed items-center justify-center gap-2 border border-red-200 px-4 text-xs font-bold uppercase tracking-[0.12em] text-red-700 opacity-40"
                   >
                     <XCircle className="h-4 w-4" />
-                    Withdraw approval
+                    Reject
                   </button>
                 </div>
               )}
@@ -306,9 +285,16 @@ export default function RefundRequestDetail({
             </CardHeader>
             <CardContent className="space-y-2 text-xs text-[#7D8A95]">
               <div>Submitted {formatDate(request.createdAt)}</div>
-              {request.reviewedAt && <div>Reviewed {formatDate(request.reviewedAt)}{request.reviewedByName ? ` by ${request.reviewedByName}` : ""}</div>}
+              {request.reviewedAt && (
+                <div>
+                  Reviewed {formatDate(request.reviewedAt)}
+                  {request.reviewedByName ? ` by ${request.reviewedByName}` : ""}
+                </div>
+              )}
               {request.completedAt && <div>Completed {formatDate(request.completedAt)}</div>}
-              {request.refundReference && <div className="break-all font-mono text-[#31465A]">Refund ref: {request.refundReference}</div>}
+              {request.refundReference && (
+                <div className="break-all font-mono text-[#31465A]">Refund ref: {request.refundReference}</div>
+              )}
             </CardContent>
           </Card>
         </div>
