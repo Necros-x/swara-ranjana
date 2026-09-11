@@ -130,7 +130,7 @@ export type ButterflyPose = "hero" | "corrected";
  * butterfly stays exactly as it is.
  */
 export const BUTTERFLY_CORRECTION = {
-  topWingY: -4,
+  topWingY: -2,
   bottomWingY: 7,
   tailY: 10,
 } as const;
