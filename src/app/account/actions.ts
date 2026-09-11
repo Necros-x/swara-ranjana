@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { sendTransactionalEmail } from "@/lib/email/resend";
+import { sendCustomerRequestEmail } from "@/lib/email/requestEmails";
 import type { Json } from "@/types/database";
 
 export interface AccountAuthResult {
@@ -235,6 +236,7 @@ function isJsonRecord(
 export async function requestCustomerOrderAction(
   orderId: string,
   reason = "",
+  ticketIds: string[] = [],
 ): Promise<CustomerOrderActionResult> {
   if (!orderId) {
     return { ok: false, message: "Order not found." };
@@ -254,9 +256,6 @@ export async function requestCustomerOrderAction(
     }
 
     const admin = createAdminClient();
-
-    // Keep the Supabase client as `this`. Detaching admin.rpc causes
-    // SupabaseClient.rpc() to crash while trying to read `this.rest`.
     const rpc = admin.rpc.bind(admin) as unknown as (
       name: string,
       args: Record<string, unknown>,
@@ -266,6 +265,7 @@ export async function requestCustomerOrderAction(
       p_auth_user_id: user.id,
       p_order_id: orderId,
       p_reason: reason.trim() || null,
+      p_ticket_ids: ticketIds.length ? ticketIds : null,
     });
 
     if (error || !isJsonRecord(data) || data.ok !== true) {
@@ -286,9 +286,22 @@ export async function requestCustomerOrderAction(
         ? rawAction
         : undefined;
 
+    const requestId =
+      typeof data.request_id === "string" ? data.request_id : null;
+    const reused = data.reused === true;
+
+    if (requestId && !reused) {
+      await sendCustomerRequestEmail(requestId, "RECEIVED").catch(
+        (emailError) => {
+          console.error("Request received email failed:", emailError);
+        },
+      );
+    }
+
     revalidatePath("/account");
     revalidatePath(`/account/orders/${orderId}`);
     revalidatePath("/admin/orders");
+    revalidatePath("/admin/requests");
 
     return {
       ok: true,
