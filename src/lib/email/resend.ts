@@ -53,7 +53,7 @@ export async function sendTransactionalEmail(input: TransactionalEmailInput): Pr
         to: [input.to],
         subject: input.subject,
         html: withDevelopmentCredit(input.html),
-        text: `${input.text}\n\nDeveloped by NECROS Studio — ${NECROS_STUDIO_URL}`,
+        text: `${input.text}\n\nDesigned & Developed by NECROS Studio — ${NECROS_STUDIO_URL}`,
         ...(replyTo ? { reply_to: replyTo } : {}),
       }),
       cache: "no-store",
