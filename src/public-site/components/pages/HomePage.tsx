@@ -147,19 +147,20 @@ export const HomePage: React.FC<HomePageProps> = ({
             </motion.div>
           </div>
 
-          {/* Right Column: keep the perfect desktop hero pose unchanged. */}
-          <div className="lg:col-span-5 relative h-[400px] sm:h-[540px] lg:h-[700px] flex items-center justify-center pointer-events-none">
-            {/* Desktop: original pose, including the soft duplicate behind it. */}
+          {/* Right Column / mobile hero artwork background. */}
+          <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none opacity-[0.14] translate-x-[18%] -translate-y-[3%] scale-[1.03] lg:relative lg:inset-auto lg:col-span-5 lg:h-[700px] lg:translate-x-0 lg:translate-y-0 lg:scale-100 lg:opacity-100">
+            {/* Desktop soft duplicate: static wing layers, so it never flaps. */}
             <div className="absolute inset-0 z-0 hidden -translate-x-5 scale-150 blur-md lg:block">
-              <HeroButterfly pose="hero" />
+              <HeroButterfly variant="backdrop" pose="hero" />
             </div>
 
+            {/* Desktop crisp foreground keeps the perfect original pose. */}
             <div className="absolute inset-0 z-10 hidden lg:block">
               <HeroButterfly pose="hero" />
             </div>
 
-            {/* Mobile/tablet: corrected layer spacing, no duplicate backdrop. */}
-            <div className="absolute inset-0 z-10 lg:hidden">
+            {/* Mobile/tablet: one corrected butterfly behind the hero copy. */}
+            <div className="absolute inset-0 z-0 lg:hidden">
               <HeroButterfly pose="corrected" />
             </div>
           </div>
@@ -810,7 +811,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
         {/* Subtle butterfly wings in background of final CTA */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] sm:w-[700px] h-[500px] opacity-10 pointer-events-none">
-          <HeroButterfly pose="corrected"/>
+          <HeroButterfly pose="corrected" />
         </div>
       </section>
     </div>
