@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 interface AdminRealtimeRefreshProps {
   tables: string[];
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function AdminRealtimeRefresh({
@@ -31,7 +31,7 @@ export function AdminRealtimeRefresh({
       }, 180);
     };
 
-    for (const table of tables) {
+    for (const table of tableKey.split(",").filter(Boolean)) {
       channel.on(
         "postgres_changes",
         { event: "*", schema: "public", table },
