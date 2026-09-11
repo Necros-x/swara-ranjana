@@ -1,12 +1,29 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import { Volume2, VolumeX } from "lucide-react";
 
 const TARGET_VOLUME = 0.2;
 const FADE_DURATION = 1800;
 
-export const AudioAmbiencePlayer: React.FC = () => {
+type AudioAmbiencePlayerProps = Record<never, never>;
+
+export interface AudioAmbiencePlayerHandle {
+  start: () => Promise<boolean>;
+  stop: () => void;
+}
+
+export const AudioAmbiencePlayer = forwardRef<
+  AudioAmbiencePlayerHandle,
+  AudioAmbiencePlayerProps
+>(function AudioAmbiencePlayer(_, ref) {
   const [isPlaying, setIsPlaying] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -20,6 +37,7 @@ export const AudioAmbiencePlayer: React.FC = () => {
     audio.volume = 0;
 
     audioRef.current = audio;
+    audio.load();
 
     return () => {
       if (fadeFrameRef.current) {
@@ -32,76 +50,87 @@ export const AudioAmbiencePlayer: React.FC = () => {
     };
   }, []);
 
-  const fadeVolume = (
-    from: number,
-    to: number,
-    duration: number,
-    onComplete?: () => void,
-  ) => {
-    const audio = audioRef.current;
+  const fadeVolume = useCallback(
+    (
+      from: number,
+      to: number,
+      duration: number,
+      onComplete?: () => void,
+    ) => {
+      const audio = audioRef.current;
 
-    if (!audio) return;
+      if (!audio) return;
 
-    if (fadeFrameRef.current) {
-      cancelAnimationFrame(fadeFrameRef.current);
-    }
-
-    const startedAt = performance.now();
-
-    const animate = (now: number) => {
-      const progress = Math.min((now - startedAt) / duration, 1);
-
-      audio.volume = Math.max(
-        0,
-        Math.min(1, from + (to - from) * progress),
-      );
-
-      if (progress < 1) {
-        fadeFrameRef.current = requestAnimationFrame(animate);
-      } else {
-        fadeFrameRef.current = null;
-        onComplete?.();
+      if (fadeFrameRef.current) {
+        cancelAnimationFrame(fadeFrameRef.current);
       }
-    };
 
-    fadeFrameRef.current = requestAnimationFrame(animate);
-  };
+      const startedAt = performance.now();
 
-  const startAudio = async () => {
+      const animate = (now: number) => {
+        const progress = Math.min((now - startedAt) / duration, 1);
+
+        audio.volume = Math.max(
+          0,
+          Math.min(1, from + (to - from) * progress),
+        );
+
+        if (progress < 1) {
+          fadeFrameRef.current = requestAnimationFrame(animate);
+        } else {
+          fadeFrameRef.current = null;
+          onComplete?.();
+        }
+      };
+
+      fadeFrameRef.current = requestAnimationFrame(animate);
+    },
+    [],
+  );
+
+  const startAudio = useCallback(async () => {
     const audio = audioRef.current;
 
-    if (!audio) return;
+    if (!audio) return false;
+    if (!audio.paused) {
+      setIsPlaying(true);
+      return true;
+    }
 
     try {
       audio.volume = 0;
-
       await audio.play();
 
       fadeVolume(0, TARGET_VOLUME, FADE_DURATION);
-
       setIsPlaying(true);
+      return true;
     } catch (error) {
       console.warn("Soundscape playback was blocked:", error);
       setIsPlaying(false);
+      return false;
     }
-  };
+  }, [fadeVolume]);
 
-  const stopAudio = () => {
+  const stopAudio = useCallback(() => {
     const audio = audioRef.current;
 
     if (!audio) return;
 
-    fadeVolume(
-      audio.volume,
-      0,
-      FADE_DURATION,
-      () => {
-        audio.pause();
-      },
-    );
+    fadeVolume(audio.volume, 0, FADE_DURATION, () => {
+      audio.pause();
+    });
 
     setIsPlaying(false);
-  };
+  }, [fadeVolume]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      start: startAudio,
+      stop: stopAudio,
+    }),
+    [startAudio, stopAudio],
+  );
 
   const toggleSound = () => {
     if (isPlaying) {
@@ -169,4 +198,4 @@ export const AudioAmbiencePlayer: React.FC = () => {
       </button>
     </div>
   );
-};
+});
