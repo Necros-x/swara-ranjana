@@ -4,6 +4,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import type {
   EventStatus,
   Json,
+  OrderStatus,
+  PaymentMethod,
+  PaymentStatus,
+  ScanResult,
   TicketStatus,
   TicketTypeStatus,
 } from "@/types/database";
@@ -67,6 +71,61 @@ export interface InternalTicketBatch {
   tickets: InternalBatchTicket[];
 }
 
+export interface AdminTicketScanHistoryItem {
+  id: number;
+  result: ScanResult;
+  gate: string | null;
+  scannedAt: string;
+  staffName: string;
+}
+
+export interface AdminTicketDetail {
+  id: string;
+  ticketNumber: string;
+  qrToken: string;
+  holderName: string;
+  source: AdminTicketSource;
+  status: TicketStatus;
+  issuedAt: string;
+  checkedInAt: string | null;
+  revokedAt: string | null;
+  revokeReason: string | null;
+  event: {
+    id: string;
+    name: string;
+    startsAt: string;
+    venueName: string;
+    venueAddress: string | null;
+  };
+  ticketType: {
+    id: string;
+    code: string;
+    name: string;
+    seatingZone: string | null;
+    priceLkr: number;
+  };
+  order: {
+    id: string;
+    orderNumber: string;
+    status: OrderStatus;
+    paymentStatus: PaymentStatus;
+    paymentMethod: PaymentMethod | null;
+    paymentReference: string | null;
+    totalLkr: number;
+    currency: string;
+    paidAt: string | null;
+    createdAt: string;
+    notes: string | null;
+  };
+  customer: {
+    id: string;
+    fullName: string;
+    email: string;
+    phone: string | null;
+  };
+  scanHistory: AdminTicketScanHistoryItem[];
+}
+
 function unique(values: string[]) {
   return [...new Set(values.filter(Boolean))];
 }
@@ -95,6 +154,12 @@ function holderFromMetadata(metadata: Json) {
   }
 
   return "";
+}
+
+function isUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    value,
+  );
 }
 
 export async function getAdminTickets(
@@ -126,10 +191,7 @@ export async function getAdminTickets(
     { data: orders },
     { data: ticketTypes },
   ] = await Promise.all([
-    admin
-      .from("events")
-      .select("id,name")
-      .in("id", eventIds),
+    admin.from("events").select("id,name").in("id", eventIds),
     admin
       .from("orders")
       .select("id,order_number,metadata")
@@ -162,18 +224,154 @@ export async function getAdminTickets(
       orderId: ticket.order_id,
       orderNumber: order?.order_number ?? "—",
       holderName:
-        ticket.attendee_name ||
-        holderFromMetadata(metadata) ||
-        "Guest",
+        ticket.attendee_name || holderFromMetadata(metadata) || "Guest",
       ticketTypeId: ticket.ticket_type_id,
-      ticketTypeName:
-        typeMap.get(ticket.ticket_type_id) ?? "Admission",
+      ticketTypeName: typeMap.get(ticket.ticket_type_id) ?? "Admission",
       source: sourceFromMetadata(metadata),
       status: ticket.status,
       issuedAt: ticket.issued_at,
       checkedInAt: ticket.checked_in_at,
     };
   });
+}
+
+export async function getAdminTicketDetail(
+  ticketId: string,
+): Promise<AdminTicketDetail | null> {
+  if (!isUuid(ticketId)) return null;
+
+  const admin = createAdminClient();
+  const { data: ticket, error } = await admin
+    .from("tickets")
+    .select(
+      "id,event_id,order_id,ticket_type_id,customer_id,ticket_number,qr_token,attendee_name,status,issued_at,checked_in_at,revoked_at,revoke_reason",
+    )
+    .eq("id", ticketId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Failed to load ticket detail:", error);
+    return null;
+  }
+
+  if (!ticket) return null;
+
+  const [eventResult, orderResult, typeResult, customerResult, scansResult] =
+    await Promise.all([
+      admin
+        .from("events")
+        .select("id,name,starts_at,venue_name,venue_address")
+        .eq("id", ticket.event_id)
+        .maybeSingle(),
+      admin
+        .from("orders")
+        .select(
+          "id,order_number,status,payment_status,payment_method,payment_reference,total_lkr,currency,paid_at,created_at,metadata,notes",
+        )
+        .eq("id", ticket.order_id)
+        .maybeSingle(),
+      admin
+        .from("ticket_types")
+        .select("id,code,name,seating_zone,price_lkr")
+        .eq("id", ticket.ticket_type_id)
+        .maybeSingle(),
+      admin
+        .from("customers")
+        .select("id,full_name,email,phone")
+        .eq("id", ticket.customer_id)
+        .maybeSingle(),
+      admin
+        .from("scan_logs")
+        .select("id,result,gate,staff_user_id,scanned_at")
+        .eq("ticket_id", ticket.id)
+        .order("scanned_at", { ascending: false })
+        .limit(50),
+    ]);
+
+  const event = eventResult.data;
+  const order = orderResult.data;
+  const ticketType = typeResult.data;
+  const customer = customerResult.data;
+  const scans = scansResult.data ?? [];
+
+  if (!event || !order || !ticketType || !customer) {
+    console.error("Ticket detail is missing related records:", ticket.id);
+    return null;
+  }
+
+  const staffIds = unique(scans.map((scan) => scan.staff_user_id));
+  let staffMap = new Map<string, string>();
+
+  if (staffIds.length) {
+    const { data: staff } = await admin
+      .from("staff_profiles")
+      .select("user_id,display_name")
+      .in("user_id", staffIds);
+
+    staffMap = new Map(
+      (staff ?? []).map((profile) => [profile.user_id, profile.display_name]),
+    );
+  }
+
+  const source = sourceFromMetadata(order.metadata);
+  const holderName =
+    ticket.attendee_name ||
+    holderFromMetadata(order.metadata) ||
+    customer.full_name ||
+    "Guest";
+
+  return {
+    id: ticket.id,
+    ticketNumber: ticket.ticket_number,
+    qrToken: ticket.qr_token,
+    holderName,
+    source,
+    status: ticket.status,
+    issuedAt: ticket.issued_at,
+    checkedInAt: ticket.checked_in_at,
+    revokedAt: ticket.revoked_at,
+    revokeReason: ticket.revoke_reason,
+    event: {
+      id: event.id,
+      name: event.name,
+      startsAt: event.starts_at,
+      venueName: event.venue_name,
+      venueAddress: event.venue_address,
+    },
+    ticketType: {
+      id: ticketType.id,
+      code: ticketType.code,
+      name: ticketType.name,
+      seatingZone: ticketType.seating_zone,
+      priceLkr: ticketType.price_lkr,
+    },
+    order: {
+      id: order.id,
+      orderNumber: order.order_number,
+      status: order.status,
+      paymentStatus: order.payment_status,
+      paymentMethod: order.payment_method,
+      paymentReference: order.payment_reference,
+      totalLkr: order.total_lkr,
+      currency: order.currency,
+      paidAt: order.paid_at,
+      createdAt: order.created_at,
+      notes: order.notes,
+    },
+    customer: {
+      id: customer.id,
+      fullName: customer.full_name,
+      email: customer.email,
+      phone: customer.phone,
+    },
+    scanHistory: scans.map((scan) => ({
+      id: scan.id,
+      result: scan.result,
+      gate: scan.gate,
+      scannedAt: scan.scanned_at,
+      staffName: staffMap.get(scan.staff_user_id) ?? "Staff",
+    })),
+  };
 }
 
 export async function getInternalIssueCatalog(): Promise<InternalIssueCatalog> {
@@ -247,9 +445,7 @@ export async function getInternalTicketBatch(
 
   if (!event || !tickets?.length) return null;
 
-  const typeIds = unique(
-    tickets.map((ticket) => ticket.ticket_type_id),
-  );
+  const typeIds = unique(tickets.map((ticket) => ticket.ticket_type_id));
   const { data: types } = await admin
     .from("ticket_types")
     .select("id,name")
@@ -276,8 +472,7 @@ export async function getInternalTicketBatch(
       ticketNumber: ticket.ticket_number,
       qrToken: ticket.qr_token,
       status: ticket.status,
-      ticketTypeName:
-        typeMap.get(ticket.ticket_type_id) ?? "Admission",
+      ticketTypeName: typeMap.get(ticket.ticket_type_id) ?? "Admission",
       holderName: ticket.attendee_name || holderLabel,
     })),
   };
