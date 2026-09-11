@@ -1,4 +1,5 @@
 import LiveScanHistory from "@/admin-site/pages/LiveScanHistory";
+import { AdminRealtimeRefresh } from "@/admin-site/components/AdminRealtimeRefresh";
 import { requireStaff } from "@/lib/auth/requireStaff";
 import { getAdminScanHistory } from "@/lib/admin/scans";
 
@@ -14,5 +15,9 @@ export default async function Page() {
   ]);
 
   const logs = await getAdminScanHistory();
-  return <LiveScanHistory logs={logs} />;
+  return (
+    <AdminRealtimeRefresh tables={["scan_logs", "tickets"]}>
+      <LiveScanHistory logs={logs} />
+    </AdminRealtimeRefresh>
+  );
 }

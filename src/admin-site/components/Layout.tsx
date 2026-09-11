@@ -50,6 +50,11 @@ const navItems: Array<{
   { name: 'Settings', path: '/admin/settings', icon: Settings, roles: ['SUPER_ADMIN', 'ADMIN'] },
 ];
 
+function roleLabel(role: StaffRole) {
+  if (role === 'BOX_OFFICE') return 'SWARA RANJANA STAFF';
+  return role.replaceAll('_', ' ');
+}
+
 export function Layout({ children, user }: { children: React.ReactNode; user: AdminLayoutUser }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -68,6 +73,7 @@ export function Layout({ children, user }: { children: React.ReactNode; user: Ad
     .map((part) => part[0])
     .join('')
     .toUpperCase();
+  const displayRole = roleLabel(user.role);
 
   const handleSignOut = async () => {
     const supabase = createClient();
@@ -113,7 +119,7 @@ export function Layout({ children, user }: { children: React.ReactNode; user: Ad
             <div className="w-2 h-2 rounded-full bg-green-500" />
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#7D8A95]">Session</span>
           </div>
-          <p className="text-[11px] text-[#31465A] font-medium">Authenticated • {user.role.replace('_', ' ')}</p>
+          <p className="text-[11px] text-[#31465A] font-medium">Authenticated • {displayRole}</p>
         </div>
         <button
           onClick={handleSignOut}
@@ -177,7 +183,7 @@ export function Layout({ children, user }: { children: React.ReactNode; user: Ad
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
                 <p className="text-xs font-bold text-[#31465A]">{user.name}</p>
-                <p className="text-[10px] text-[#7D8A95] uppercase tracking-wider">{user.role.replace('_', ' ')}</p>
+                <p className="text-[10px] text-[#7D8A95] uppercase tracking-wider">{displayRole}</p>
               </div>
               <div className="w-9 h-9 rounded-full bg-[#C2CBD2]/40 border border-[#C2CBD2]/20 flex items-center justify-center font-bold text-[#31465A] text-xs">
                 {initials || 'SR'}

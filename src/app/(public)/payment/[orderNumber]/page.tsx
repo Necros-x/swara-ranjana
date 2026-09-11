@@ -32,7 +32,7 @@ export default async function Page({
           <p className="mt-2 max-w-4xl text-xs leading-relaxed text-[#5F6D79] sm:text-sm">
             Online refund and cancellation requests close exactly 48 hours before showtime. If you need urgent help after the cutoff, {" "}
             <Link href="/contact" className="font-medium text-[#2271B1] hover:underline">
-              contact the Box Office
+              contact Swara Ranjana
             </Link>
             , email {" "}
             <a

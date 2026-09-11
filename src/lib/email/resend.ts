@@ -12,8 +12,8 @@ export type TransactionalEmailResult =
   | { ok: false; skipped?: boolean; error: string };
 
 const NECROS_STUDIO_URL = "https://studio.necros.co";
-const BOX_OFFICE_EMAIL = "concierge@swararanjana.lk";
-const BOX_OFFICE_PHONE = "+94 11 268 9000";
+const SWARA_RANJANA_EMAIL = "concierge@swararanjana.lk";
+const SWARA_RANJANA_PHONE = "+94 11 268 9000";
 
 function getFromAddress() {
   return process.env.RESEND_FROM_EMAIL?.trim() ?? "";
@@ -38,7 +38,7 @@ function withRefundPolicy(html: string, subject: string) {
     <td style="padding:20px 28px;font-family:Arial,Helvetica,sans-serif;">
       <div style="font-size:9px;line-height:1.4;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#2271B1;">Refunds &amp; cancellations</div>
       <div style="margin-top:8px;font-size:12px;line-height:1.7;color:#5F6D79;">
-        Online refund and cancellation requests close exactly <strong style="color:#0E1721;">48 hours before showtime</strong>. For an urgent exception after the cutoff, contact the Box Office at <a href="mailto:${BOX_OFFICE_EMAIL}" style="color:#2271B1;text-decoration:none;font-weight:700;">${BOX_OFFICE_EMAIL}</a> or <a href="tel:+94112689000" style="color:#2271B1;text-decoration:none;font-weight:700;">${BOX_OFFICE_PHONE}</a>.
+        Online refund and cancellation requests close exactly <strong style="color:#0E1721;">48 hours before showtime</strong>. For an urgent exception after the cutoff, contact <strong style="color:#0E1721;">Swara Ranjana</strong> at <a href="mailto:${SWARA_RANJANA_EMAIL}" style="color:#2271B1;text-decoration:none;font-weight:700;">${SWARA_RANJANA_EMAIL}</a> or <a href="tel:+94112689000" style="color:#2271B1;text-decoration:none;font-weight:700;">${SWARA_RANJANA_PHONE}</a>.
       </div>
     </td>
   </tr>
@@ -51,17 +51,25 @@ function withRefundPolicy(html: string, subject: string) {
 
 function refundPolicyText(subject: string) {
   if (!shouldIncludeRefundPolicy(subject)) return "";
-  return `Refund & cancellation policy: Online refund and cancellation requests close exactly 48 hours before showtime. For an urgent exception after the cutoff, contact the Box Office at ${BOX_OFFICE_EMAIL} or ${BOX_OFFICE_PHONE}.`;
+  return `Refund & cancellation policy: Online refund and cancellation requests close exactly 48 hours before showtime. For an urgent exception after the cutoff, contact Swara Ranjana at ${SWARA_RANJANA_EMAIL} or ${SWARA_RANJANA_PHONE}.`;
 }
 
 function withDevelopmentCredit(html: string) {
   if (html.includes('data-necros-studio-credit="true"')) return html;
 
+  // Keep the dark credit background fitted to the credit itself rather than
+  // stretching a dark bar across the entire email viewport.
   const credit = `
-<table data-necros-studio-credit="true" width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="background:#0E1721;">
+<table data-necros-studio-credit="true" width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="background:transparent;">
   <tr>
-    <td align="center" style="padding:13px 18px;font-family:Arial,Helvetica,sans-serif;font-size:9px;line-height:1.5;letter-spacing:1.8px;text-transform:uppercase;color:#80909E;">
-      Designed & Developed by <a href="${NECROS_STUDIO_URL}" style="color:#C9D3DB;text-decoration:none;font-weight:700;">NECROS Studio ↗</a>
+    <td align="center" style="padding:14px 16px 0;">
+      <table cellpadding="0" cellspacing="0" border="0" role="presentation" style="display:inline-table;background:#0E1721;">
+        <tr>
+          <td align="center" style="padding:13px 18px;font-family:Arial,Helvetica,sans-serif;font-size:9px;line-height:1.5;letter-spacing:1.8px;text-transform:uppercase;color:#80909E;white-space:nowrap;">
+            Designed & Developed by <a href="${NECROS_STUDIO_URL}" style="color:#C9D3DB;text-decoration:none;font-weight:700;">NECROS Studio ↗</a>
+          </td>
+        </tr>
+      </table>
     </td>
   </tr>
 </table>`;
