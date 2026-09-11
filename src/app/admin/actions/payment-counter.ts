@@ -160,36 +160,49 @@ export async function collectOnArrivalPayment(
     return { ok: false, message: "Reservation not found." };
   }
 
-  const { user } = await requireStaff(PAYMENT_ROLES);
-  const admin = createAdminClient();
-  const rpc = admin.rpc as unknown as (
-    name: string,
-    args: Record<string, unknown>,
-  ) => Promise<RpcResponse>;
+  try {
+    const { user } = await requireStaff(PAYMENT_ROLES);
+    const admin = createAdminClient();
 
-  const { data, error } = await rpc("collect_on_arrival_payment_server", {
-    p_staff_user_id: user.id,
-    p_order_id: orderId,
-  });
+    // Supabase's rpc method depends on its client instance (`this.rest`).
+    // Binding preserves that context while still letting us call an RPC that
+    // has not yet been added to the generated Database function union.
+    const rpc = admin.rpc.bind(admin) as unknown as (
+      name: string,
+      args: Record<string, unknown>,
+    ) => Promise<RpcResponse>;
 
-  if (error || !isRecord(data) || data.ok !== true) {
-    const message =
-      isRecord(data) && typeof data.message === "string"
-        ? data.message
-        : error?.message || "Payment could not be recorded.";
+    const { data, error } = await rpc("collect_on_arrival_payment_server", {
+      p_staff_user_id: user.id,
+      p_order_id: orderId,
+    });
 
-    return { ok: false, message };
+    if (error || !isRecord(data) || data.ok !== true) {
+      const message =
+        isRecord(data) && typeof data.message === "string"
+          ? data.message
+          : error?.message || "Payment could not be recorded.";
+
+      return { ok: false, message };
+    }
+
+    revalidatePath("/admin/payment-counter");
+    revalidatePath("/admin/orders");
+    revalidatePath("/admin/scanner");
+
+    return {
+      ok: true,
+      message:
+        typeof data.message === "string"
+          ? data.message
+          : "Payment recorded. Send the guest to the gate.",
+    };
+  } catch (error) {
+    console.error("Payment counter mark-paid action crashed:", error);
+    return {
+      ok: false,
+      message:
+        "Payment could not be recorded. Refresh the counter and try again.",
+    };
   }
-
-  revalidatePath("/admin/payment-counter");
-  revalidatePath("/admin/orders");
-  revalidatePath("/admin/scanner");
-
-  return {
-    ok: true,
-    message:
-      typeof data.message === "string"
-        ? data.message
-        : "Payment recorded. Send the guest to the gate.",
-  };
 }

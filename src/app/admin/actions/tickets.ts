@@ -78,7 +78,7 @@ export async function issueInternalTicketBatch(
   }
 
   const admin = createAdminClient();
-  const rpc = admin.rpc as unknown as (
+  const rpc = admin.rpc.bind(admin) as unknown as (
     name: string,
     args: Record<string, unknown>,
   ) => Promise<RpcResponse>;

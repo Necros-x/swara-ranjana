@@ -240,60 +240,72 @@ export async function requestCustomerOrderAction(
     return { ok: false, message: "Order not found." };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  if (!user) {
+    if (!user) {
+      return {
+        ok: false,
+        message: "Your session has expired. Sign in again to continue.",
+      };
+    }
+
+    const admin = createAdminClient();
+
+    // Keep the Supabase client as `this`. Detaching admin.rpc causes
+    // SupabaseClient.rpc() to crash while trying to read `this.rest`.
+    const rpc = admin.rpc.bind(admin) as unknown as (
+      name: string,
+      args: Record<string, unknown>,
+    ) => Promise<CustomerOrderRpcResponse>;
+
+    const { data, error } = await rpc("customer_order_action_server", {
+      p_auth_user_id: user.id,
+      p_order_id: orderId,
+      p_reason: reason.trim() || null,
+    });
+
+    if (error || !isJsonRecord(data) || data.ok !== true) {
+      const message =
+        isJsonRecord(data) && typeof data.message === "string"
+          ? data.message
+          : error?.message || "This ticket action could not be completed.";
+
+      return { ok: false, message };
+    }
+
+    const rawAction =
+      typeof data.action === "string" ? data.action : undefined;
+    const action =
+      rawAction === "CANCELLED" ||
+      rawAction === "CANCEL_REQUESTED" ||
+      rawAction === "REFUND_REQUESTED"
+        ? rawAction
+        : undefined;
+
+    revalidatePath("/account");
+    revalidatePath(`/account/orders/${orderId}`);
+    revalidatePath("/admin/orders");
+
+    return {
+      ok: true,
+      action,
+      message:
+        typeof data.message === "string"
+          ? data.message
+          : "Your request has been received.",
+    };
+  } catch (error) {
+    console.error("Customer order action crashed:", error);
     return {
       ok: false,
-      message: "Your session has expired. Sign in again to continue.",
+      message:
+        "This ticket action could not be completed. Refresh your account and try again.",
     };
   }
-
-  const admin = createAdminClient();
-  const rpc = admin.rpc as unknown as (
-    name: string,
-    args: Record<string, unknown>,
-  ) => Promise<CustomerOrderRpcResponse>;
-
-  const { data, error } = await rpc("customer_order_action_server", {
-    p_auth_user_id: user.id,
-    p_order_id: orderId,
-    p_reason: reason.trim() || null,
-  });
-
-  if (error || !isJsonRecord(data) || data.ok !== true) {
-    const message =
-      isJsonRecord(data) && typeof data.message === "string"
-        ? data.message
-        : error?.message || "This ticket action could not be completed.";
-
-    return { ok: false, message };
-  }
-
-  const rawAction =
-    typeof data.action === "string" ? data.action : undefined;
-  const action =
-    rawAction === "CANCELLED" ||
-    rawAction === "CANCEL_REQUESTED" ||
-    rawAction === "REFUND_REQUESTED"
-      ? rawAction
-      : undefined;
-
-  revalidatePath("/account");
-  revalidatePath(`/account/orders/${orderId}`);
-  revalidatePath("/admin/orders");
-
-  return {
-    ok: true,
-    action,
-    message:
-      typeof data.message === "string"
-        ? data.message
-        : "Your request has been received.",
-  };
 }
 
 export async function signOutCustomer() {

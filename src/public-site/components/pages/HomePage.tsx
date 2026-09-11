@@ -154,12 +154,12 @@ export const HomePage: React.FC<HomePageProps> = ({
               <HeroButterfly pose="hero" />
             </div>
 
-            {/* Desktop crisp foreground keeps the perfect original pose. */}
+            {/* Desktop crisp foreground is the only butterfly allowed to flap. */}
             <div className="absolute inset-0 z-10 hidden lg:block">
-              <HeroButterfly pose="hero" />
+              <HeroButterfly pose="hero" flap />
             </div>
 
-            {/* Mobile/tablet: one corrected butterfly behind the hero copy. */}
+            {/* Mobile/tablet: static corrected butterfly behind the hero copy. */}
             <div className="absolute inset-0 z-0 lg:hidden">
               <HeroButterfly pose="corrected" />
             </div>
