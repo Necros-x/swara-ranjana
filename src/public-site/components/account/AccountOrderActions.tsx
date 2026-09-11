@@ -102,7 +102,7 @@ export default function AccountOrderActions({
         </span>{" "}
         Online requests close 48 hours before showtime. For an urgent exception, {" "}
         <a href="/contact" className="font-medium text-[#2271B1] hover:underline">
-          contact the Box Office
+          contact Swara Ranjana
         </a>
         , email {" "}
         <a
@@ -241,7 +241,7 @@ export default function AccountOrderActions({
             </p>
 
             <div className="mt-4 border-l-2 border-[#2271B1] bg-[#F7FAFC] px-4 py-3 text-xs leading-relaxed text-[#5F6D79]">
-              Refund and cancellation requests must be submitted at least 48 hours before showtime. After the cutoff, urgent exceptions must be discussed directly with the Box Office.
+              Refund and cancellation requests must be submitted at least 48 hours before showtime. After the cutoff, urgent exceptions must be discussed directly with Swara Ranjana.
             </div>
 
             {isRefund && (
@@ -337,7 +337,7 @@ export default function AccountOrderActions({
                   setError("");
                 }}
                 rows={4}
-                placeholder="Tell us anything the box office should know."
+                placeholder="Tell Swara Ranjana anything we should know."
                 className="w-full resize-none border border-[#C2CBD2] p-3 text-sm outline-none focus:border-[#2271B1]"
               />
               <span className="mt-1 block text-right text-[10px] text-[#9AA5AE]">
