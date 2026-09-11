@@ -519,7 +519,7 @@ export function HeroButterfly({
             : undefined
         }
         initial={{
-          opacity: isBackdrop ? global.backdrop.opacity : 0,
+          opacity: isBackdrop ? global.backdrop.opacity : 1,
           x: baseX,
           y: baseY,
           scale: baseScale * (isBackdrop ? 1 : 0.97),
