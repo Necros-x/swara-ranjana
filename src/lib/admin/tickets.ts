@@ -24,6 +24,7 @@ export interface AdminTicketListItem {
   holderName: string;
   ticketTypeId: string;
   ticketTypeName: string;
+  seatLabel: string | null;
   source: AdminTicketSource;
   status: TicketStatus;
   issuedAt: string;
@@ -83,6 +84,7 @@ export interface AdminTicketDetail {
   id: string;
   ticketNumber: string;
   qrToken: string;
+  seatLabel: string | null;
   holderName: string;
   source: AdminTicketSource;
   status: TicketStatus;
@@ -170,7 +172,7 @@ export async function getAdminTickets(
   const { data: tickets, error } = await admin
     .from("tickets")
     .select(
-      "id,event_id,order_id,ticket_type_id,ticket_number,attendee_name,status,issued_at,checked_in_at",
+      "id,event_id,order_id,ticket_type_id,ticket_number,attendee_name,status,issued_at,checked_in_at,seat_label",
     )
     .order("issued_at", { ascending: false })
     .limit(limit);
@@ -227,6 +229,7 @@ export async function getAdminTickets(
         ticket.attendee_name || holderFromMetadata(metadata) || "Guest",
       ticketTypeId: ticket.ticket_type_id,
       ticketTypeName: typeMap.get(ticket.ticket_type_id) ?? "Admission",
+      seatLabel: ticket.seat_label,
       source: sourceFromMetadata(metadata),
       status: ticket.status,
       issuedAt: ticket.issued_at,
@@ -244,7 +247,7 @@ export async function getAdminTicketDetail(
   const { data: ticket, error } = await admin
     .from("tickets")
     .select(
-      "id,event_id,order_id,ticket_type_id,customer_id,ticket_number,qr_token,attendee_name,status,issued_at,checked_in_at,revoked_at,revoke_reason",
+      "id,event_id,order_id,ticket_type_id,customer_id,ticket_number,qr_token,attendee_name,status,issued_at,checked_in_at,revoked_at,revoke_reason,seat_label",
     )
     .eq("id", ticketId)
     .maybeSingle();
@@ -324,6 +327,7 @@ export async function getAdminTicketDetail(
     id: ticket.id,
     ticketNumber: ticket.ticket_number,
     qrToken: ticket.qr_token,
+    seatLabel: ticket.seat_label,
     holderName,
     source,
     status: ticket.status,

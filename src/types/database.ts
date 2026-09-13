@@ -200,6 +200,7 @@ type OrderItemRow = {
   ticket_type_id: string;
   quantity: number;
   unit_price_lkr: number;
+  seat_selection_fee_lkr: number;
   total_price_lkr: number;
   created_at: string;
 };
@@ -210,6 +211,7 @@ type OrderItemInsert = {
   ticket_type_id: string;
   quantity: number;
   unit_price_lkr: number;
+  seat_selection_fee_lkr?: number;
   created_at?: string;
 };
 
@@ -222,6 +224,8 @@ type TicketRow = {
   customer_id: string;
   ticket_number: string;
   qr_token: string;
+  seat_id: string | null;
+  seat_label: string | null;
   attendee_name: string | null;
   status: TicketStatus;
   issued_at: string;
@@ -243,6 +247,8 @@ type TicketInsert = {
   customer_id: string;
   ticket_number?: string;
   qr_token?: string;
+  seat_id?: string | null;
+  seat_label?: string | null;
   attendee_name?: string | null;
   status?: TicketStatus;
   issued_at?: string;

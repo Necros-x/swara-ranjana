@@ -207,6 +207,14 @@ export default function AccountTicketViewer({
                     {ticket.ticketNumber}
                   </div>
                 </div>
+                <div>
+                  <div className="text-[10px] uppercase text-[#7D8A95]">
+                    Seat
+                  </div>
+                  <div className="mt-1 font-mono text-sm font-semibold text-[#0E1721]">
+                    {ticket.seatLabel ?? "Assigned at entry"}
+                  </div>
+                </div>
               </div>
 
               <div

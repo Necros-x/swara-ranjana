@@ -88,6 +88,7 @@ export default function Tickets({
           ticket.holderName,
           ticket.ticketTypeName,
           ticket.eventName,
+          ticket.seatLabel ?? "",
         ].some((value) => value.toLowerCase().includes(needle));
 
       return (
@@ -257,6 +258,7 @@ export default function Tickets({
                       <TableCell>
                         <Badge variant="outline">
                           {ticket.ticketTypeName}
+                          {ticket.seatLabel ? ` • ${ticket.seatLabel}` : ""}
                         </Badge>
                       </TableCell>
                       <TableCell>

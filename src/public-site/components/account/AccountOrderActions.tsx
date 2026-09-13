@@ -27,6 +27,7 @@ interface RefundTicket {
   ticketNumber: string;
   ticketTypeName: string;
   status: TicketStatus;
+  seatLabel: string | null;
   refundValue: number;
 }
 
@@ -302,6 +303,7 @@ export default function AccountOrderActions({
                             </div>
                             <div className="mt-0.5 truncate text-[10px] text-[#7D8A95]">
                               {ticket.ticketTypeName}
+                              {ticket.seatLabel ? ` • ${ticket.seatLabel}` : ""}
                             </div>
                           </div>
                         </div>
