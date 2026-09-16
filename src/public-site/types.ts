@@ -2,6 +2,7 @@ export type PageId =
   | 'home'
   | 'about'
   | 'artists'
+  | 'vasr'
   | 'programme'
   | 'gallery'
   | 'tickets'

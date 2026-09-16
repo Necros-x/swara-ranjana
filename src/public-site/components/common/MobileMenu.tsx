@@ -25,11 +25,12 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
     { id: 'home', label: 'Home', number: '01' },
     { id: 'about', label: 'About', number: '02' },
     { id: 'artists', label: 'Artists', number: '03' },
-    { id: 'programme', label: 'Programme', number: '04' },
-    { id: 'gallery', label: 'Gallery', number: '05' },
-    { id: 'tickets', label: 'Tickets', number: '06' },
-    { id: 'venue', label: 'Venue', number: '07' },
-    { id: 'contact', label: 'Contact', number: '08' },
+    { id: 'vasr', label: 'VASR', number: '04' },
+    { id: 'programme', label: 'Programme', number: '05' },
+    { id: 'gallery', label: 'Gallery', number: '06' },
+    { id: 'tickets', label: 'Tickets', number: '07' },
+    { id: 'venue', label: 'Venue', number: '08' },
+    { id: 'contact', label: 'Contact', number: '09' },
   ];
 
   if (!isOpen) return null;
@@ -44,12 +45,10 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
         transition={{ duration: 0.35 }}
         className="fixed inset-0 z-50 bg-[#FEFFFF] text-[#0E1721] flex flex-col justify-between p-6 sm:p-10 overflow-y-auto"
       >
-        {/* Background cropped wing motif */}
         <div className="absolute top-1/4 -right-24 w-80 h-80 opacity-15 pointer-events-none">
           <ButterflyArtwork variant="right-wing-hero" />
         </div>
 
-        {/* Top Header */}
         <div className="relative z-10 flex items-center justify-between">
           <SwaraRanjanaLogo size="sm" onClick={() => { onNavigate('home'); onClose(); }} />
 
@@ -63,9 +62,8 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
           </button>
         </div>
 
-        {/* Giant Editorial Nav Links */}
         <div className="relative z-10 my-auto py-8">
-          <nav className="space-y-3 sm:space-y-4">
+          <nav className="space-y-2.5 sm:space-y-3">
             {navLinks.map((link, idx) => {
               const isActive = activePage === link.id;
               return (
@@ -73,7 +71,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                   key={link.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.05 * idx, duration: 0.4 }}
+                  transition={{ delay: 0.04 * idx, duration: 0.4 }}
                 >
                   <button
                     onClick={() => {
@@ -104,7 +102,6 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
           </nav>
         </div>
 
-        {/* Footer info & CTA */}
         <div className="relative z-10 pt-6 border-t border-ink-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="text-xs text-[#7D8A95] font-light space-y-0.5">
             <p className="font-medium text-[#0E1721]">{CONCERT_META.dateShort} • {CONCERT_META.venue}</p>

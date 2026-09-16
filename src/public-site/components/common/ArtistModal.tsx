@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Twitter, Facebook, Link2 } from 'lucide-react';
+import { X, Twitter, Facebook, Link2, Check, AlertCircle } from 'lucide-react';
 import { Artist } from '../../types';
 import { ButterflyArtwork } from './ButterflyArtwork';
 import { playHoverChime } from '../../lib/audioInteraction';
@@ -11,12 +11,31 @@ interface ArtistModalProps {
   onReserveClick?: () => void;
 }
 
+type CopyStatus = 'idle' | 'copied' | 'failed';
+
 export const ArtistModal: React.FC<ArtistModalProps> = ({
   artist,
   onClose,
   onReserveClick,
 }) => {
+  const [copyStatus, setCopyStatus] = useState<CopyStatus>('idle');
+
+  useEffect(() => {
+    setCopyStatus('idle');
+  }, [artist?.id]);
+
   if (!artist) return null;
+
+  const copyCurrentLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopyStatus('copied');
+    } catch {
+      setCopyStatus('failed');
+    }
+
+    window.setTimeout(() => setCopyStatus('idle'), 2200);
+  };
 
   return (
     <AnimatePresence>
@@ -33,7 +52,6 @@ export const ArtistModal: React.FC<ArtistModalProps> = ({
           className="relative bg-[#FEFFFF] text-[#0E1721] max-w-4xl w-full rounded-sm overflow-hidden shadow-2xl my-8 border border-[#C2CBD2]/40"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Close button */}
           <button
             id="artist-modal-close-btn"
             onClick={onClose}
@@ -44,7 +62,6 @@ export const ArtistModal: React.FC<ArtistModalProps> = ({
           </button>
 
           <div className="grid grid-cols-1 md:grid-cols-12">
-            {/* Left Portrait Column */}
             <div className="relative md:col-span-5 bg-[#0E1721] min-h-[340px] md:min-h-[500px] overflow-hidden">
               <img
                 src={artist.portraitLarge || artist.image}
@@ -53,7 +70,6 @@ export const ArtistModal: React.FC<ArtistModalProps> = ({
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0E1721] via-transparent to-transparent opacity-80" />
 
-              {/* Numbering and category watermark */}
               <div className="absolute bottom-6 left-6 right-6">
                 <span className="font-mono text-xs text-[#2271B1] tracking-[0.3em] uppercase block mb-1">
                   Maestro {artist.number} / 06
@@ -66,13 +82,11 @@ export const ArtistModal: React.FC<ArtistModalProps> = ({
                 </p>
               </div>
 
-              {/* Cropped Butterfly Wing Decoration */}
               <div className="absolute -top-10 -right-10 w-44 h-44 opacity-20 pointer-events-none">
                 <ButterflyArtwork variant="right-wing-hero" />
               </div>
             </div>
 
-            {/* Right Details Column */}
             <div className="md:col-span-7 p-6 sm:p-10 flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-4">
@@ -90,7 +104,6 @@ export const ArtistModal: React.FC<ArtistModalProps> = ({
                   {artist.bio}
                 </p>
 
-                {/* Repertoire highlight */}
                 {artist.repertoirePreview && (
                   <div className="p-4 bg-[#FEFFFF] border-l-2 border-[#2271B1] border-y border-r border-ink-10 mb-6 rounded-r-sm">
                     <span className="text-[10px] font-mono text-[#2271B1] tracking-widest uppercase block mb-1">
@@ -102,7 +115,6 @@ export const ArtistModal: React.FC<ArtistModalProps> = ({
                   </div>
                 )}
 
-                {/* Key career highlights */}
                 {artist.featuredHighlights && (
                   <div className="space-y-2 mb-6">
                     <span className="text-[10px] uppercase font-mono text-[#7D8A95] tracking-widest block">
@@ -123,33 +135,29 @@ export const ArtistModal: React.FC<ArtistModalProps> = ({
                 )}
               </div>
 
-              {/* Action Buttons */}
               <div className="pt-6 border-t border-[#0E1721]/10 flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <span className="text-[10px] uppercase tracking-[0.25em] text-[#7D8A95] font-medium hidden sm:inline-block">Share</span>
                   <div className="flex items-center gap-4 sm:border-l sm:border-[#0E1721]/10 sm:pl-4">
-                    <button 
+                    <button
                       onClick={() => window.open(`https://twitter.com/intent/tweet?text=Experience ${artist.name} live at Swara Ranjana 2026.`, '_blank')}
-                      className="text-[#31465A] hover:text-[#2271B1] transition-colors" 
+                      className="text-[#31465A] hover:text-[#2271B1] transition-colors"
                       title="Share to X"
                       aria-label="Share to X"
                     >
                       <Twitter className="w-4 h-4" />
                     </button>
-                    <button 
+                    <button
                       onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`, '_blank')}
-                      className="text-[#31465A] hover:text-[#2271B1] transition-colors" 
+                      className="text-[#31465A] hover:text-[#2271B1] transition-colors"
                       title="Share to Facebook"
                       aria-label="Share to Facebook"
                     >
                       <Facebook className="w-4 h-4" />
                     </button>
-                    <button 
-                      onClick={() => {
-                        navigator.clipboard.writeText(window.location.href);
-                        alert('Link copied to clipboard!');
-                      }}
-                      className="text-[#31465A] hover:text-[#2271B1] transition-colors" 
+                    <button
+                      onClick={copyCurrentLink}
+                      className="text-[#31465A] hover:text-[#2271B1] transition-colors"
                       title="Copy Link"
                       aria-label="Copy Link"
                     >
@@ -172,6 +180,26 @@ export const ArtistModal: React.FC<ArtistModalProps> = ({
               </div>
             </div>
           </div>
+
+          <AnimatePresence>
+            {copyStatus !== 'idle' && (
+              <motion.div
+                initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                className="absolute bottom-5 left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 border border-[#0E1721]/10 bg-[#0E1721] px-4 py-2.5 text-[10px] font-medium uppercase tracking-[0.18em] text-white shadow-xl"
+                role="status"
+                aria-live="polite"
+              >
+                {copyStatus === 'copied' ? (
+                  <Check className="h-3.5 w-3.5 text-[#75C5FF]" />
+                ) : (
+                  <AlertCircle className="h-3.5 w-3.5 text-[#75C5FF]" />
+                )}
+                {copyStatus === 'copied' ? 'Link copied' : 'Could not copy link'}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </div>
     </AnimatePresence>
