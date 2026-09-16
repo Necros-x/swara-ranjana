@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Swara Ranjana 2026 — Live Musical Experience",
+    default: "Swara Ranjana 2026 | Live Musical Experience",
     template: "%s | Swara Ranjana 2026",
   },
   description:
