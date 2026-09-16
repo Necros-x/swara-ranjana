@@ -1,5 +1,3 @@
-import type { ReservedSeatSummary, SeatSelectionMode } from "@/lib/seating/types";
-
 export interface CheckoutReservationInput {
   eventId: string;
   ticketTypeId: string;
@@ -9,8 +7,6 @@ export interface CheckoutReservationInput {
   phone: string;
   notes?: string;
   requestId: string;
-  selectionMode?: SeatSelectionMode;
-  selectedSeatIds?: string[];
 }
 
 export interface CheckoutReservationSuccess {
@@ -27,9 +23,6 @@ export interface CheckoutReservationSuccess {
   ticketTypeName?: string;
   quantity?: number;
   remainingAfterHold?: number;
-  selectionMode?: SeatSelectionMode;
-  seatSelectionFeeLkr?: number;
-  selectedSeats?: ReservedSeatSummary[];
 }
 
 export interface CheckoutReservationFailure {
