@@ -6,24 +6,35 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const runtime = "nodejs";
 
-const CRON_SCHEDULE = "*/5 * * * *";
+async function isAuthorized(request: NextRequest) {
+  const admin = createAdminClient() as any;
 
-function isAuthorized(request: NextRequest) {
-  const secret = process.env.CRON_SECRET?.trim();
+  const cronSecret = process.env.CRON_SECRET?.trim();
   const authorization = request.headers.get("authorization");
-
-  if (secret) {
-    return authorization === `Bearer ${secret}`;
+  if (cronSecret && authorization === `Bearer ${cronSecret}`) {
+    return true;
   }
 
-  // Vercel adds this header to scheduled invocations. CRON_SECRET is still
-  // preferred when configured, but this keeps the worker functional before a
-  // secret is added to the project environment.
-  return request.headers.get("x-vercel-cron-schedule") === CRON_SCHEDULE;
+  // The project is currently on Vercel Hobby, where high-frequency Vercel
+  // Cron schedules are unavailable. Supabase Cron calls this endpoint every
+  // five minutes with a random token stored only in Supabase Vault.
+  const schedulerToken = request.headers.get("x-sr-scheduler-token")?.trim();
+  if (!schedulerToken) return false;
+
+  const { data, error } = await admin.rpc("verify_expiry_scheduler_token", {
+    p_token: schedulerToken,
+  });
+
+  if (error) {
+    console.error("Expiry scheduler authentication failed:", error);
+    return false;
+  }
+
+  return data === true;
 }
 
 export async function GET(request: NextRequest) {
-  if (!isAuthorized(request)) {
+  if (!(await isAuthorized(request))) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
@@ -58,7 +69,8 @@ export async function GET(request: NextRequest) {
       {
         ok: false,
         expired: Array.isArray(expiredRows) ? expiredRows.length : 0,
-        error: "Expired reservations were processed, but email delivery could not be queued.",
+        error:
+          "Expired reservations were processed, but email delivery could not be queued.",
       },
       { status: 500 },
     );
