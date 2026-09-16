@@ -91,10 +91,10 @@ export async function createCheckoutReservation(
   try {
     const supabase = createAdminClient() as any;
 
-    // Public checkout no longer exposes exact-seat selection. The server always
-    // allocates available seats automatically inside the selected ticket type.
+    // The server allocates available seats automatically inside the selected
+    // ticket category. Exact-seat selection is intentionally not exposed.
     const { data, error } = await supabase.rpc(
-      "create_checkout_reservation_with_seats",
+      "create_checkout_reservation",
       {
         p_event_id: input.eventId,
         p_ticket_type_id: input.ticketTypeId,
@@ -104,13 +104,11 @@ export async function createCheckoutReservation(
         p_phone: phone,
         p_notes: notes,
         p_request_id: input.requestId,
-        p_selection_mode: "RANDOM",
-        p_selected_seat_ids: null,
       },
     );
 
     if (error) {
-      console.error("create_checkout_reservation_with_seats RPC failed:", error);
+      console.error("create_checkout_reservation RPC failed:", error);
       return failure(
         "CHECKOUT_FAILED",
         "We couldn't reserve those seats right now. Please try again.",
