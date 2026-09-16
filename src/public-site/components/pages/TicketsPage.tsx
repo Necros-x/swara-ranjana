@@ -57,7 +57,7 @@ export const TicketsPage: React.FC<TicketsPageProps> = ({ onOpenTicketsModal, ti
         </section>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-8 border-t border-ink-10 text-xs text-[#31465A] font-light">
-          <div><h4 className="font-medium text-[#0E1721] text-sm mb-2">Instant Digital Pass</h4><p className="leading-relaxed">Upon reservation confirmation, your high-resolution digital pass with unique verification ID is issued immediately.</p></div>
+          <div><h4 className="font-medium text-[#0E1721] text-sm mb-2">Instant Digital Pass</h4><p className="leading-relaxed">After payment is verified, your digital pass with its unique verification ID is issued and made available by email and in your ticket account.</p></div>
           <div><h4 className="font-medium text-[#0E1721] text-sm mb-2">Corporate & Patron Enquiries</h4><p className="leading-relaxed">For corporate reservations of 6+ guests or private reception arrangements, contact concierge@swararanjana.lk.</p></div>
           <div><h4 className="font-medium text-[#0E1721] text-sm mb-2">Accessibility Seating</h4><p className="leading-relaxed">For wheelchair access, companion spaces, or another seating requirement, contact Swara Ranjana before completing the reservation.</p></div>
         </div>
