@@ -178,5 +178,90 @@ export const TICKET_TIERS: TicketTier[] = [
   { id: 'tier-vip', code: 'VIP', tierName: 'VIP', subtitle: 'Central ODC seating closest to the primary performance axis.', priceLKR: 18000, formattedPrice: '18,000', availability: 'Available', seatingZone: 'Auditorium ODC · Blocks B–D', benefits: ['Digital admission pass', 'Central ODC seating', 'Priority entry'], maxPerOrder: 6, remainingSeats: 378 },
 ];
 
-export const GALLERY_ITEMS: GalleryItem[] = [];
+// TEMPORARY GALLERY CONTENT
+// When the official photos arrive, put the final .webp files in public/gallery/
+// and replace only the `image` values below with /gallery/<filename>.webp.
+export const GALLERY_ITEMS: GalleryItem[] = [
+  {
+    id: 'gallery-2026-opening',
+    title: 'Opening Movement',
+    year: '2026',
+    category: 'Live Concert',
+    image: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1600&q=82',
+    aspectRatio: 'landscape',
+    caption: 'A wide-stage moment used as a temporary visual placeholder for the 2026 concert archive.',
+    photographer: 'Temporary sample',
+  },
+  {
+    id: 'gallery-2026-artist',
+    title: 'In the Spotlight',
+    year: '2026',
+    category: 'Artists',
+    image: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1200&q=82',
+    aspectRatio: 'portrait',
+    caption: 'An intimate performer portrait placeholder for the final Swara Ranjana artist photography.',
+    photographer: 'Temporary sample',
+  },
+  {
+    id: 'gallery-2026-stage-light',
+    title: 'Cobalt Stage',
+    year: '2026',
+    category: 'Stage & Light',
+    image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=82',
+    aspectRatio: 'square',
+    caption: 'A temporary lighting reference for the architectural stage and performance atmosphere.',
+    photographer: 'Temporary sample',
+  },
+  {
+    id: 'gallery-bts-rehearsal',
+    title: 'Before the House Opens',
+    year: 'BEHIND THE SCENES',
+    category: 'Rehearsal',
+    image: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1600&q=82',
+    aspectRatio: 'landscape',
+    caption: 'A behind-the-scenes placeholder representing rehearsals, sound checks and final preparation.',
+    photographer: 'Temporary sample',
+  },
+  {
+    id: 'gallery-2025-atmosphere',
+    title: 'House Lights',
+    year: '2025',
+    category: 'Atmosphere',
+    image: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=1200&q=82',
+    aspectRatio: 'tall',
+    caption: 'A temporary archive frame capturing the scale, crowd and glow of a live musical evening.',
+    photographer: 'Temporary sample',
+  },
+  {
+    id: 'gallery-2025-artist',
+    title: 'Quiet Focus',
+    year: '2025',
+    category: 'Artists',
+    image: 'https://images.unsplash.com/photo-1501612780327-45045538702b?auto=format&fit=crop&w=1200&q=82',
+    aspectRatio: 'square',
+    caption: 'Temporary artist imagery to hold the editorial layout until the official archive is delivered.',
+    photographer: 'Temporary sample',
+  },
+  {
+    id: 'gallery-2024-live',
+    title: 'A Room in Resonance',
+    year: '2024',
+    category: 'Live Concert',
+    image: 'https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=1600&q=82',
+    aspectRatio: 'landscape',
+    caption: 'A sample live-performance frame standing in for the final historical Swara Ranjana archive.',
+    photographer: 'Temporary sample',
+  },
+  {
+    id: 'gallery-2024-stage',
+    title: 'Light Between Notes',
+    year: '2024',
+    category: 'Stage & Light',
+    image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=82',
+    aspectRatio: 'portrait',
+    caption: 'A temporary stage-light study for the final event photography collection.',
+    photographer: 'Temporary sample',
+  },
+];
+
 export const PREVIOUS_EDITIONS: PreviousEdition[] = [];

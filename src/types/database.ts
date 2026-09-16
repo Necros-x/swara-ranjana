@@ -200,7 +200,6 @@ type OrderItemRow = {
   ticket_type_id: string;
   quantity: number;
   unit_price_lkr: number;
-  seat_selection_fee_lkr: number;
   total_price_lkr: number;
   created_at: string;
 };
@@ -211,7 +210,6 @@ type OrderItemInsert = {
   ticket_type_id: string;
   quantity: number;
   unit_price_lkr: number;
-  seat_selection_fee_lkr?: number;
   created_at?: string;
 };
 
@@ -260,7 +258,6 @@ type TicketInsert = {
   created_at?: string;
   updated_at?: string;
 };
-
 
 type PaymentSubmissionRow = {
   id: string; order_id: string; storage_path: string; original_filename: string; mime_type: string; file_size: number;
