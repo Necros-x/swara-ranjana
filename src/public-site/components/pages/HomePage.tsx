@@ -500,7 +500,8 @@ export const HomePage: React.FC<HomePageProps> = ({
       {/* ========================================================================= */}
       {/* 6. GALLERY PREVIEW (Artistic Overlaps & Masonry)                          */}
       {/* ========================================================================= */}
-      <section
+      {GALLERY_ITEMS.length >= 4 && (
+        <section
         id="gallery-preview-section"
         className="py-24 sm:py-32 px-4 sm:px-6 lg:px-12 bg-[#F9FBFC] border-t border-ink-10"
       >
@@ -607,7 +608,8 @@ export const HomePage: React.FC<HomePageProps> = ({
             </div>
           </div>
         </div>
-      </section>
+        </section>
+      )}
 
       {/* ========================================================================= */}
       {/* 7. TICKET SECTION                                                         */}

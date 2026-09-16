@@ -9,32 +9,23 @@ import type {
 } from "@/lib/checkout/types";
 import type { Json } from "@/types/database";
 
-function isRecord(value: Json): value is { [key: string]: Json | undefined } {
+function isRecord(value: Json | unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function readString(
-  value: { [key: string]: Json | undefined },
-  key: string,
-): string | undefined {
+function readString(value: Record<string, unknown>, key: string) {
   const candidate = value[key];
   return typeof candidate === "string" ? candidate : undefined;
 }
 
-function readNumber(
-  value: { [key: string]: Json | undefined },
-  key: string,
-): number | undefined {
+function readNumber(value: Record<string, unknown>, key: string) {
   const candidate = value[key];
   return typeof candidate === "number" && Number.isFinite(candidate)
     ? candidate
     : undefined;
 }
 
-function readBoolean(
-  value: { [key: string]: Json | undefined },
-  key: string,
-): boolean | undefined {
+function readBoolean(value: Record<string, unknown>, key: string) {
   const candidate = value[key];
   return typeof candidate === "boolean" ? candidate : undefined;
 }
@@ -98,8 +89,10 @@ export async function createCheckoutReservation(
   }
 
   try {
-    const supabase = createAdminClient();
+    const supabase = createAdminClient() as any;
 
+    // The server allocates available seats automatically inside the selected
+    // ticket category. Exact-seat selection is intentionally not exposed.
     const { data, error } = await supabase.rpc(
       "create_checkout_reservation",
       {
@@ -133,8 +126,7 @@ export async function createCheckoutReservation(
     if (data.ok !== true) {
       return failure(
         readString(data, "code") ?? "RESERVATION_REJECTED",
-        readString(data, "message") ??
-          "Those seats could not be reserved.",
+        readString(data, "message") ?? "Those seats could not be reserved.",
         readNumber(data, "remaining"),
       );
     }
@@ -179,8 +171,6 @@ export async function createCheckoutReservation(
       remainingAfterHold: readNumber(data, "remaining_after_hold"),
     };
 
-    // Email failure never invalidates a successfully-created reservation.
-    // The delivery log lets us safely retry later without duplicating mail.
     await sendReservationCreatedEmail(orderId).catch((emailError) => {
       console.error("Reservation email failed:", emailError);
     });

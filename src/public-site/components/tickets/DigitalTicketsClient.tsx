@@ -115,7 +115,13 @@ async function buildTicketPng(
 
   ctx.fillStyle = "#7D8A95";
   ctx.font = "20px Arial, sans-serif";
-  ctx.fillText(ticket.seatingZone ?? "Admission", 110, 330);
+  ctx.fillText(
+    ticket.seatLabel
+      ? `${ticket.seatingZone ?? "Admission"} • Seat ${ticket.seatLabel}`
+      : (ticket.seatingZone ?? "Admission"),
+    110,
+    330,
+  );
 
   const rows = [
     ["GUEST", ticket.attendeeName || bundle.customerName],
@@ -437,6 +443,14 @@ export default function DigitalTicketsClient({
                     </div>
                     <div className="mt-1 font-mono text-sm font-semibold text-[#2271B1]">
                       {ticket.ticketNumber}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase tracking-[0.2em] text-[#7D8A95]">
+                      Seat
+                    </div>
+                    <div className="mt-1 font-mono text-sm font-semibold text-[#0E1721]">
+                      {ticket.seatLabel ?? "Assigned at entry"}
                     </div>
                   </div>
                 </div>

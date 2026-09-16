@@ -48,7 +48,7 @@ function Block({
       type="button"
       onClick={onSelect}
       aria-pressed={selected}
-      className={`group min-w-0 rounded-[22px] border bg-white p-3 text-left shadow-[0_12px_32px_rgba(14,23,33,.05)] transition duration-300 ${
+      className={`group min-w-0 rounded-[22px] border bg-white p-3 text-left shadow-[0_12px_32px_rgba(14,23,33,.05)] transition duration-300 cursor-pointer ${
         selected
           ? "border-[#2271B1] ring-2 ring-[#2271B1]/10"
           : "border-[#C2CBD2]/70 hover:border-[#2271B1]/60"
@@ -107,31 +107,17 @@ export function AuditoriumSeatingMap() {
 
           <div className="grid grid-cols-[1fr_1.15fr_1fr] items-end gap-5 px-12">
             <div className="origin-bottom-right rotate-[7deg]">
-              <Block
-                block={block("F")}
-                selected={selectedBlock === "F"}
-                onSelect={() => setSelectedBlock(selectedBlock === "F" ? null : "F")}
-              />
+              <Block block={block("F")} selected={selectedBlock === "F"} onSelect={() => setSelectedBlock(selectedBlock === "F" ? null : "F")} />
             </div>
-            <Block
-              block={block("G")}
-              selected={selectedBlock === "G"}
-              onSelect={() => setSelectedBlock(selectedBlock === "G" ? null : "G")}
-            />
+            <Block block={block("G")} selected={selectedBlock === "G"} onSelect={() => setSelectedBlock(selectedBlock === "G" ? null : "G")} />
             <div className="origin-bottom-left -rotate-[7deg]">
-              <Block
-                block={block("H")}
-                selected={selectedBlock === "H"}
-                onSelect={() => setSelectedBlock(selectedBlock === "H" ? null : "H")}
-              />
+              <Block block={block("H")} selected={selectedBlock === "H"} onSelect={() => setSelectedBlock(selectedBlock === "H" ? null : "H")} />
             </div>
           </div>
 
           <div className="my-9 flex items-center gap-4 px-12">
             <div className="h-px flex-1 bg-[#C2CBD2]/70" />
-            <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-[#7D8A95]">
-              Balcony / ODC separation
-            </span>
+            <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-[#7D8A95]">Balcony / ODC separation</span>
             <div className="h-px flex-1 bg-[#C2CBD2]/70" />
           </div>
 
@@ -143,44 +129,22 @@ export function AuditoriumSeatingMap() {
 
           <div className="grid grid-cols-[1fr_.55fr_1.35fr_.55fr_1fr] items-end gap-3">
             <div className="origin-bottom-right rotate-[10deg]">
-              <Block
-                block={block("A")}
-                selected={selectedBlock === "A"}
-                onSelect={() => setSelectedBlock(selectedBlock === "A" ? null : "A")}
-              />
+              <Block block={block("A")} selected={selectedBlock === "A"} onSelect={() => setSelectedBlock(selectedBlock === "A" ? null : "A")} />
             </div>
             <div className="origin-bottom-right rotate-[4deg]">
-              <Block
-                block={block("B")}
-                selected={selectedBlock === "B"}
-                onSelect={() => setSelectedBlock(selectedBlock === "B" ? null : "B")}
-              />
+              <Block block={block("B")} selected={selectedBlock === "B"} onSelect={() => setSelectedBlock(selectedBlock === "B" ? null : "B")} />
             </div>
-            <Block
-              block={block("C")}
-              selected={selectedBlock === "C"}
-              onSelect={() => setSelectedBlock(selectedBlock === "C" ? null : "C")}
-            />
+            <Block block={block("C")} selected={selectedBlock === "C"} onSelect={() => setSelectedBlock(selectedBlock === "C" ? null : "C")} />
             <div className="origin-bottom-left -rotate-[4deg]">
-              <Block
-                block={block("D")}
-                selected={selectedBlock === "D"}
-                onSelect={() => setSelectedBlock(selectedBlock === "D" ? null : "D")}
-              />
+              <Block block={block("D")} selected={selectedBlock === "D"} onSelect={() => setSelectedBlock(selectedBlock === "D" ? null : "D")} />
             </div>
             <div className="origin-bottom-left -rotate-[10deg]">
-              <Block
-                block={block("E")}
-                selected={selectedBlock === "E"}
-                onSelect={() => setSelectedBlock(selectedBlock === "E" ? null : "E")}
-              />
+              <Block block={block("E")} selected={selectedBlock === "E"} onSelect={() => setSelectedBlock(selectedBlock === "E" ? null : "E")} />
             </div>
           </div>
 
           <div className="mx-auto mt-10 w-[58%] rounded-b-[90px] border border-[#0E1721] bg-[#0E1721] px-6 py-4 text-center text-white shadow-lg">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.34em]">
-              Stage
-            </div>
+            <div className="font-mono text-[10px] font-bold uppercase tracking-[0.34em]">Stage</div>
           </div>
         </div>
       </div>
@@ -190,7 +154,7 @@ export function AuditoriumSeatingMap() {
           <>
             <span className="font-semibold text-[#0E1721]">Block {selected.id}</span>
             {" · "}{selected.level === "ODC" ? "Auditorium ODC" : "Auditorium Balcony"}
-            {" · "}{selected.rows.length} rows · {selected.total} seats. Row-by-row seat selection will use this exact geometry once the event’s seat-pricing rules are connected.
+            {" · "}{selected.rows.length} rows · {selected.total} seats.
           </>
         ) : (
           <>Select any block to inspect its real row geometry. The map reproduces the block and row seat counts from the supplied auditorium plan.</>

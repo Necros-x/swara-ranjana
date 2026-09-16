@@ -213,6 +213,14 @@ export default function TicketDetail({
                       {ticket.ticketType.seatingZone || "General admission"}
                     </div>
                   </div>
+                  <div>
+                    <div className="text-[10px] uppercase tracking-[0.15em] text-[#7D8A95]">
+                      Seat
+                    </div>
+                    <div className="mt-1 font-mono font-semibold text-[#0E1721]">
+                      {ticket.seatLabel ?? "Unassigned"}
+                    </div>
+                  </div>
                 </div>
               </div>
 

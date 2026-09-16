@@ -222,6 +222,8 @@ type TicketRow = {
   customer_id: string;
   ticket_number: string;
   qr_token: string;
+  seat_id: string | null;
+  seat_label: string | null;
   attendee_name: string | null;
   status: TicketStatus;
   issued_at: string;
@@ -243,6 +245,8 @@ type TicketInsert = {
   customer_id: string;
   ticket_number?: string;
   qr_token?: string;
+  seat_id?: string | null;
+  seat_label?: string | null;
   attendee_name?: string | null;
   status?: TicketStatus;
   issued_at?: string;
@@ -254,7 +258,6 @@ type TicketInsert = {
   created_at?: string;
   updated_at?: string;
 };
-
 
 type PaymentSubmissionRow = {
   id: string; order_id: string; storage_path: string; original_filename: string; mime_type: string; file_size: number;

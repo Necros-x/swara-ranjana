@@ -18,6 +18,7 @@ export interface GuestDigitalTicket {
   checkedInAt: string | null;
   ticketTypeName: string;
   seatingZone: string | null;
+  seatLabel: string | null;
 }
 
 export interface GuestTicketBundle {
@@ -74,7 +75,7 @@ export async function getGuestTicketBundle(
     supabase
       .from("tickets")
       .select(
-        "id,ticket_number,qr_token,status,attendee_name,issued_at,checked_in_at,ticket_type_id",
+        "id,ticket_number,qr_token,status,attendee_name,issued_at,checked_in_at,ticket_type_id,seat_label",
       )
       .eq("order_id", order.id)
       .order("ticket_number"),
@@ -128,6 +129,7 @@ export async function getGuestTicketBundle(
         checkedInAt: ticket.checked_in_at,
         ticketTypeName: ticketType?.name ?? "Admission",
         seatingZone: ticketType?.seatingZone ?? null,
+        seatLabel: ticket.seat_label,
       };
     }),
   };

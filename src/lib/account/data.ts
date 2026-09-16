@@ -23,6 +23,7 @@ export interface AccountTicketSummary {
   ticketNumber: string;
   ticketTypeName: string;
   status: TicketStatus;
+  seatLabel: string | null;
   refundValue: number;
 }
 
@@ -68,6 +69,7 @@ export interface AccountDigitalTicket {
   attendeeName: string | null;
   ticketTypeName: string;
   seatingZone: string | null;
+  seatLabel: string | null;
   checkedInAt: string | null;
 }
 
@@ -135,7 +137,7 @@ export async function getCustomerAccountData(
       supabase
         .from("tickets")
         .select(
-          "id,order_id,order_item_id,ticket_type_id,ticket_number,status",
+          "id,order_id,order_item_id,ticket_type_id,ticket_number,status,seat_label",
         )
         .in("order_id", orderIds)
         .order("ticket_number"),
@@ -213,6 +215,7 @@ export async function getCustomerAccountData(
             ticketTypeName:
               typeMap.get(ticket.ticket_type_id) ?? "Admission",
             status: ticket.status,
+            seatLabel: ticket.seat_label,
             refundValue,
           };
         });
@@ -284,7 +287,7 @@ export async function getCustomerTicketBundle(
       await supabase
         .from("tickets")
         .select(
-          "id,ticket_number,qr_token,status,attendee_name,ticket_type_id,checked_in_at",
+          "id,ticket_number,qr_token,status,attendee_name,ticket_type_id,checked_in_at,seat_label",
         )
         .eq("order_id", order.id)
         .eq("customer_id", customer.id)
@@ -328,6 +331,7 @@ export async function getCustomerTicketBundle(
         attendeeName: ticket.attendee_name,
         ticketTypeName: type?.name ?? "Admission",
         seatingZone: type?.seating_zone ?? null,
+        seatLabel: ticket.seat_label,
         checkedInAt: ticket.checked_in_at,
       };
     }),
