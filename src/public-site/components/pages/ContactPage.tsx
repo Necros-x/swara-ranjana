@@ -1,221 +1,127 @@
-import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { SectionLabel } from '../common/SectionLabel';
-import { EditorialHeading } from '../common/EditorialHeading';
-import { ButterflyArtwork } from '../common/ButterflyArtwork';
-import { ChevronDown, Check, Send } from 'lucide-react';
+import React, { useState } from "react";
+import { motion } from "motion/react";
+import { SectionLabel } from "../common/SectionLabel";
+import { EditorialHeading } from "../common/EditorialHeading";
+import { ButterflyArtwork } from "../common/ButterflyArtwork";
+import { ChevronDown, Clock3, MapPin, TicketCheck } from "lucide-react";
 
 export const ContactPage: React.FC = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: 'General Inquiries',
-    message: '',
-  });
-  const [isSent, setIsSent] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   const faqs = [
     {
-      q: 'What is the exact start time and entry policy?',
-      a: 'The venue doors open for the welcome reception at 05:00 PM. Auditorium doors open at 05:30 PM, and the performance commences strictly at 06:00 PM. In accordance with classical concert etiquette, latecomers will be admitted only during the intermission.',
+      q: "When do doors open and when does the show begin?",
+      a: "Main hall doors are currently scheduled to open at 05:30 PM, with the performance scheduled to begin at 06:00 PM on Saturday, November 28, 2026.",
     },
     {
-      q: 'Are children permitted at the performance?',
-      a: 'To maintain the uninterrupted acoustic intimacy of the concert, the performance is recommended for audiences aged 10 and above. Every attendee must possess an allocated seat ticket.',
+      q: "Can I choose an exact seat when reserving online?",
+      a: "No. Choose a ticket category and quantity; the reservation system automatically allocates available physical seats within the auditorium blocks assigned to that category.",
     },
     {
-      q: 'Is photography or recording allowed during the show?',
-      a: 'Professional cameras, flash photography, and continuous video recording are strictly prohibited inside the main auditorium. Guests are welcome to take commemorative photographs in the foyer and step-and-repeat areas before and after the performance.',
+      q: "How does pay on arrival work?",
+      a: "Your reservation can be confirmed with payment still pending. Complete payment at the Swara Ranjana payment counter before going to the gate for admission.",
     },
     {
-      q: 'What is the dress code for Swara Ranjana 2026?',
-      a: 'The recommended dress code is Formal Evening Attire, Contemporary High-Fashion, or Traditional South Asian Formal (Sari, Sherwani, National Dress, Black Tie).',
+      q: "Can I leave the venue and return using the same ticket?",
+      a: "Yes. After first admission, a gate scan can record an exit. Present the same valid QR code again when returning so the guest can be re-admitted.",
     },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSent(true);
-    setTimeout(() => {
-      // Keep feedback visible
-    }, 400);
-  };
-
   return (
-    <div id="contact-page-root" className="pt-28 sm:pt-36 pb-24 relative overflow-hidden">
-      <div className="absolute top-10 -right-20 w-[450px] h-[650px] opacity-10 pointer-events-none">
+    <div
+      id="contact-page-root"
+      className="relative overflow-hidden pb-24 pt-28 sm:pt-36"
+    >
+      <div className="pointer-events-none absolute -right-20 top-10 h-[650px] w-[450px] opacity-10">
         <ButterflyArtwork variant="right-wing-hero" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
-        <div className="max-w-3xl mb-16 sm:mb-20">
-          <SectionLabel label="Inquiries & Concierge" number="01" className="mb-4" />
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-12">
+        <div className="mb-16 max-w-3xl sm:mb-20">
+          <SectionLabel label="Event Information" number="01" className="mb-4" />
 
           <EditorialHeading size="giant" className="mb-6">
-            LET’S<br />
-            <span className="italic font-normal text-[#2271B1]">CONNECT.</span>
+            LET&apos;S
+            <br />
+            <span className="font-normal italic text-[#2271B1]">CONNECT.</span>
           </EditorialHeading>
 
-          <p className="text-base sm:text-lg text-[#31465A] font-light leading-relaxed font-serif">
-            For press accreditation, VIP patron boxes, corporate sponsorship, or guest assistance, our concert secretariat is at your service.
+          <p className="text-base font-light leading-relaxed text-[#31465A] sm:text-lg">
+            Confirmed public contact details for Swara Ranjana 2026 have not yet
+            been published. This page will become the official point of contact
+            for event, ticketing, media and accessibility inquiries once those
+            channels are confirmed.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 mb-24">
-          <div className="lg:col-span-5 space-y-8">
-            <div className="p-6 bg-[#F9FBFC] border border-ink-10 rounded-sm">
-              <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-[#2271B1] block mb-2">
-                01 / General Inquiries
+        <div className="mb-24 grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+          <div className="space-y-5 lg:col-span-5">
+            <div className="rounded-sm border border-ink-10 bg-[#F9FBFC] p-6">
+              <span className="mb-2 block font-mono text-[10px] uppercase tracking-[0.3em] text-[#2271B1]">
+                01 / Venue
               </span>
-              <h4 className="font-medium text-[#0E1721] text-sm mb-1">
-                Concert Secretariat
+              <MapPin className="mb-3 h-5 w-5 text-[#2271B1]" />
+              <h4 className="mb-1 text-sm font-medium text-[#0E1721]">
+                Mahinda Rajapaksha Auditorium
               </h4>
-              <p className="text-xs text-[#7D8A95] font-light mb-3">
-                Questions regarding event schedule, artist participation, and media.
+              <p className="text-xs font-light leading-relaxed text-[#7D8A95]">
+                Polgolla, Kandy, Sri Lanka
               </p>
-              <a
-                href="mailto:contact@swararanjana.lk"
-                className="text-xs font-mono text-[#0E1721] hover:text-[#2271B1] transition-colors"
-              >
-                contact@swararanjana.lk
-              </a>
             </div>
 
-            <div className="p-6 bg-[#F9FBFC] border border-ink-10 rounded-sm">
-              <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-[#2271B1] block mb-2">
-                02 / Swara Ranjana
+            <div className="rounded-sm border border-ink-10 bg-[#F9FBFC] p-6">
+              <span className="mb-2 block font-mono text-[10px] uppercase tracking-[0.3em] text-[#2271B1]">
+                02 / Event Timing
               </span>
-              <h4 className="font-medium text-[#0E1721] text-sm mb-1">
-                Patron Hospitality
+              <Clock3 className="mb-3 h-5 w-5 text-[#2271B1]" />
+              <h4 className="mb-1 text-sm font-medium text-[#0E1721]">
+                Saturday, November 28, 2026
               </h4>
-              <p className="text-xs text-[#7D8A95] font-light mb-3">
-                Assistance with tier reservations, corporate bookings, and wheelchair access.
+              <p className="text-xs font-light leading-relaxed text-[#7D8A95]">
+                Doors 05:30 PM · Showtime 06:00 PM
               </p>
-              <div className="space-y-1 text-xs font-mono text-[#0E1721]">
-                <p>concierge@swararanjana.lk</p>
-                <p>+94 11 268 9000</p>
-              </div>
             </div>
 
-            <div className="p-6 bg-[#F9FBFC] border border-ink-10 rounded-sm">
-              <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-[#2271B1] block mb-2">
-                03 / Press & Media Desk
+            <div className="rounded-sm border border-ink-10 bg-[#F9FBFC] p-6">
+              <span className="mb-2 block font-mono text-[10px] uppercase tracking-[0.3em] text-[#2271B1]">
+                03 / Ticket Support
               </span>
-              <h4 className="font-medium text-[#0E1721] text-sm mb-1">
-                Editorial Press Passes
+              <TicketCheck className="mb-3 h-5 w-5 text-[#2271B1]" />
+              <h4 className="mb-1 text-sm font-medium text-[#0E1721]">
+                Digital ticket assistance
               </h4>
-              <p className="text-xs text-[#7D8A95] font-light mb-3">
-                High-resolution press kit assets, interview requests, and photography pits.
+              <p className="text-xs font-light leading-relaxed text-[#7D8A95]">
+                Ticket account, payment, cancellation and refund tools are
+                available through the digital reservation flow. A confirmed
+                support channel will be added here before public launch.
               </p>
-              <a
-                href="mailto:press@swararanjana.lk"
-                className="text-xs font-mono text-[#0E1721] hover:text-[#2271B1] transition-colors"
-              >
-                press@swararanjana.lk
-              </a>
             </div>
           </div>
 
-          <div className="lg:col-span-7 bg-[#FEFFFF] border border-ink-10 p-8 sm:p-12 rounded-sm shadow-sm">
-            <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-[#2271B1] block mb-2">
-              Send A Direct Message
+          <div className="rounded-sm border border-ink-10 bg-[#FEFFFF] p-8 shadow-sm sm:p-12 lg:col-span-7">
+            <span className="mb-2 block font-mono text-[10px] uppercase tracking-[0.3em] text-[#2271B1]">
+              Official Contact Channel
             </span>
-            <h3 className="font-gemola text-3xl sm:text-4xl text-[#0E1721] font-light mb-6">
-              Inquiry Form
+            <h3 className="mb-6 font-gemola text-3xl font-light text-[#0E1721] sm:text-4xl">
+              Coming before public launch.
             </h3>
 
-            {!isSent ? (
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label className="block text-[11px] uppercase font-mono tracking-widest text-[#31465A] mb-2">
-                    Your Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Dr. Kanishka Fernando"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 text-xs bg-white border border-ink-10 rounded-sm focus:outline-none focus:border-[#2271B1] transition-colors"
-                  />
-                </div>
+            <p className="max-w-xl text-sm font-light leading-relaxed text-[#31465A]">
+              We are intentionally not displaying placeholder email addresses,
+              phone numbers or social links. Once the official Swara Ranjana
+              contact details are confirmed, this section can be connected to
+              the real inquiry workflow.
+            </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[11px] uppercase font-mono tracking-widest text-[#31465A] mb-2">
-                      Email Address *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      placeholder="yourmail@email.com"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-4 py-3 text-xs bg-white border border-ink-10 rounded-sm focus:outline-none focus:border-[#2271B1] transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] uppercase font-mono tracking-widest text-[#31465A] mb-2">
-                      Subject
-                    </label>
-                    <select
-                      value={formData.subject}
-                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      className="w-full px-4 py-3 text-xs bg-white border border-ink-10 rounded-sm focus:outline-none focus:border-[#2271B1] transition-colors"
-                    >
-                      <option>General Inquiries</option>
-                      <option>Ticket & Seat Concierge</option>
-                      <option>VIP Box & Corporate Hospitality</option>
-                      <option>Press & Media Accreditation</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] uppercase font-mono tracking-widest text-[#31465A] mb-2">
-                    Your Message *
-                  </label>
-                  <textarea
-                    rows={5}
-                    required
-                    placeholder="How may we assist you with Swara Ranjana 2026?"
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    className="w-full px-4 py-3 text-xs bg-white border border-ink-10 rounded-sm focus:outline-none focus:border-[#2271B1] transition-colors"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="px-8 py-4 bg-[#0E1721] hover:bg-[#2271B1] text-white text-xs uppercase tracking-[0.25em] font-medium transition-colors rounded-sm flex items-center gap-2"
-                >
-                  <span>Dispatch Message</span>
-                  <Send className="w-3.5 h-3.5" />
-                </button>
-              </form>
-            ) : (
-              <div className="py-12 text-center space-y-4">
-                <div className="w-12 h-12 rounded-full bg-[#2271B1]/10 text-[#2271B1] flex items-center justify-center mx-auto">
-                  <Check className="w-6 h-6" />
-                </div>
-                <h4 className="font-gemola text-3xl text-[#0E1721]">Message Received</h4>
-                <p className="text-xs text-[#31465A] font-light max-w-sm mx-auto">
-                  Thank you, <strong>{formData.name}</strong>. Our concert concierge has received your inquiry and will respond within 24 hours.
-                </p>
-                <button
-                  onClick={() => setIsSent(false)}
-                  className="text-xs font-mono text-[#2271B1] underline pt-2"
-                >
-                  Send another inquiry
-                </button>
-              </div>
-            )}
+            <div className="mt-8 border-l-2 border-[#2271B1] bg-[#2271B1]/5 px-5 py-4 text-xs leading-relaxed text-[#31465A]">
+              Until then, use the ticket and account pages for reservation,
+              payment and ticket-management actions. Contact information shown
+              here will only be published after verification.
+            </div>
           </div>
         </div>
 
-        <div className="py-16 border-t border-ink-10 max-w-4xl mx-auto">
+        <div className="mx-auto max-w-4xl border-t border-ink-10 py-16">
           <SectionLabel label="Common Inquiries" number="02" className="mb-4" />
           <EditorialHeading size="md" className="mb-10">
             Frequently Asked Questions
@@ -225,17 +131,18 @@ export const ContactPage: React.FC = () => {
             {faqs.map((faq, idx) => {
               const isOpen = openFaqIndex === idx;
               return (
-                <div key={idx} className="py-6">
+                <div key={faq.q} className="py-6">
                   <button
+                    type="button"
                     onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
-                    className="w-full flex items-center justify-between text-left group"
+                    className="group flex w-full cursor-pointer items-center justify-between gap-5 text-left"
                   >
-                    <span className="font-gemola text-xl sm:text-2xl text-[#0E1721] font-light group-hover:text-[#2271B1] transition-colors">
+                    <span className="font-gemola text-xl font-light text-[#0E1721] transition-colors group-hover:text-[#2271B1] sm:text-2xl">
                       {faq.q}
                     </span>
                     <ChevronDown
-                      className={`w-5 h-5 text-[#7D8A95] transition-transform duration-300 ${
-                        isOpen ? 'rotate-180 text-[#2271B1]' : ''
+                      className={`h-5 w-5 shrink-0 text-[#7D8A95] transition-transform duration-300 ${
+                        isOpen ? "rotate-180 text-[#2271B1]" : ""
                       }`}
                     />
                   </button>
@@ -243,9 +150,9 @@ export const ContactPage: React.FC = () => {
                   {isOpen && (
                     <motion.p
                       initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
+                      animate={{ opacity: 1, height: "auto" }}
                       transition={{ duration: 0.3 }}
-                      className="text-xs sm:text-sm text-[#31465A] font-light leading-relaxed mt-4 max-w-2xl"
+                      className="mt-4 max-w-2xl text-xs font-light leading-relaxed text-[#31465A] sm:text-sm"
                     >
                       {faq.a}
                     </motion.p>
