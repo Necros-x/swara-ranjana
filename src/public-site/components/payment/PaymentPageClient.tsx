@@ -21,7 +21,6 @@ import {
   useTransition,
 } from "react";
 import {
-  confirmOnArrival,
   selectPaymentMethod,
   uploadPaymentSlip,
 } from "@/app/actions/payment";
@@ -59,7 +58,7 @@ export default function PaymentPageClient({
   bankTransfer: BankTransferDetails | null;
 }) {
   const [method, setMethod] = useState<PaymentMethod>(
-    order.paymentMethod ?? "ON_ARRIVAL",
+    order.paymentMethod ?? "BANK_SLIP",
   );
   const [message, setMessage] = useState("");
   const [slip, setSlip] = useState<File | null>(null);
@@ -75,7 +74,12 @@ export default function PaymentPageClient({
 
   const choose = (nextMethod: PaymentMethod) => {
     if (nextMethod === "CARD") {
-      setMessage("Card payments are not available yet. Choose another payment method.");
+      setMessage("Card payments are not available yet. Slip upload is currently available.");
+      return;
+    }
+
+    if (nextMethod === "ON_ARRIVAL") {
+      setMessage("Pay on arrival is no longer available for new reservations. Use slip upload instead.");
       return;
     }
 
@@ -93,16 +97,6 @@ export default function PaymentPageClient({
       }
     });
   };
-
-  const onArrival = () =>
-    startTransition(async () => {
-      const result = await confirmOnArrival(
-        order.orderNumber,
-        accessToken,
-      );
-      if (result.ok) location.reload();
-      else setMessage(result.message || "Unable to continue.");
-    });
 
   const prepareSlip = async (candidate?: File | null) => {
     if (!candidate) return;
@@ -162,15 +156,15 @@ export default function PaymentPageClient({
       id: "CARD",
       Icon: CreditCard,
       title: "Card",
-      description: "Hosted card gateway connection pending.",
+      description: "Hosted OnePay card checkout will be enabled after gateway connection.",
       enabled: false,
     },
     {
       id: "ON_ARRIVAL",
       Icon: HandCoins,
       title: "On arrival",
-      description: "Reserve now and pay at the entrance.",
-      enabled: true,
+      description: "Unavailable for new reservations. Existing legacy reservations remain supported at the counter.",
+      enabled: false,
     },
     {
       id: "BANK_SLIP",
@@ -211,7 +205,7 @@ export default function PaymentPageClient({
                 <h2 className="font-medium">Reservation confirmed</h2>
                 <p className="mt-1 text-sm text-[#54606B]">
                   {order.paymentMethod === "ON_ARRIVAL"
-                    ? "Pay at the entrance before admission."
+                    ? "This legacy reservation remains payable at the entrance before admission."
                     : "Your payment has been confirmed."}
                 </p>
                 <p className="mt-4 text-xs text-[#7D8A95]">
@@ -256,7 +250,9 @@ export default function PaymentPageClient({
                         </p>
                         {!enabled && (
                           <div className="mt-3 text-[9px] font-semibold uppercase tracking-[0.14em] text-amber-700">
-                            Not available yet
+                            {id === "ON_ARRIVAL"
+                              ? "Unavailable for new reservations"
+                              : "Gateway pending"}
                           </div>
                         )}
                       </button>
@@ -269,8 +265,8 @@ export default function PaymentPageClient({
                     <>
                       <h2 className="font-medium">Card payment</h2>
                       <p className="mt-2 text-sm text-[#7D8A95]">
-                        Card details will be entered on the payment provider&apos;s
-                        hosted page — never on this website.
+                        Card details will be entered on OnePay&apos;s hosted page —
+                        never on this website.
                       </p>
                       <button
                         disabled
@@ -282,20 +278,11 @@ export default function PaymentPageClient({
                   )}
 
                   {method === "ON_ARRIVAL" && (
-                    <>
-                      <h2 className="font-medium">Pay on arrival</h2>
-                      <p className="mt-2 text-sm text-[#7D8A95]">
-                        Your seats become confirmed now. Payment remains due at
-                        the entrance.
-                      </p>
-                      <button
-                        disabled={pending || expired}
-                        onClick={onArrival}
-                        className="mt-5 cursor-pointer bg-[#0E1721] px-6 py-3 text-xs uppercase tracking-[.18em] text-white hover:bg-[#2271B1] disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        Confirm pay on arrival
-                      </button>
-                    </>
+                    <div className="border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-900">
+                      Pay on arrival is no longer offered for new reservations.
+                      Existing legacy On-Arrival reservations can still be processed
+                      by authorized staff at the Payment Counter.
+                    </div>
                   )}
 
                   {method === "BANK_SLIP" && (

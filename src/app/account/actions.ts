@@ -6,6 +6,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { sendTransactionalEmail } from "@/lib/email/resend";
 import { sendCustomerRequestEmail } from "@/lib/email/requestEmails";
+import {
+  consumeServerRateLimit,
+  getRequestNetworkKey,
+} from "@/lib/security/rateLimit";
 import type { Json } from "@/types/database";
 
 export interface AccountAuthResult {
@@ -18,6 +22,9 @@ export interface CustomerOrderActionResult {
   message: string;
   action?: "CANCELLED" | "CANCEL_REQUESTED" | "REFUND_REQUESTED";
 }
+
+const LOGIN_CODE_SENT_MESSAGE =
+  "If this email is linked to a reservation, a login code has been sent.";
 
 function emailOf(value: string) {
   return value.trim().toLowerCase();
@@ -82,6 +89,32 @@ export async function requestCustomerLoginCode(
   }
 
   try {
+    const networkKey = await getRequestNetworkKey();
+    const rateResults = await Promise.all([
+      consumeServerRateLimit({
+        scope: "customer-otp-request-email",
+        key: email,
+        limit: 4,
+        windowSeconds: 15 * 60,
+      }),
+      ...(networkKey
+        ? [
+            consumeServerRateLimit({
+              scope: "customer-otp-request-network",
+              key: networkKey,
+              limit: 20,
+              windowSeconds: 60 * 60,
+            }),
+          ]
+        : []),
+    ]);
+
+    if (rateResults.some((result) => !result.allowed)) {
+      // Preserve the same response used for unknown customer emails so the
+      // throttle cannot be used for account enumeration.
+      return { ok: true, message: LOGIN_CODE_SENT_MESSAGE };
+    }
+
     const admin = createAdminClient();
 
     const { data: customer, error: lookupError } = await admin
@@ -102,8 +135,7 @@ export async function requestCustomerLoginCode(
     if (!customer) {
       return {
         ok: true,
-        message:
-          "If this email is linked to a reservation, a login code has been sent.",
+        message: LOGIN_CODE_SENT_MESSAGE,
       };
     }
 
@@ -152,8 +184,7 @@ export async function requestCustomerLoginCode(
 
     return {
       ok: true,
-      message:
-        "If this email is linked to a reservation, a login code has been sent.",
+      message: LOGIN_CODE_SENT_MESSAGE,
     };
   } catch (error) {
     console.error("Customer OTP request failed:", error);
@@ -181,6 +212,33 @@ export async function verifyCustomerLoginCode(
     return {
       ok: false,
       message: "Enter the code from your email.",
+    };
+  }
+
+  const networkKey = await getRequestNetworkKey();
+  const rateResults = await Promise.all([
+    consumeServerRateLimit({
+      scope: "customer-otp-verify-email",
+      key: email,
+      limit: 10,
+      windowSeconds: 15 * 60,
+    }),
+    ...(networkKey
+      ? [
+          consumeServerRateLimit({
+            scope: "customer-otp-verify-network",
+            key: networkKey,
+            limit: 40,
+            windowSeconds: 15 * 60,
+          }),
+        ]
+      : []),
+  ]);
+
+  if (rateResults.some((result) => !result.allowed)) {
+    return {
+      ok: false,
+      message: "Too many code attempts. Request a new code and try again later.",
     };
   }
 

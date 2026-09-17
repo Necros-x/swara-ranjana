@@ -2,6 +2,10 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendReservationCreatedEmail } from "@/lib/email/orderEmails";
+import {
+  consumeServerRateLimit,
+  getRequestNetworkKey,
+} from "@/lib/security/rateLimit";
 import type {
   CheckoutReservationInput,
   CheckoutReservationResult,
@@ -41,6 +45,11 @@ function failure(
     message,
     ...(typeof remaining === "number" ? { remaining } : {}),
   };
+}
+
+function rateLimitMessage(retryAfterSeconds: number) {
+  const minutes = Math.max(1, Math.ceil(retryAfterSeconds / 60));
+  return `Too many reservation attempts were made. Please wait about ${minutes} minute${minutes === 1 ? "" : "s"} and try again.`;
 }
 
 export async function createCheckoutReservation(
@@ -89,6 +98,41 @@ export async function createCheckoutReservation(
   }
 
   try {
+    const networkKey = await getRequestNetworkKey();
+    const checks = [
+      consumeServerRateLimit({
+        scope: `checkout-email:${input.eventId}`,
+        key: email,
+        limit: 4,
+        windowSeconds: 30 * 60,
+      }),
+      consumeServerRateLimit({
+        scope: `checkout-phone:${input.eventId}`,
+        key: phone.replace(/\s+/g, ""),
+        limit: 4,
+        windowSeconds: 30 * 60,
+      }),
+      ...(networkKey
+        ? [
+            consumeServerRateLimit({
+              scope: `checkout-network:${input.eventId}`,
+              key: networkKey,
+              limit: 12,
+              windowSeconds: 10 * 60,
+            }),
+          ]
+        : []),
+    ];
+
+    const rateResults = await Promise.all(checks);
+    const blocked = rateResults.find((result) => !result.allowed);
+    if (blocked) {
+      return failure(
+        "RATE_LIMITED",
+        rateLimitMessage(blocked.retryAfterSeconds),
+      );
+    }
+
     const supabase = createAdminClient() as any;
 
     // The server allocates available seats automatically inside the selected

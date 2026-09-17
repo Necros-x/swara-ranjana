@@ -1,4 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
+import "server-only";
+
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { Json } from "@/types/database";
 import type { TicketTier } from "@/public-site/types";
 import type { PublicTicketCatalog } from "./types";
@@ -52,7 +54,7 @@ export async function getPublicTicketCatalog(
   slug = "swara-ranjana-2026",
 ): Promise<PublicTicketCatalog | null> {
   try {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
     const { data, error } = await supabase.rpc("get_public_event_catalog", {
       p_slug: slug,
     });
