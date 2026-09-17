@@ -11,6 +11,7 @@ export interface AdminNotificationItem {
   href: string;
   createdAt: string;
   tone: "info" | "warning" | "urgent";
+  read: boolean;
 }
 
 type PendingSlip = {
@@ -51,6 +52,7 @@ function canSeeOrders(role: StaffRole) {
 
 export async function getAdminNotifications(
   role: StaffRole,
+  userId: string,
 ): Promise<AdminNotificationItem[]> {
   const admin = createAdminClient() as unknown as SupabaseClient;
   const now = new Date();
@@ -114,7 +116,7 @@ export async function getAdminNotifications(
     );
   }
 
-  const items: AdminNotificationItem[] = [];
+  const items: Omit<AdminNotificationItem, "read">[] = [];
 
   for (const slip of slips) {
     const orderNumber = orderNumbers.get(slip.order_id) ?? "reservation";
@@ -152,10 +154,32 @@ export async function getAdminNotifications(
     });
   }
 
-  return items
+  const activeItems = items
     .sort(
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     )
     .slice(0, 12);
+
+  if (activeItems.length === 0) return [];
+
+  const activeIds = activeItems.map((item) => item.id);
+  const { data: readRows, error: readError } = await admin
+    .from("admin_notification_reads")
+    .select("notification_id")
+    .eq("user_id", userId)
+    .in("notification_id", activeIds);
+
+  if (readError) {
+    console.error("Notification read-state lookup failed:", readError);
+  }
+
+  const readIds = new Set(
+    (readRows ?? []).map((row) => String(row.notification_id)),
+  );
+
+  return activeItems.map((item) => ({
+    ...item,
+    read: readIds.has(item.id),
+  }));
 }

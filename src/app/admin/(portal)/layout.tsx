@@ -14,7 +14,7 @@ export default async function AdminPortalLayout({
   children: React.ReactNode;
 }) {
   const { user, profile } = await requireStaff();
-  const notifications = await getAdminNotifications(profile.role);
+  const notifications = await getAdminNotifications(profile.role, user.id);
 
   return (
     <Layout
