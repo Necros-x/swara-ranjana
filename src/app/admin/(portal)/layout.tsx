@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Layout } from "@/admin-site/components/Layout";
 import { requireStaff } from "@/lib/auth/requireStaff";
+import { getAdminNotifications } from "@/lib/admin/notifications";
 
 export const metadata: Metadata = {
   title: "Admin Portal",
@@ -13,6 +14,7 @@ export default async function AdminPortalLayout({
   children: React.ReactNode;
 }) {
   const { user, profile } = await requireStaff();
+  const notifications = await getAdminNotifications(profile.role);
 
   return (
     <Layout
@@ -22,6 +24,7 @@ export default async function AdminPortalLayout({
         email: user.email ?? "",
         role: profile.role,
       }}
+      notifications={notifications}
     >
       {children}
     </Layout>
