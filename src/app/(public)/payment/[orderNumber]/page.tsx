@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import PaymentPageClient from "@/public-site/components/payment/PaymentPageClient";
+import SlipPaymentPageClient from "@/public-site/components/payment/SlipPaymentPageClient";
 import { getGuestPaymentOrder } from "@/lib/payment/order";
 import { getBankTransferDetails } from "@/lib/payment/bankTransfer";
 
@@ -23,7 +23,7 @@ export default async function Page({
   const order = await getGuestPaymentOrder(orderNumber, token);
   if (!order) notFound();
 
-  const bankTransfer = getBankTransferDetails();
+  const bankTransfer = await getBankTransferDetails();
 
   return (
     <>
@@ -34,7 +34,7 @@ export default async function Page({
           </div>
           <p className="mt-2 max-w-4xl text-xs leading-relaxed text-[#5F6D79] sm:text-sm">
             Online refund and cancellation requests close exactly 48 hours before
-            showtime. If you need urgent help after the cutoff, {" "}
+            showtime. If you need urgent help after the cutoff,{" "}
             <Link
               href="/contact"
               className="cursor-pointer font-medium text-[#2271B1] hover:underline"
@@ -45,7 +45,7 @@ export default async function Page({
           </p>
         </div>
       </div>
-      <PaymentPageClient
+      <SlipPaymentPageClient
         order={order}
         accessToken={token}
         bankTransfer={bankTransfer}

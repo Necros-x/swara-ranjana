@@ -1,19 +1,20 @@
-import Settings from "@/admin-site/pages/Settings";
+import Profile from "@/admin-site/pages/Profile";
 import { requireStaff } from "@/lib/auth/requireStaff";
-import { getBankTransferDetails } from "@/lib/payment/bankTransfer";
 
 export default async function Page({
   searchParams,
 }: {
   searchParams: Promise<{ success?: string; error?: string }>;
 }) {
-  await requireStaff(["SUPER_ADMIN", "ADMIN"]);
-  const bankTransfer = await getBankTransferDetails();
+  const { user, profile } = await requireStaff();
   const params = await searchParams;
 
   return (
-    <Settings
-      bankTransfer={bankTransfer}
+    <Profile
+      name={profile.display_name}
+      email={user.email ?? ""}
+      role={profile.role}
+      status={profile.status}
       success={params.success}
       error={params.error}
     />
