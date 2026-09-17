@@ -260,16 +260,20 @@ export async function completeStaffInvite(formData: FormData) {
     type: "magiclink",
   });
 
-  if (error || !data.user) {
+  if (error) {
     console.error("Staff setup verification failed:", error);
     fail("That setup code is invalid or has expired. Ask a super admin to resend the invitation.");
   }
 
-  const verifiedUserId = data.user.id;
+  const verifiedUser = data.user;
+  if (!verifiedUser) {
+    fail("That setup code is invalid or has expired. Ask a super admin to resend the invitation.");
+  }
+
   const { data: profile, error: profileError } = await supabase
     .from("staff_profiles")
     .select("status")
-    .eq("user_id", verifiedUserId)
+    .eq("user_id", verifiedUser.id)
     .maybeSingle();
 
   if (profileError || !profile || profile.status !== "ACTIVE") {
