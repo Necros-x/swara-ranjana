@@ -299,12 +299,12 @@ export default function Settings({
               label="Staff account"
               value="Email + password + active staff profile"
             />
-            <div className="mt-5 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 text-xs leading-relaxed text-amber-900">
-              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
+            <div className="mt-5 flex items-start gap-3 rounded-lg border border-[#C2CBD2]/60 bg-[#F8FAFB] p-4 text-xs leading-relaxed text-[#5F6D79]">
+              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#2271B1]" />
               <span>
-                Supabase currently reports leaked-password protection as disabled.
-                Enable it in the Auth settings before production launch if the
-                current project plan supports the feature.
+                Supabase leaked-password protection is not available on the current
+                project plan. This is a plan limitation rather than an outstanding
+                launch task for this deployment.
               </span>
             </div>
           </CardContent>
