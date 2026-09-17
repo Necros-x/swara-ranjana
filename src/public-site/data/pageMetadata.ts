@@ -44,7 +44,7 @@ export const PUBLIC_PAGE_METADATA: Record<
       "Meet the featured musical artists and performers of Swara Ranjana 2026.",
   },
   vasr: {
-    title: "VASR — Visual Artists Swara Ranjana",
+    title: "VASR | Visual Artists Swara Ranjana",
     description:
       "Meet the developers, animation creators and visual artists shaping the visual language of Swara Ranjana 2026.",
   },
