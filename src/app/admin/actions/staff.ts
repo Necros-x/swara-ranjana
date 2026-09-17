@@ -236,21 +236,17 @@ export async function completeStaffInvite(formData: FormData) {
   const code = String(formData.get("code") ?? "").replace(/\s+/g, "").trim();
   const password = String(formData.get("password") ?? "");
   const confirmPassword = String(formData.get("confirmPassword") ?? "");
-
-  const fail = (message: string): never => {
-    redirect(
-      `/admin/accept-invite?email=${encodeURIComponent(email)}&error=${encodeURIComponent(message)}`,
-    );
-  };
+  const errorUrl = (message: string) =>
+    `/admin/accept-invite?email=${encodeURIComponent(email)}&error=${encodeURIComponent(message)}`;
 
   if (!email.includes("@") || !/^\d{6,8}$/.test(code)) {
-    fail("Enter the email address and setup code from your invitation.");
+    redirect(errorUrl("Enter the email address and setup code from your invitation."));
   }
   if (password.length < 10) {
-    fail("Use a password with at least 10 characters.");
+    redirect(errorUrl("Use a password with at least 10 characters."));
   }
   if (password !== confirmPassword) {
-    fail("The passwords do not match.");
+    redirect(errorUrl("The passwords do not match."));
   }
 
   const supabase = await createClient();
@@ -260,25 +256,25 @@ export async function completeStaffInvite(formData: FormData) {
     type: "magiclink",
   });
 
-  if (error) {
+  if (error || !data.user) {
     console.error("Staff setup verification failed:", error);
-    fail("That setup code is invalid or has expired. Ask a super admin to resend the invitation.");
+    redirect(
+      errorUrl(
+        "That setup code is invalid or has expired. Ask a super admin to resend the invitation.",
+      ),
+    );
   }
 
-  const verifiedUser = data.user;
-  if (!verifiedUser) {
-    fail("That setup code is invalid or has expired. Ask a super admin to resend the invitation.");
-  }
-
+  const verifiedUserId = data.user.id;
   const { data: profile, error: profileError } = await supabase
     .from("staff_profiles")
     .select("status")
-    .eq("user_id", verifiedUser.id)
+    .eq("user_id", verifiedUserId)
     .maybeSingle();
 
   if (profileError || !profile || profile.status !== "ACTIVE") {
     await supabase.auth.signOut();
-    fail("This account does not have active Swara Ranjana staff access.");
+    redirect(errorUrl("This account does not have active Swara Ranjana staff access."));
   }
 
   const { error: passwordError } = await supabase.auth.updateUser({
@@ -287,7 +283,7 @@ export async function completeStaffInvite(formData: FormData) {
 
   if (passwordError) {
     console.error("Staff password setup failed:", passwordError);
-    fail(passwordError.message || "Unable to save this password.");
+    redirect(errorUrl(passwordError.message || "Unable to save this password."));
   }
 
   await supabase.auth.signOut();
