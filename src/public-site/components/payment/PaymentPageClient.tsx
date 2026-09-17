@@ -35,6 +35,13 @@ import type {
   PaymentMethod,
 } from "@/lib/payment/order";
 
+interface BankTransferDetails {
+  bankName: string;
+  accountName: string;
+  accountNumber: string;
+  branch: string | null;
+}
+
 function fileSize(bytes: number) {
   if (bytes < 1024 * 1024) {
     return `${Math.max(1, Math.round(bytes / 1024))} KB`;
@@ -45,12 +52,14 @@ function fileSize(bytes: number) {
 export default function PaymentPageClient({
   order,
   accessToken,
+  bankTransfer,
 }: {
   order: GuestPaymentOrder;
   accessToken: string;
+  bankTransfer: BankTransferDetails | null;
 }) {
   const [method, setMethod] = useState<PaymentMethod>(
-    order.paymentMethod ?? "CARD",
+    order.paymentMethod ?? "ON_ARRIVAL",
   );
   const [message, setMessage] = useState("");
   const [slip, setSlip] = useState<File | null>(null);
@@ -63,8 +72,27 @@ export default function PaymentPageClient({
     order.status === "PENDING" &&
     !!order.expiresAt &&
     new Date(order.expiresAt).getTime() <= Date.now();
+  const cardEnabled = false;
+  const bankSlipEnabled =
+    Boolean(bankTransfer) || order.paymentMethod === "BANK_SLIP";
 
   const choose = (nextMethod: PaymentMethod) => {
+    if (nextMethod === "CARD" && !cardEnabled) {
+      setMessage("Card payments are not available yet. Choose another payment method.");
+      return;
+    }
+
+    if (
+      nextMethod === "BANK_SLIP" &&
+      !bankTransfer &&
+      order.paymentMethod !== "BANK_SLIP"
+    ) {
+      setMessage(
+        "Bank transfer will become available once the official transfer details are configured.",
+      );
+      return;
+    }
+
     setMethod(nextMethod);
     setMessage("");
 
@@ -137,6 +165,40 @@ export default function PaymentPageClient({
     });
   };
 
+  const paymentOptions: Array<{
+    id: PaymentMethod;
+    Icon: typeof CreditCard;
+    title: string;
+    description: string;
+    enabled: boolean;
+  }> = [
+    {
+      id: "CARD",
+      Icon: CreditCard,
+      title: "Card",
+      description: "Hosted card gateway connection pending.",
+      enabled: cardEnabled,
+    },
+    {
+      id: "ON_ARRIVAL",
+      Icon: HandCoins,
+      title: "On arrival",
+      description: "Reserve now and pay at the entrance.",
+      enabled: true,
+    },
+    {
+      id: "BANK_SLIP",
+      Icon: Upload,
+      title: "Slip upload",
+      description: bankTransfer
+        ? "Transfer using the official details and upload proof."
+        : order.paymentMethod === "BANK_SLIP"
+          ? "Upload proof for the bank transfer already selected."
+          : "Official bank transfer details pending.",
+      enabled: bankSlipEnabled,
+    },
+  ];
+
   return (
     <main className="min-h-screen bg-[#FEFFFF] px-4 py-12 text-[#0E1721]">
       <div className="mx-auto max-w-5xl">
@@ -190,46 +252,32 @@ export default function PaymentPageClient({
                 )}
 
                 <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                  {(
-                    [
-                      [
-                        "CARD",
-                        CreditCard,
-                        "Card",
-                        "Pay through a secure hosted card gateway.",
-                      ],
-                      [
-                        "ON_ARRIVAL",
-                        HandCoins,
-                        "On arrival",
-                        "Reserve now and pay at the entrance.",
-                      ],
-                      [
-                        "BANK_SLIP",
-                        Upload,
-                        "Slip upload",
-                        "Transfer to our bank and upload proof.",
-                      ],
-                    ] as const
-                  ).map(([id, Icon, title, description]) => (
-                    <button
-                      key={id}
-                      type="button"
-                      onClick={() => choose(id)}
-                      disabled={expired}
-                      className={`cursor-pointer border p-5 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${
-                        method === id
-                          ? "border-[#2271B1] bg-[#2271B1]/5"
-                          : "border-[#C2CBD2] hover:border-[#7D8A95]"
-                      }`}
-                    >
-                      <Icon className="mb-3 h-5 w-5 text-[#2271B1]" />
-                      <div className="font-medium">{title}</div>
-                      <p className="mt-2 text-xs leading-relaxed text-[#7D8A95]">
-                        {description}
-                      </p>
-                    </button>
-                  ))}
+                  {paymentOptions.map(
+                    ({ id, Icon, title, description, enabled }) => (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => choose(id)}
+                        disabled={expired || !enabled}
+                        className={`cursor-pointer border p-5 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${
+                          method === id
+                            ? "border-[#2271B1] bg-[#2271B1]/5"
+                            : "border-[#C2CBD2] hover:border-[#7D8A95]"
+                        }`}
+                      >
+                        <Icon className="mb-3 h-5 w-5 text-[#2271B1]" />
+                        <div className="font-medium">{title}</div>
+                        <p className="mt-2 text-xs leading-relaxed text-[#7D8A95]">
+                          {description}
+                        </p>
+                        {!enabled && (
+                          <div className="mt-3 text-[9px] font-semibold uppercase tracking-[0.14em] text-amber-700">
+                            Not available yet
+                          </div>
+                        )}
+                      </button>
+                    ),
+                  )}
                 </div>
 
                 <div className="mt-6 border border-[#C2CBD2] p-5 sm:p-6">
@@ -237,7 +285,7 @@ export default function PaymentPageClient({
                     <>
                       <h2 className="font-medium">Card payment</h2>
                       <p className="mt-2 text-sm text-[#7D8A95]">
-                        Card details will be entered on the payment provider's
+                        Card details will be entered on the payment provider&apos;s
                         hosted page — never on this website.
                       </p>
                       <button
@@ -269,10 +317,61 @@ export default function PaymentPageClient({
                   {method === "BANK_SLIP" && (
                     <>
                       <h2 className="font-medium">Bank transfer slip</h2>
-                      <p className="mt-2 text-sm leading-relaxed text-[#7D8A95]">
-                        Drop a JPG, PNG, WebP or PDF here. Images are converted
-                        to WebP and compressed; PDFs are optimized before upload.
-                        Final uploads are limited to{" "}
+
+                      {bankTransfer ? (
+                        <div className="mt-4 border border-[#C2CBD2]/70 bg-[#F8FAFB] p-4">
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2271B1]">
+                            Official transfer details
+                          </div>
+                          <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+                            <div>
+                              <dt className="text-[10px] uppercase tracking-[0.12em] text-[#7D8A95]">
+                                Bank
+                              </dt>
+                              <dd className="mt-1 font-medium text-[#0E1721]">
+                                {bankTransfer.bankName}
+                              </dd>
+                            </div>
+                            <div>
+                              <dt className="text-[10px] uppercase tracking-[0.12em] text-[#7D8A95]">
+                                Account name
+                              </dt>
+                              <dd className="mt-1 font-medium text-[#0E1721]">
+                                {bankTransfer.accountName}
+                              </dd>
+                            </div>
+                            <div>
+                              <dt className="text-[10px] uppercase tracking-[0.12em] text-[#7D8A95]">
+                                Account number
+                              </dt>
+                              <dd className="mt-1 font-mono font-semibold text-[#0E1721]">
+                                {bankTransfer.accountNumber}
+                              </dd>
+                            </div>
+                            {bankTransfer.branch && (
+                              <div>
+                                <dt className="text-[10px] uppercase tracking-[0.12em] text-[#7D8A95]">
+                                  Branch
+                                </dt>
+                                <dd className="mt-1 font-medium text-[#0E1721]">
+                                  {bankTransfer.branch}
+                                </dd>
+                              </div>
+                            )}
+                          </dl>
+                        </div>
+                      ) : (
+                        <div className="mt-4 border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-900">
+                          Official transfer details are not currently published
+                          on this page. Do not make a new transfer until confirmed
+                          banking details are provided by Swara Ranjana support.
+                        </div>
+                      )}
+
+                      <p className="mt-4 text-sm leading-relaxed text-[#7D8A95]">
+                        After transferring, upload a JPG, PNG, WebP or PDF here.
+                        Images are converted to WebP and compressed; PDFs are
+                        optimized before upload. Final uploads are limited to{" "}
                         {fileSize(MAX_FINAL_SLIP_BYTES)}.
                       </p>
 
