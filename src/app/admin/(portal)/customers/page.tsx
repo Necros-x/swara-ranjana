@@ -1,5 +1,10 @@
 import Customers from "@/admin-site/pages/Customers";
+import { getAdminCustomerSummaries } from "@/lib/admin/customers";
+import { requireStaff } from "@/lib/auth/requireStaff";
 
-export default function Page() {
-  return <Customers />;
+export default async function Page() {
+  await requireStaff(["SUPER_ADMIN", "ADMIN", "BOX_OFFICE"]);
+  const customers = await getAdminCustomerSummaries();
+
+  return <Customers customers={customers} />;
 }

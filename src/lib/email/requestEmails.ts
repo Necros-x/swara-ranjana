@@ -182,7 +182,7 @@ export async function sendCustomerRequestEmail(
     subject = `${heading} — ${context.orderNumber}`;
   } else if (event === "REJECTED") {
     heading = isRefund ? "Refund request declined" : "Cancellation request declined";
-    body = "Your request was reviewed but could not be approved. Please contact the box office if you need clarification.";
+    body = "Your request was reviewed but could not be approved. Please contact Swara Ranjana support if you need clarification.";
     subject = `${heading} — ${context.orderNumber}`;
   } else if (event === "COMPLETED") {
     heading = isRefund ? "Refund completed" : "Cancellation completed";

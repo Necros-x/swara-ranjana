@@ -401,7 +401,7 @@ function ButterflyPiece({
       transition={
         rapidAnimation
           ? {
-              duration: 0.58,
+              duration: 1.2,
               repeat: 0,
               ease: "easeInOut",
             }

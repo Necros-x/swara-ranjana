@@ -226,7 +226,7 @@ export default function RemotePaymentScanner({
             <button
               type="button"
               onClick={switchCamera}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 text-xs font-bold uppercase tracking-[0.12em] transition hover:bg-white/10"
+              className="inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 text-xs font-bold uppercase tracking-[0.12em] transition hover:bg-white/10"
             >
               <SwitchCamera className="h-4 w-4" />
               Switch camera
@@ -234,7 +234,7 @@ export default function RemotePaymentScanner({
             <button
               type="button"
               onClick={() => setRestartKey((value) => value + 1)}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 text-xs font-bold uppercase tracking-[0.12em] transition hover:bg-white/10"
+              className="inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 text-xs font-bold uppercase tracking-[0.12em] transition hover:bg-white/10"
             >
               <RefreshCcw className="h-4 w-4" />
               Restart

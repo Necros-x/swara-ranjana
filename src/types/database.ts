@@ -28,6 +28,7 @@ export type StaffRole = "SUPER_ADMIN" | "ADMIN" | "BOX_OFFICE" | "SCANNER";
 export type StaffStatus = "ACTIVE" | "DISABLED";
 export type ScanResult =
   | "ADMITTED"
+  | "EXITED"
   | "PAYMENT_DUE"
   | "DUPLICATE"
   | "INVALID"
@@ -229,6 +230,8 @@ type TicketRow = {
   issued_at: string;
   checked_in_at: string | null;
   checked_in_by: string | null;
+  is_inside: boolean;
+  last_exited_at: string | null;
   revoked_at: string | null;
   revoked_by: string | null;
   revoke_reason: string | null;
@@ -252,6 +255,8 @@ type TicketInsert = {
   issued_at?: string;
   checked_in_at?: string | null;
   checked_in_by?: string | null;
+  is_inside?: boolean;
+  last_exited_at?: string | null;
   revoked_at?: string | null;
   revoked_by?: string | null;
   revoke_reason?: string | null;

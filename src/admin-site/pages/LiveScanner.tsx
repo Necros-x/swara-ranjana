@@ -6,6 +6,7 @@ import {
   CameraOff,
   CheckCircle2,
   Flashlight,
+  LogOut,
   RefreshCcw,
   Search,
   ShieldAlert,
@@ -39,7 +40,7 @@ interface ScannerEvent {
 }
 
 function formatUsedAt(value?: string | null) {
-  if (!value) return "Previous admission time unavailable";
+  if (!value) return "Time unavailable";
   return new Intl.DateTimeFormat("en-LK", {
     dateStyle: "medium",
     timeStyle: "short",
@@ -54,7 +55,17 @@ function resultAppearance(result: ScannerActionResult["result"]) {
       foreground: "text-white",
       Icon: CheckCircle2,
       title: "Admit Guest",
-      description: "Ticket accepted and marked as used.",
+      description: "Ticket accepted for entry.",
+    };
+  }
+
+  if (result === "EXITED") {
+    return {
+      background: "bg-[#2271B1]",
+      foreground: "text-white",
+      Icon: LogOut,
+      title: "Guest Exited",
+      description: "Exit recorded. Scan this ticket again when the guest returns.",
     };
   }
 
@@ -73,8 +84,8 @@ function resultAppearance(result: ScannerActionResult["result"]) {
       background: "bg-yellow-400",
       foreground: "text-[#18130A]",
       Icon: AlertTriangle,
-      title: "Already Used",
-      description: "This ticket has already entered the event.",
+      title: "Ticket State Check",
+      description: "This ticket cannot be admitted in its current state.",
     };
   }
 
@@ -157,7 +168,9 @@ export default function LiveScanner({
 
       if ("vibrate" in navigator) {
         navigator.vibrate?.(
-          response.result === "ADMITTED" ? 120 : [90, 70, 90],
+          response.result === "ADMITTED" || response.result === "EXITED"
+            ? 120
+            : [90, 70, 90],
         );
       }
 
@@ -257,6 +270,8 @@ export default function LiveScanner({
   if (result) {
     const appearance = resultAppearance(result.result);
     const Icon = appearance.Icon;
+    const successfulAttendanceAction =
+      result.result === "ADMITTED" || result.result === "EXITED";
 
     return (
       <div
@@ -299,6 +314,32 @@ export default function LiveScanner({
                 </div>
               )}
 
+              {result.result === "EXITED" && (
+                <div className="mt-5 rounded-lg bg-white/15 p-4 text-left">
+                  <div className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                    Attendance state
+                  </div>
+                  <div className="mt-1 text-lg font-semibold">
+                    Outside venue
+                  </div>
+                  <div className="mt-2 text-xs opacity-80">
+                    Exit recorded {formatUsedAt(result.exitedAt)}. The same QR
+                    can be scanned again to re-enter.
+                  </div>
+                </div>
+              )}
+
+              {result.result === "ADMITTED" && result.reentry && (
+                <div className="mt-5 rounded-lg bg-white/15 p-4 text-left">
+                  <div className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                    Re-entry
+                  </div>
+                  <div className="mt-1 font-medium">
+                    Guest has returned and is inside the venue again.
+                  </div>
+                </div>
+              )}
+
               {result.result === "PAYMENT_DUE" && (
                 <div className="mt-5 rounded-lg bg-black/10 p-4">
                   <div className="text-[10px] font-bold uppercase tracking-wider opacity-60">
@@ -315,7 +356,13 @@ export default function LiveScanner({
 
           {result.result === "ADMITTED" && (
             <div className="mt-7 rounded-full border border-white/20 bg-black/15 px-7 py-3 text-xl font-bold">
-              ADMIT CUSTOMER
+              {result.reentry ? "RE-ADMIT CUSTOMER" : "ADMIT CUSTOMER"}
+            </div>
+          )}
+
+          {result.result === "EXITED" && (
+            <div className="mt-7 rounded-full border border-white/20 bg-black/15 px-7 py-3 text-xl font-bold">
+              EXIT RECORDED
             </div>
           )}
 
@@ -335,19 +382,19 @@ export default function LiveScanner({
           <button
             type="button"
             onClick={reset}
-            className="h-14 rounded-xl bg-white px-5 text-sm font-bold uppercase tracking-wider text-[#0E1721] transition hover:bg-white/90"
+            className="h-14 cursor-pointer rounded-xl bg-white px-5 text-sm font-bold uppercase tracking-wider text-[#0E1721] transition hover:bg-white/90"
           >
-            {result.result === "ADMITTED" ? "Scan next ticket" : "Try another ticket"}
+            {successfulAttendanceAction ? "Scan next ticket" : "Try another ticket"}
           </button>
 
-          {result.result !== "ADMITTED" && (
+          {!successfulAttendanceAction && (
             <button
               type="button"
               onClick={() => {
                 reset();
                 setManualOpen(true);
               }}
-              className="h-12 rounded-xl border border-current/20 px-5 text-sm font-semibold"
+              className="h-12 cursor-pointer rounded-xl border border-current/20 px-5 text-sm font-semibold"
             >
               Manual ticket lookup
             </button>
@@ -423,11 +470,11 @@ export default function LiveScanner({
               onClick={toggleTorch}
               disabled={!torchAvailable}
               title={torchAvailable ? "Toggle torch" : "Torch unavailable"}
-              className={`rounded-full p-3.5 transition ${
+              className={`cursor-pointer rounded-full p-3.5 transition ${
                 torchOn
                   ? "bg-[#2271B1] text-white"
                   : "bg-white/10 text-white hover:bg-white/15"
-              } disabled:opacity-30`}
+              } disabled:cursor-not-allowed disabled:opacity-30`}
             >
               <Flashlight className="h-5 w-5" />
             </button>
@@ -440,7 +487,7 @@ export default function LiveScanner({
                 )
               }
               title="Switch camera"
-              className="rounded-full bg-white/10 p-3.5 text-white transition hover:bg-white/15"
+              className="cursor-pointer rounded-full bg-white/10 p-3.5 text-white transition hover:bg-white/15"
             >
               <SwitchCamera className="h-5 w-5" />
             </button>
@@ -453,7 +500,7 @@ export default function LiveScanner({
                 setRestartKey((value) => value + 1);
               }}
               title="Restart camera"
-              className="rounded-full bg-white/10 p-3.5 text-white transition hover:bg-white/15"
+              className="cursor-pointer rounded-full bg-white/10 p-3.5 text-white transition hover:bg-white/15"
             >
               <RefreshCcw className="h-5 w-5" />
             </button>
@@ -467,7 +514,7 @@ export default function LiveScanner({
           <button
             type="button"
             onClick={() => setManualOpen(true)}
-            className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 text-sm font-medium transition hover:bg-white/10"
+            className="mt-5 flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 text-sm font-medium transition hover:bg-white/10"
           >
             <Search className="h-4 w-4" />
             Manual ticket number
@@ -502,7 +549,7 @@ export default function LiveScanner({
               <button
                 type="button"
                 onClick={() => setManualOpen(false)}
-                className="rounded-full p-2 text-[#7D8A95] hover:bg-[#F1F4F6]"
+                className="cursor-pointer rounded-full p-2 text-[#7D8A95] hover:bg-[#F1F4F6]"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -521,7 +568,7 @@ export default function LiveScanner({
               <button
                 type="submit"
                 disabled={!manualValue.trim()}
-                className="mt-3 h-12 w-full rounded-xl bg-[#0E1721] text-sm font-bold uppercase tracking-wider text-white transition hover:bg-[#2271B1] disabled:opacity-40"
+                className="mt-3 h-12 w-full cursor-pointer rounded-xl bg-[#0E1721] text-sm font-bold uppercase tracking-wider text-white transition hover:bg-[#2271B1] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Validate ticket
               </button>

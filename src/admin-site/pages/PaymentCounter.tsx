@@ -248,21 +248,17 @@ export default function PaymentCounter() {
     remoteChannelRef.current = channel;
 
     channel
-      .on(
-        "broadcast",
-        { event: "remote_ready" },
-        () => {
-          remoteLastSeenRef.current = Date.now();
-          setRemoteConnected(true);
-        },
-      )
+      .on("broadcast", { event: "remote_ready" }, () => {
+        remoteLastSeenRef.current = Date.now();
+        setRemoteConnected(true);
+      })
       .on(
         "broadcast",
         { event: "remote_scan" },
-        (message: { payload?: unknown }) => {
-          if (!isRemoteScanPayload(message.payload)) return;
+        (broadcastMessage: { payload?: unknown }) => {
+          if (!isRemoteScanPayload(broadcastMessage.payload)) return;
 
-          const payload = message.payload;
+          const payload = broadcastMessage.payload;
           remoteLastSeenRef.current = Date.now();
           setRemoteConnected(true);
 
@@ -341,7 +337,7 @@ export default function PaymentCounter() {
     <div className="mx-auto max-w-5xl space-y-6">
       <div>
         <div className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#2271B1]">
-          Box office workflow
+          Swara Ranjana staff workflow
         </div>
         <h1 className="mt-2 font-gemola text-4xl text-[#0E1721]">
           Payment counter
@@ -374,7 +370,7 @@ export default function PaymentCounter() {
             <button
               type="submit"
               disabled={pending || !identifier.trim()}
-              className="h-12 rounded-xl bg-[#0E1721] px-6 text-xs font-bold uppercase tracking-[0.14em] text-white transition hover:bg-[#2271B1] disabled:opacity-40"
+              className="h-12 cursor-pointer rounded-xl bg-[#0E1721] px-6 text-xs font-bold uppercase tracking-[0.14em] text-white transition hover:bg-[#2271B1] disabled:cursor-not-allowed disabled:opacity-40"
             >
               {pending ? "Checking…" : "Find reservation"}
             </button>
@@ -384,7 +380,7 @@ export default function PaymentCounter() {
             <button
               type="button"
               onClick={() => setCameraOpen(true)}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#C2CBD2] bg-white px-4 text-[10px] font-bold uppercase tracking-[0.12em] text-[#31465A] transition hover:border-[#2271B1] hover:text-[#2271B1]"
+              className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#C2CBD2] bg-white px-4 text-[10px] font-bold uppercase tracking-[0.12em] text-[#31465A] transition hover:border-[#2271B1] hover:text-[#2271B1]"
             >
               <Camera className="h-4 w-4" />
               Scan here
@@ -393,7 +389,7 @@ export default function PaymentCounter() {
               href={remotePairUrl || "#"}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#C2CBD2] bg-white px-4 text-[10px] font-bold uppercase tracking-[0.12em] text-[#31465A] transition hover:border-[#2271B1] hover:text-[#2271B1]"
+              className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#C2CBD2] bg-white px-4 text-[10px] font-bold uppercase tracking-[0.12em] text-[#31465A] transition hover:border-[#2271B1] hover:text-[#2271B1]"
             >
               <Smartphone className="h-4 w-4" />
               Phone scanner
@@ -419,7 +415,7 @@ export default function PaymentCounter() {
             <button
               type="button"
               onClick={resetRemoteSession}
-              className="rounded-lg p-2 text-[#7D8A95] transition hover:bg-[#F3F5F7] hover:text-[#2271B1]"
+              className="cursor-pointer rounded-lg p-2 text-[#7D8A95] transition hover:bg-[#F3F5F7] hover:text-[#2271B1]"
               aria-label="Create new remote scanner session"
               title="Create new pairing session"
             >
@@ -449,7 +445,7 @@ export default function PaymentCounter() {
             type="button"
             onClick={copyRemoteLink}
             disabled={!remotePairUrl}
-            className="mt-3 inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-[#C2CBD2] text-[10px] font-bold uppercase tracking-[0.12em] text-[#31465A] transition hover:border-[#2271B1] hover:text-[#2271B1] disabled:opacity-40"
+            className="mt-3 inline-flex h-9 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#C2CBD2] text-[10px] font-bold uppercase tracking-[0.12em] text-[#31465A] transition hover:border-[#2271B1] hover:text-[#2271B1] disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Copy className="h-3.5 w-3.5" />
             {copied ? "Copied" : "Copy pairing link"}
@@ -555,7 +551,7 @@ export default function PaymentCounter() {
                 type="button"
                 onClick={markPaid}
                 disabled={pending}
-                className="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#0E1721] px-5 text-sm font-bold uppercase tracking-[0.14em] text-white transition hover:bg-[#2271B1] disabled:opacity-40"
+                className="flex h-14 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#0E1721] px-5 text-sm font-bold uppercase tracking-[0.14em] text-white transition hover:bg-[#2271B1] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <CreditCard className="h-5 w-5" />
                 {pending ? "Recording…" : "Mark payment as received"}
@@ -594,7 +590,7 @@ export default function PaymentCounter() {
               <button
                 type="button"
                 onClick={() => setCameraOpen(false)}
-                className="rounded-full p-2 text-[#7D8A95] hover:bg-[#F3F5F7]"
+                className="cursor-pointer rounded-full p-2 text-[#7D8A95] hover:bg-[#F3F5F7]"
                 aria-label="Close camera scanner"
               >
                 <X className="h-5 w-5" />

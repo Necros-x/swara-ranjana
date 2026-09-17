@@ -16,6 +16,8 @@ export interface GuestDigitalTicket {
   attendeeName: string | null;
   issuedAt: string;
   checkedInAt: string | null;
+  isInside: boolean;
+  lastExitedAt: string | null;
   ticketTypeName: string;
   seatingZone: string | null;
   seatLabel: string | null;
@@ -75,7 +77,7 @@ export async function getGuestTicketBundle(
     supabase
       .from("tickets")
       .select(
-        "id,ticket_number,qr_token,status,attendee_name,issued_at,checked_in_at,ticket_type_id,seat_label",
+        "id,ticket_number,qr_token,status,attendee_name,issued_at,checked_in_at,is_inside,last_exited_at,ticket_type_id,seat_label",
       )
       .eq("order_id", order.id)
       .order("ticket_number"),
@@ -127,6 +129,8 @@ export async function getGuestTicketBundle(
         attendeeName: ticket.attendee_name,
         issuedAt: ticket.issued_at,
         checkedInAt: ticket.checked_in_at,
+        isInside: ticket.is_inside,
+        lastExitedAt: ticket.last_exited_at,
         ticketTypeName: ticketType?.name ?? "Admission",
         seatingZone: ticketType?.seatingZone ?? null,
         seatLabel: ticket.seat_label,

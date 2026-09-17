@@ -8,7 +8,7 @@ import { getCurrentCustomer } from "@/lib/auth/requireCustomer";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const metadata: Metadata = {
-  title: "My Tickets — Swara Ranjana",
+  title: "Account Login",
   robots: { index: false, follow: false, nocache: true },
 };
 
@@ -27,17 +27,17 @@ export default async function AccountLoginPage() {
         <div className="mx-auto mb-6 flex max-w-md items-center justify-between gap-4">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-[10px] font-medium uppercase tracking-[.16em] text-[#7D8A95] transition-colors hover:text-[#2271B1]"
+            className="inline-flex cursor-pointer items-center gap-2 text-[10px] font-medium uppercase tracking-[.16em] text-[#7D8A95] transition-colors hover:text-[#2271B1]"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back
           </Link>
-          <Link href="/" className="font-gemola text-xl">
+          <Link href="/" className="cursor-pointer font-gemola text-xl">
             SWARA RANJANA
           </Link>
           <Link
             href="/tickets"
-            className="text-[10px] uppercase tracking-[.18em] text-[#7D8A95] hover:text-[#2271B1]"
+            className="cursor-pointer text-[10px] uppercase tracking-[.18em] text-[#7D8A95] hover:text-[#2271B1]"
           >
             Reserve tickets
           </Link>

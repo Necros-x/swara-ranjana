@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export type AdminScanResult =
   | "ADMITTED"
+  | "EXITED"
   | "PAYMENT_DUE"
   | "DUPLICATE"
   | "INVALID"

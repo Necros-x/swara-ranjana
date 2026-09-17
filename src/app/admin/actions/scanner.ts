@@ -13,6 +13,7 @@ const SCAN_ROLES: StaffRole[] = [
 
 export type ScannerResultCode =
   | "ADMITTED"
+  | "EXITED"
   | "PAYMENT_DUE"
   | "DUPLICATE"
   | "INVALID"
@@ -31,6 +32,9 @@ export interface ScannerActionResult {
   ticketType?: string;
   firstUsedAt?: string | null;
   checkedInAt?: string | null;
+  exitedAt?: string | null;
+  isInside?: boolean | null;
+  reentry?: boolean;
   paymentMethod?: string | null;
   paymentStatus?: string | null;
   amountDue?: number | null;
@@ -70,6 +74,11 @@ function numberValue(record: JsonRecord, key: string) {
     : undefined;
 }
 
+function booleanValue(record: JsonRecord, key: string) {
+  const value = record[key];
+  return typeof value === "boolean" ? value : undefined;
+}
+
 function parseResult(data: Json | null): ScannerActionResult {
   if (!isRecord(data)) {
     return scannerError("The scanner received an invalid server response.");
@@ -78,6 +87,7 @@ function parseResult(data: Json | null): ScannerActionResult {
   const rawResult = stringValue(data, "result");
   const allowed: ScannerResultCode[] = [
     "ADMITTED",
+    "EXITED",
     "PAYMENT_DUE",
     "DUPLICATE",
     "INVALID",
@@ -96,13 +106,18 @@ function parseResult(data: Json | null): ScannerActionResult {
       stringValue(data, "message") ??
       (result === "ADMITTED"
         ? "Ticket admitted."
-        : "Ticket could not be admitted."),
+        : result === "EXITED"
+          ? "Guest exit recorded."
+          : "Ticket could not be admitted."),
     ticketId: stringValue(data, "ticketId"),
     ticketNumber: stringValue(data, "ticketNumber"),
     customerName: stringValue(data, "customerName"),
     ticketType: stringValue(data, "ticketType"),
     firstUsedAt: stringValue(data, "firstUsedAt") ?? null,
     checkedInAt: stringValue(data, "checkedInAt") ?? null,
+    exitedAt: stringValue(data, "exitedAt") ?? null,
+    isInside: booleanValue(data, "isInside") ?? null,
+    reentry: booleanValue(data, "reentry") ?? false,
     paymentMethod: stringValue(data, "paymentMethod") ?? null,
     paymentStatus: stringValue(data, "paymentStatus") ?? null,
     amountDue: numberValue(data, "amountDue") ?? null,

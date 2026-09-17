@@ -21,6 +21,7 @@ import type {
 
 function badgeVariant(result: AdminScanResult) {
   if (result === "ADMITTED") return "success" as const;
+  if (result === "EXITED") return "default" as const;
   if (result === "DUPLICATE" || result === "PAYMENT_DUE") {
     return "warning" as const;
   }
@@ -138,6 +139,7 @@ export default function LiveScanHistory({
         >
           <option value="">All Results</option>
           <option value="ADMITTED">Admitted</option>
+          <option value="EXITED">Exited</option>
           <option value="PAYMENT_DUE">Payment Due</option>
           <option value="DUPLICATE">Duplicate</option>
           <option value="INVALID">Invalid</option>

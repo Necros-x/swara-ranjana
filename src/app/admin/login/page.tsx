@@ -5,13 +5,18 @@ export const metadata = { title: "Admin Login" };
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; error?: string }>;
+  searchParams: Promise<{ next?: string; error?: string; setup?: string }>;
 }) {
   const params = await searchParams;
 
   return (
     <Login
       nextPath={params.next}
+      initialSuccess={
+        params.setup === "complete"
+          ? "Staff setup complete. Sign in with your email and new password."
+          : undefined
+      }
       initialError={
         params.error === "not-authorized"
           ? "This account is not an active Swara Ranjana staff account."

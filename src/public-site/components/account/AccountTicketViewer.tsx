@@ -6,11 +6,15 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
+  LogOut,
   Printer,
   TicketCheck,
   TriangleAlert,
 } from "lucide-react";
-import type { AccountTicketBundle } from "@/lib/account/data";
+import type {
+  AccountDigitalTicket,
+  AccountTicketBundle,
+} from "@/lib/account/data";
 
 function save(url: string, name: string) {
   const anchor = document.createElement("a");
@@ -32,6 +36,27 @@ function when(value: string, timezone: string) {
     hour12: true,
     timeZone: timezone,
   }).format(new Date(value));
+}
+
+function presenceLabel(ticket: AccountDigitalTicket) {
+  if (ticket.status === "REVOKED") return "Revoked";
+  if (ticket.status === "REFUNDED") return "Refunded";
+  if (ticket.status === "USED") {
+    return ticket.isInside
+      ? "Inside venue"
+      : "Outside venue · re-entry allowed";
+  }
+  return "Valid for entry";
+}
+
+function presenceClasses(ticket: AccountDigitalTicket) {
+  if (ticket.status === "REVOKED" || ticket.status === "REFUNDED") {
+    return "border-red-200 bg-red-50 text-red-700";
+  }
+  if (ticket.status === "USED" && !ticket.isInside) {
+    return "border-[#2271B1]/30 bg-[#2271B1]/10 text-[#185A91]";
+  }
+  return "border-emerald-200 bg-emerald-50 text-emerald-700";
 }
 
 export default function AccountTicketViewer({
@@ -100,6 +125,7 @@ export default function AccountTicketViewer({
   const paymentDue =
     bundle.paymentMethod === "ON_ARRIVAL" &&
     bundle.paymentStatus !== "PAID";
+  const outsideVenue = ticket.status === "USED" && !ticket.isInside;
 
   return (
     <div>
@@ -124,7 +150,7 @@ export default function AccountTicketViewer({
                 `${ticket.ticketNumber}-QR.png`,
               )
             }
-            className="inline-flex h-10 items-center gap-2 border border-[#C2CBD2] bg-white px-4 text-xs hover:border-[#2271B1] disabled:opacity-40"
+            className="inline-flex h-10 cursor-pointer items-center gap-2 border border-[#C2CBD2] bg-white px-4 text-xs hover:border-[#2271B1] disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Download className="h-4 w-4" />
             Save QR
@@ -133,7 +159,7 @@ export default function AccountTicketViewer({
           <button
             type="button"
             onClick={() => window.print()}
-            className="inline-flex h-10 items-center gap-2 border border-[#C2CBD2] bg-white px-4 text-xs hover:border-[#2271B1]"
+            className="inline-flex h-10 cursor-pointer items-center gap-2 border border-[#C2CBD2] bg-white px-4 text-xs hover:border-[#2271B1]"
           >
             <Printer className="h-4 w-4" />
             Print
@@ -218,23 +244,31 @@ export default function AccountTicketViewer({
               </div>
 
               <div
-                className={`mt-8 inline-flex items-center gap-2 border px-3 py-2 text-xs font-medium ${
-                  ticket.status === "VALID"
-                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                    : ticket.status === "USED"
-                      ? "border-amber-200 bg-amber-50 text-amber-700"
-                      : "border-red-200 bg-red-50 text-red-700"
-                }`}
+                className={`mt-8 inline-flex items-center gap-2 border px-3 py-2 text-xs font-medium ${presenceClasses(ticket)}`}
               >
-                <TicketCheck className="h-4 w-4" />
-                {ticket.status}
+                {outsideVenue ? (
+                  <LogOut className="h-4 w-4" />
+                ) : (
+                  <TicketCheck className="h-4 w-4" />
+                )}
+                {presenceLabel(ticket)}
               </div>
+
+              {outsideVenue && (
+                <div className="mt-4 max-w-xl border-l-2 border-[#2271B1] bg-[#2271B1]/5 px-4 py-3 text-xs leading-relaxed text-[#31465A]">
+                  {ticket.lastExitedAt
+                    ? `Exit recorded ${when(ticket.lastExitedAt, bundle.timezone)}. `
+                    : "Exit has been recorded. "}
+                  Present this same QR at the gate when returning. The next
+                  valid scan will re-admit the guest.
+                </div>
+              )}
             </div>
           </section>
 
           <aside className="flex flex-col items-center justify-center border-t border-dashed border-[#C2CBD2] p-7 text-center lg:border-l lg:border-t-0">
             <div className="text-[10px] uppercase tracking-[.22em] text-[#7D8A95]">
-              Scan at entrance
+              {outsideVenue ? "Scan to re-enter" : "Scan at entrance"}
             </div>
 
             <div className="mt-5 flex h-[225px] w-[225px] items-center justify-center bg-white">
@@ -281,7 +315,7 @@ export default function AccountTicketViewer({
                   : index - 1,
               )
             }
-            className="inline-flex items-center gap-1 text-xs uppercase"
+            className="inline-flex cursor-pointer items-center gap-1 text-xs uppercase"
           >
             <ChevronLeft className="h-4 w-4" />
             Previous
@@ -300,7 +334,7 @@ export default function AccountTicketViewer({
                   : index + 1,
               )
             }
-            className="inline-flex items-center gap-1 text-xs uppercase"
+            className="inline-flex cursor-pointer items-center gap-1 text-xs uppercase"
           >
             Next
             <ChevronRight className="h-4 w-4" />

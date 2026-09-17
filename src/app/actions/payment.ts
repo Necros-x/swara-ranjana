@@ -28,6 +28,13 @@ export async function selectPaymentMethod(
   accessToken: string,
   method: "CARD" | "ON_ARRIVAL" | "BANK_SLIP",
 ) {
+  if (method === "CARD") {
+    return {
+      ok: false,
+      message: "Card payments are not available yet. Choose another payment method.",
+    };
+  }
+
   const { data, error } = await createAdminClient().rpc(
     "select_payment_method",
     {
