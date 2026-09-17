@@ -47,7 +47,7 @@ const navItems: Array<{
   { name: 'Customers', path: '/admin/customers', icon: Users, roles: ['SUPER_ADMIN', 'ADMIN', 'BOX_OFFICE'] },
   { name: 'Scanner', path: '/admin/scanner', icon: Scan, roles: ['SUPER_ADMIN', 'ADMIN', 'BOX_OFFICE', 'SCANNER'] },
   { name: 'Scan History', path: '/admin/scan-history', icon: History, roles: ['SUPER_ADMIN', 'ADMIN', 'BOX_OFFICE', 'SCANNER'] },
-  { name: 'Staff', path: '/admin/staff', icon: Users, roles: ['SUPER_ADMIN', 'ADMIN'] },
+  { name: 'Staff', path: '/admin/staff', icon: Users, roles: ['SUPER_ADMIN'] },
   { name: 'Settings', path: '/admin/settings', icon: Settings, roles: ['SUPER_ADMIN', 'ADMIN'] },
 ];
 
