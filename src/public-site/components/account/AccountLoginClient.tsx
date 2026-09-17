@@ -93,7 +93,7 @@ export default function AccountLoginClient() {
           <button
             type="submit"
             disabled={pending}
-            className="flex h-12 w-full items-center justify-center gap-2 bg-[#0E1721] text-xs font-bold uppercase tracking-[.18em] text-white hover:bg-[#2271B1] disabled:opacity-50"
+            className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 bg-[#0E1721] text-xs font-bold uppercase tracking-[.18em] text-white hover:bg-[#2271B1] disabled:cursor-not-allowed disabled:opacity-50"
           >
             <KeyRound className="h-4 w-4" />
             {pending ? "Sending…" : "Send login code"}
@@ -125,7 +125,7 @@ export default function AccountLoginClient() {
           <button
             type="submit"
             disabled={pending || code.length < 6}
-            className="h-12 w-full bg-[#0E1721] text-xs font-bold uppercase tracking-[.18em] text-white hover:bg-[#2271B1] disabled:opacity-50"
+            className="h-12 w-full cursor-pointer bg-[#0E1721] text-xs font-bold uppercase tracking-[.18em] text-white hover:bg-[#2271B1] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {pending ? "Checking…" : "View my tickets"}
           </button>
@@ -138,7 +138,7 @@ export default function AccountLoginClient() {
                 setError("");
                 setMessage("");
               }}
-              className="text-[#7D8A95] hover:text-[#2271B1]"
+              className="cursor-pointer text-[#7D8A95] hover:text-[#2271B1]"
             >
               Change email
             </button>
@@ -146,7 +146,7 @@ export default function AccountLoginClient() {
               type="button"
               disabled={pending}
               onClick={resend}
-              className="text-[#31465A] hover:text-[#2271B1] disabled:opacity-50"
+              className="cursor-pointer text-[#31465A] hover:text-[#2271B1] disabled:cursor-not-allowed disabled:opacity-50"
             >
               Resend code
             </button>
