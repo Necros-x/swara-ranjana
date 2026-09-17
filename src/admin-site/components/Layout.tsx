@@ -51,7 +51,6 @@ const navItems: Array<{
   { name: "Customers", path: "/admin/customers", icon: Users, roles: ["SUPER_ADMIN", "ADMIN", "BOX_OFFICE"] },
   { name: "Scanner", path: "/admin/scanner", icon: Scan, roles: ["SUPER_ADMIN", "ADMIN", "BOX_OFFICE", "SCANNER"] },
   { name: "Scan History", path: "/admin/scan-history", icon: History, roles: ["SUPER_ADMIN", "ADMIN", "BOX_OFFICE", "SCANNER"] },
-  { name: "Profile", path: "/admin/profile", icon: UserCircle, roles: ["SUPER_ADMIN", "ADMIN", "BOX_OFFICE", "SCANNER"] },
   { name: "Staff", path: "/admin/staff", icon: Users, roles: ["SUPER_ADMIN"] },
   { name: "Settings", path: "/admin/settings", icon: Settings, roles: ["SUPER_ADMIN", "ADMIN"] },
 ];
@@ -82,8 +81,10 @@ export function Layout({
   );
 
   const resolvedPathName =
-    visibleNavItems.find((item) => pathname.startsWith(item.path))?.name ||
-    "Dashboard";
+    pathname.startsWith("/admin/profile")
+      ? "Profile"
+      : visibleNavItems.find((item) => pathname.startsWith(item.path))?.name ||
+        "Dashboard";
   const currentPathName = pendingSectionName ?? resolvedPathName;
   const initials = user.name
     .split(" ")
@@ -147,18 +148,28 @@ export function Layout({
       </nav>
 
       <div className="mt-auto p-6">
-        <Link
-          href="/admin/profile"
-          onClick={() => setMobileMenuOpen(false)}
-          className="mb-4 block cursor-pointer rounded-xl border border-[#C2CBD2]/30 bg-white p-4 shadow-sm transition hover:border-[#2271B1]/30 hover:bg-[#FDFEFF]"
-        >
+        <div className="mb-3 rounded-xl border border-[#C2CBD2]/30 bg-white p-4 shadow-sm">
           <div className="mb-2 flex items-center gap-2">
             <div className="h-2 w-2 rounded-full bg-green-500" />
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#7D8A95]">Session</span>
           </div>
           <p className="text-[11px] font-medium text-[#31465A]">Authenticated • {displayRole}</p>
-          <p className="mt-1 text-[10px] text-[#7D8A95]">Open profile →</p>
+        </div>
+
+        <Link
+          href="/admin/profile"
+          onClick={() => setMobileMenuOpen(false)}
+          className={cn(
+            "mb-1 flex cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors",
+            pathname.startsWith("/admin/profile")
+              ? "bg-[#2271B1]/5 text-[#2271B1]"
+              : "text-[#7D8A95] hover:bg-gray-50 hover:text-[#31465A]",
+          )}
+        >
+          <UserCircle className="h-4 w-4" />
+          Profile
         </Link>
+
         <button
           onClick={handleSignOut}
           className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-[#7D8A95] transition-colors hover:bg-gray-50 hover:text-red-600"
