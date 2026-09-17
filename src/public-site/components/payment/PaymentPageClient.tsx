@@ -142,7 +142,7 @@ export default function PaymentPageClient({
       <div className="mx-auto max-w-5xl">
         <Link
           href="/tickets"
-          className="text-xs uppercase tracking-[.2em] text-[#7D8A95] hover:text-[#0E1721]"
+          className="cursor-pointer text-xs uppercase tracking-[.2em] text-[#7D8A95] hover:text-[#0E1721]"
         >
           ← Back to tickets
         </Link>
@@ -174,7 +174,7 @@ export default function PaymentPageClient({
                 {order.tickets.length > 0 && (
                   <Link
                     href={`/tickets/${order.orderNumber}?token=${encodeURIComponent(accessToken)}`}
-                    className="mt-5 inline-flex rounded-sm bg-[#0E1721] px-6 py-3 text-xs uppercase tracking-[.18em] text-white transition-colors hover:bg-[#2271B1]"
+                    className="mt-5 inline-flex cursor-pointer rounded-sm bg-[#0E1721] px-6 py-3 text-xs uppercase tracking-[.18em] text-white transition-colors hover:bg-[#2271B1]"
                   >
                     View digital tickets →
                   </Link>
@@ -217,7 +217,7 @@ export default function PaymentPageClient({
                       type="button"
                       onClick={() => choose(id)}
                       disabled={expired}
-                      className={`border p-5 text-left transition ${
+                      className={`cursor-pointer border p-5 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${
                         method === id
                           ? "border-[#2271B1] bg-[#2271B1]/5"
                           : "border-[#C2CBD2] hover:border-[#7D8A95]"
@@ -242,7 +242,7 @@ export default function PaymentPageClient({
                       </p>
                       <button
                         disabled
-                        className="mt-5 bg-[#0E1721]/50 px-6 py-3 text-xs uppercase tracking-[.18em] text-white"
+                        className="mt-5 cursor-not-allowed bg-[#0E1721]/50 px-6 py-3 text-xs uppercase tracking-[.18em] text-white"
                       >
                         Card gateway connection pending
                       </button>
@@ -259,7 +259,7 @@ export default function PaymentPageClient({
                       <button
                         disabled={pending || expired}
                         onClick={onArrival}
-                        className="mt-5 bg-[#0E1721] px-6 py-3 text-xs uppercase tracking-[.18em] text-white hover:bg-[#2271B1]"
+                        className="mt-5 cursor-pointer bg-[#0E1721] px-6 py-3 text-xs uppercase tracking-[.18em] text-white hover:bg-[#2271B1] disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         Confirm pay on arrival
                       </button>
@@ -327,7 +327,7 @@ export default function PaymentPageClient({
                               setDragging(false);
                             }}
                             onDrop={onDrop}
-                            className={`flex min-h-44 flex-col items-center justify-center border border-dashed px-5 py-8 text-center transition ${
+                            className={`flex min-h-44 cursor-pointer flex-col items-center justify-center border border-dashed px-5 py-8 text-center transition ${
                               dragging
                                 ? "border-[#2271B1] bg-[#2271B1]/5"
                                 : "border-[#AAB6C0] bg-[#F8FAFB] hover:border-[#2271B1] hover:bg-white"
@@ -378,7 +378,7 @@ export default function PaymentPageClient({
                             <button
                               type="button"
                               onClick={() => setSlip(null)}
-                              className="inline-flex items-center gap-1.5 text-xs text-[#7D8A95] hover:text-red-600"
+                              className="inline-flex cursor-pointer items-center gap-1.5 text-xs text-[#7D8A95] hover:text-red-600"
                             >
                               <X className="h-3.5 w-3.5" />
                               Remove selected slip
@@ -393,7 +393,7 @@ export default function PaymentPageClient({
                               optimizing ||
                               !slip
                             }
-                            className="bg-[#0E1721] px-6 py-3 text-xs uppercase tracking-[.18em] text-white hover:bg-[#2271B1] disabled:opacity-50"
+                            className="cursor-pointer bg-[#0E1721] px-6 py-3 text-xs uppercase tracking-[.18em] text-white hover:bg-[#2271B1] disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             {pending ? "Uploading…" : "Upload payment slip"}
                           </button>
