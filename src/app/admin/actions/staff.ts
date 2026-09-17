@@ -265,10 +265,11 @@ export async function completeStaffInvite(formData: FormData) {
     fail("That setup code is invalid or has expired. Ask a super admin to resend the invitation.");
   }
 
+  const verifiedUserId = data.user.id;
   const { data: profile, error: profileError } = await supabase
     .from("staff_profiles")
     .select("status")
-    .eq("user_id", data.user.id)
+    .eq("user_id", verifiedUserId)
     .maybeSingle();
 
   if (profileError || !profile || profile.status !== "ACTIVE") {
