@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import PublicApp from "@/public-site/App";
 import { getPublicTicketCatalog } from "@/lib/catalog/public";
+import {
+  PUBLIC_PAGE_METADATA,
+  type PublicPageMetadataKey,
+} from "@/public-site/data/pageMetadata";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const publicRoutes = new Set([
+const publicRoutes = new Set<PublicPageMetadataKey>([
   "about",
   "artists",
   "vasr",
@@ -17,22 +21,28 @@ const publicRoutes = new Set([
   "contact",
 ]);
 
+function getPageKey(slug?: string[]): PublicPageMetadataKey {
+  if (!slug?.length) return "home";
+  return slug[0] as PublicPageMetadataKey;
+}
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug?: string[] }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const pageKey = getPageKey(slug);
+  const pageMetadata = PUBLIC_PAGE_METADATA[pageKey];
 
-  if (slug?.length === 1 && slug[0] === "vasr") {
-    return {
-      title: "VASR — Visual Artists Swara Ranjana",
-      description:
-        "Meet the developers, animation creators and visual artists shaping the visual language of Swara Ranjana 2026.",
-    };
-  }
+  if (!pageMetadata) return {};
 
-  return {};
+  return {
+    title: pageMetadata.absoluteTitle
+      ? { absolute: pageMetadata.title }
+      : pageMetadata.title,
+    description: pageMetadata.description,
+  };
 }
 
 export default async function PublicPage({
@@ -42,7 +52,10 @@ export default async function PublicPage({
 }) {
   const { slug } = await params;
 
-  if (slug && (slug.length !== 1 || !publicRoutes.has(slug[0]))) {
+  if (
+    slug &&
+    (slug.length !== 1 || !publicRoutes.has(slug[0] as PublicPageMetadataKey))
+  ) {
     notFound();
   }
 
