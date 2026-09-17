@@ -119,7 +119,7 @@ export function Layout({ children, user }: { children: React.ReactNode; user: Ad
             href={item.path}
             onClick={() => handleAdminNavigation(item)}
             className={cn(
-              'flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors',
+              'flex cursor-pointer items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors',
               pathname === item.path || pathname.startsWith(`${item.path}/`)
                 ? 'bg-[#2271B1]/5 text-[#2271B1] font-semibold'
                 : 'text-[#7D8A95] hover:bg-gray-50',
@@ -141,7 +141,7 @@ export function Layout({ children, user }: { children: React.ReactNode; user: Ad
         </div>
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-[#7D8A95] hover:bg-gray-50 hover:text-red-600 transition-colors"
+          className="w-full cursor-pointer flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-[#7D8A95] hover:bg-gray-50 hover:text-red-600 transition-colors"
         >
           <LogOut className="w-4 h-4" />
           Sign Out
@@ -163,7 +163,7 @@ export function Layout({ children, user }: { children: React.ReactNode; user: Ad
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-[#0E1721]/20 backdrop-blur-sm z-40 md:hidden"
+              className="fixed inset-0 cursor-pointer bg-[#0E1721]/20 backdrop-blur-sm z-40 md:hidden"
               onClick={() => setMobileMenuOpen(false)}
             />
             <motion.div
@@ -183,7 +183,7 @@ export function Layout({ children, user }: { children: React.ReactNode; user: Ad
         <header className="h-20 bg-white border-b border-[#C2CBD2]/30 flex items-center justify-between px-4 sm:px-10 shrink-0">
           <div className="flex items-center gap-4">
             <button
-              className="md:hidden p-2 -ml-2 text-[#7D8A95] hover:text-[#0E1721] rounded-md hover:bg-[#F8FAFC]"
+              className="md:hidden cursor-pointer p-2 -ml-2 text-[#7D8A95] hover:text-[#0E1721] rounded-md hover:bg-[#F8FAFC]"
               onClick={() => setMobileMenuOpen(true)}
               aria-label="Open navigation"
             >
@@ -193,9 +193,13 @@ export function Layout({ children, user }: { children: React.ReactNode; user: Ad
           </div>
 
           <div className="flex items-center gap-6">
-            <button className="relative p-2 text-[#7D8A95] hover:text-[#31465A] transition-colors" aria-label="Notifications">
+            <span
+              className="relative p-2 text-[#7D8A95]"
+              aria-label="Notifications"
+              title="Notifications"
+            >
               <Bell className="w-5 h-5" />
-            </button>
+            </span>
             <div className="hidden sm:block h-6 w-px bg-[#C2CBD2]/30" />
 
             <div className="flex items-center gap-3">

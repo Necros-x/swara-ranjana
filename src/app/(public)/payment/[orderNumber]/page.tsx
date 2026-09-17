@@ -2,9 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import PaymentPageClient from "@/public-site/components/payment/PaymentPageClient";
 import { getGuestPaymentOrder } from "@/lib/payment/order";
+import { getBankTransferDetails } from "@/lib/payment/bankTransfer";
 
 export const metadata = {
-  title: "Payment | Swara Ranjana 2026",
+  title: "Payment",
   robots: { index: false, follow: false },
 };
 
@@ -22,6 +23,8 @@ export default async function Page({
   const order = await getGuestPaymentOrder(orderNumber, token);
   if (!order) notFound();
 
+  const bankTransfer = getBankTransferDetails();
+
   return (
     <>
       <div className="bg-[#F7F9FA] px-4 pt-6 sm:px-6 sm:pt-8">
@@ -30,29 +33,23 @@ export default async function Page({
             Refund & cancellation policy
           </div>
           <p className="mt-2 max-w-4xl text-xs leading-relaxed text-[#5F6D79] sm:text-sm">
-            Online refund and cancellation requests close exactly 48 hours before showtime. If you need urgent help after the cutoff, {" "}
-            <Link href="/contact" className="font-medium text-[#2271B1] hover:underline">
-              contact Swara Ranjana
+            Online refund and cancellation requests close exactly 48 hours before
+            showtime. If you need urgent help after the cutoff, {" "}
+            <Link
+              href="/contact"
+              className="cursor-pointer font-medium text-[#2271B1] hover:underline"
+            >
+              contact Swara Ranjana support
             </Link>
-            , email {" "}
-            <a
-              href="mailto:concierge@swararanjana.lk"
-              className="font-medium text-[#2271B1] hover:underline"
-            >
-              concierge@swararanjana.lk
-            </a>
-            {" "}or call {" "}
-            <a
-              href="tel:+94112689000"
-              className="font-medium text-[#2271B1] hover:underline"
-            >
-              +94 11 268 9000
-            </a>
             .
           </p>
         </div>
       </div>
-      <PaymentPageClient order={order} accessToken={token} />
+      <PaymentPageClient
+        order={order}
+        accessToken={token}
+        bankTransfer={bankTransfer}
+      />
     </>
   );
 }

@@ -12,8 +12,6 @@ export type TransactionalEmailResult =
   | { ok: false; skipped?: boolean; error: string };
 
 const NECROS_STUDIO_URL = "https://studio.necros.co";
-const SWARA_RANJANA_EMAIL = "concierge@swararanjana.lk";
-const SWARA_RANJANA_PHONE = "+94 11 268 9000";
 
 function getFromAddress() {
   return process.env.RESEND_FROM_EMAIL?.trim() ?? "";
@@ -38,7 +36,7 @@ function withRefundPolicy(html: string, subject: string) {
     <td style="padding:20px 28px;font-family:Arial,Helvetica,sans-serif;">
       <div style="font-size:9px;line-height:1.4;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#2271B1;">Refunds &amp; cancellations</div>
       <div style="margin-top:8px;font-size:12px;line-height:1.7;color:#5F6D79;">
-        Online refund and cancellation requests close exactly <strong style="color:#0E1721;">48 hours before showtime</strong>. For an urgent exception after the cutoff, contact <strong style="color:#0E1721;">Swara Ranjana</strong> at <a href="mailto:${SWARA_RANJANA_EMAIL}" style="color:#2271B1;text-decoration:none;font-weight:700;">${SWARA_RANJANA_EMAIL}</a> or <a href="tel:+94112689000" style="color:#2271B1;text-decoration:none;font-weight:700;">${SWARA_RANJANA_PHONE}</a>.
+        Online refund and cancellation requests close exactly <strong style="color:#0E1721;">48 hours before showtime</strong>. For an urgent exception after the cutoff, contact <strong style="color:#0E1721;">Swara Ranjana support</strong> through the official event website.
       </div>
     </td>
   </tr>
@@ -51,7 +49,7 @@ function withRefundPolicy(html: string, subject: string) {
 
 function refundPolicyText(subject: string) {
   if (!shouldIncludeRefundPolicy(subject)) return "";
-  return `Refund & cancellation policy: Online refund and cancellation requests close exactly 48 hours before showtime. For an urgent exception after the cutoff, contact Swara Ranjana at ${SWARA_RANJANA_EMAIL} or ${SWARA_RANJANA_PHONE}.`;
+  return "Refund & cancellation policy: Online refund and cancellation requests close exactly 48 hours before showtime. For an urgent exception after the cutoff, contact Swara Ranjana support through the official event website.";
 }
 
 function withDevelopmentCredit(html: string) {

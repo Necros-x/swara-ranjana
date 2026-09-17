@@ -39,9 +39,9 @@ export const PUBLIC_PAGE_METADATA: Record<
       "Discover the story, vision and identity behind Swara Ranjana 2026 in Kandy.",
   },
   artists: {
-    title: "Featured Artists",
+    title: "Artist Line-up",
     description:
-      "Meet the featured musical artists and performers of Swara Ranjana 2026.",
+      "Official Swara Ranjana 2026 artist announcements will be published here once confirmed.",
   },
   vasr: {
     title: "VASR | Visual Artists Swara Ranjana",
@@ -51,12 +51,12 @@ export const PUBLIC_PAGE_METADATA: Record<
   programme: {
     title: "Programme",
     description:
-      "Explore the evening programme and performance schedule for Swara Ranjana 2026.",
+      "The official Swara Ranjana 2026 running order will be published here once the programme is confirmed.",
   },
   gallery: {
     title: "Gallery",
     description:
-      "Explore the visual archive, rehearsal moments and performance imagery of Swara Ranjana.",
+      "Official Swara Ranjana photography and archive material will be published here once approved.",
   },
   tickets: {
     title: "Tickets",
@@ -71,6 +71,6 @@ export const PUBLIC_PAGE_METADATA: Record<
   contact: {
     title: "Contact",
     description:
-      "Contact the Swara Ranjana team for concert, ticketing and event inquiries.",
+      "View current Swara Ranjana 2026 inquiry and event contact information.",
   },
 };
