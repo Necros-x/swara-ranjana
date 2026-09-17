@@ -9,9 +9,11 @@ import { createClient } from '@/lib/supabase/client';
 export default function Login({
   nextPath,
   initialError,
+  initialSuccess,
 }: {
   nextPath?: string;
   initialError?: string;
+  initialSuccess?: string;
 }) {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -85,6 +87,12 @@ export default function Login({
             <h3 className="text-[#31465A] font-light uppercase tracking-widest text-sm">Administration</h3>
           </div>
 
+          {initialSuccess && (
+            <div className="mb-6 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800" role="status">
+              {initialSuccess}
+            </div>
+          )}
+
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
               <label htmlFor="admin-email" className="text-sm font-medium text-[#0E1721]">Email Address</label>
@@ -123,7 +131,7 @@ export default function Login({
               </div>
             )}
 
-            <Button type="submit" disabled={isSubmitting} className="w-full h-11 text-base font-medium">
+            <Button type="submit" disabled={isSubmitting} className="w-full h-11 cursor-pointer text-base font-medium disabled:cursor-not-allowed">
               {isSubmitting ? 'Signing In…' : 'Sign In'}
             </Button>
           </form>
