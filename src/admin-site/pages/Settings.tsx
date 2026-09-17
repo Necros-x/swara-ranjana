@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import {
   CalendarDays,
@@ -7,6 +5,7 @@ import {
   CreditCard,
   KeyRound,
   Mail,
+  Save,
   ShieldCheck,
   Ticket,
   Upload,
@@ -19,6 +18,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/admin-site/components/ui/Card";
+import { saveBankTransferSettings } from "@/app/admin/actions/settings";
+import type { BankTransferDetails } from "@/lib/payment/bankTransfer";
 
 function StatusRow({
   label,
@@ -44,7 +45,15 @@ function StatusRow({
   );
 }
 
-export default function Settings() {
+export default function Settings({
+  bankTransfer,
+  success,
+  error,
+}: {
+  bankTransfer: BankTransferDetails | null;
+  success?: string;
+  error?: string;
+}) {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <div>
@@ -55,12 +64,104 @@ export default function Settings() {
           Settings & launch status
         </h1>
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[#7D8A95]">
-          This page shows the configuration that is actually enforced by the
-          live system. Event and ticket data are edited in their dedicated
-          admin areas; server secrets and provider credentials are never
-          exposed here.
+          Operational settings live here. Provider credentials and Supabase
+          secrets remain protected server-side and are never exposed in this
+          screen.
         </p>
       </div>
+
+      {success && (
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          {success}
+        </div>
+      )}
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-start gap-3">
+            <Upload className="mt-0.5 h-5 w-5 text-[#2271B1]" />
+            <div>
+              <CardTitle className="text-lg">Bank transfer instructions</CardTitle>
+              <CardDescription>
+                These details are shown to customers after they select Slip Upload.
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <form action={saveBankTransferSettings} className="space-y-5">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="space-y-1.5">
+                <span className="text-xs font-medium text-[#31465A]">Bank name</span>
+                <input
+                  name="bankName"
+                  required
+                  defaultValue={bankTransfer?.bankName ?? ""}
+                  className="h-11 w-full rounded-md border border-[#C2CBD2]/70 bg-white px-3 text-sm text-[#0E1721] outline-none transition focus:border-[#2271B1]"
+                />
+              </label>
+              <label className="space-y-1.5">
+                <span className="text-xs font-medium text-[#31465A]">Branch</span>
+                <input
+                  name="branch"
+                  defaultValue={bankTransfer?.branch ?? ""}
+                  className="h-11 w-full rounded-md border border-[#C2CBD2]/70 bg-white px-3 text-sm text-[#0E1721] outline-none transition focus:border-[#2271B1]"
+                />
+              </label>
+              <label className="space-y-1.5">
+                <span className="text-xs font-medium text-[#31465A]">Account name</span>
+                <input
+                  name="accountName"
+                  required
+                  defaultValue={bankTransfer?.accountName ?? ""}
+                  className="h-11 w-full rounded-md border border-[#C2CBD2]/70 bg-white px-3 text-sm text-[#0E1721] outline-none transition focus:border-[#2271B1]"
+                />
+              </label>
+              <label className="space-y-1.5">
+                <span className="text-xs font-medium text-[#31465A]">Account number</span>
+                <input
+                  name="accountNumber"
+                  required
+                  defaultValue={bankTransfer?.accountNumber ?? ""}
+                  className="h-11 w-full rounded-md border border-[#C2CBD2]/70 bg-white px-3 font-mono text-sm text-[#0E1721] outline-none transition focus:border-[#2271B1]"
+                />
+              </label>
+            </div>
+
+            <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
+              <input
+                type="checkbox"
+                name="isMock"
+                defaultChecked={bankTransfer?.isMock ?? true}
+                className="mt-0.5 h-4 w-4"
+              />
+              <span>
+                <span className="block text-xs font-semibold text-amber-900">
+                  Mark these as demo / testing details
+                </span>
+                <span className="mt-1 block text-xs leading-relaxed text-amber-800">
+                  When enabled, checkout clearly warns customers not to make a real
+                  transfer. Turn this off only after the event team provides the
+                  official account.
+                </span>
+              </span>
+            </label>
+
+            <button
+              type="submit"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-[#0E1721] px-5 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-[#2271B1]"
+            >
+              <Save className="h-4 w-4" />
+              Save bank details
+            </button>
+          </form>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-5 lg:grid-cols-2">
         <Card>
@@ -84,7 +185,7 @@ export default function Settings() {
             <StatusRow
               label="Ticket categories"
               value="Manage in Ticket Types"
-              note="Price, category capacity, sale window, per-order maximum and seat-block mapping are category-specific."
+              note="Price, capacity, sale window, per-order maximum and seat-block mapping are category-specific."
             />
             <div className="mt-5 flex flex-wrap gap-3">
               <Link
@@ -131,7 +232,6 @@ export default function Settings() {
             <StatusRow
               label="Per-order limit"
               value="Defined by each ticket category"
-              note="The live categories currently enforce their own max-per-order value rather than one global mock setting."
             />
           </CardContent>
         </Card>
@@ -143,7 +243,7 @@ export default function Settings() {
               <div>
                 <CardTitle className="text-lg">Payment workflows</CardTitle>
                 <CardDescription>
-                  Payment collection and gate admission remain separate.
+                  New public reservations use slip upload until the card gateway is connected.
                 </CardDescription>
               </div>
             </div>
@@ -152,24 +252,24 @@ export default function Settings() {
             <StatusRow
               label="Card"
               value="Gateway connection pending"
-              note="Card details must only be entered on the future hosted OnePay checkout. Raw card data is never collected by this site."
+              note="OnePay will use hosted checkout; raw card details are never collected by this site."
+            />
+            <StatusRow
+              label="Slip upload"
+              value="Active"
+              note="Customers see the bank details above, upload proof, and staff approve or reject it from the order workflow."
             />
             <StatusRow
               label="Pay on arrival"
-              value="Active"
-              note="Staff record payment at the Payment Counter; the gate scanner performs admission afterwards."
-            />
-            <StatusRow
-              label="Bank slip"
-              value="Upload & review workflow active"
-              note="Production bank-transfer instructions still require confirmed event banking details before public launch."
+              value="Removed from new checkout"
+              note="The legacy Payment Counter remains available only for previously created On-Arrival reservations."
             />
             <Link
               href="/admin/payment-counter"
               className="mt-5 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[#C2CBD2] bg-white px-4 py-2.5 text-xs font-semibold text-[#31465A] transition hover:border-[#2271B1] hover:text-[#2271B1]"
             >
               <CreditCard className="h-4 w-4" />
-              Open Payment Counter
+              Legacy Payment Counter
             </Link>
           </CardContent>
         </Card>
@@ -190,24 +290,21 @@ export default function Settings() {
             <StatusRow
               label="Transactional email"
               value="Resend integration"
-              note="Sender credentials come from server environment variables. Unconfirmed support contact details are not hardcoded into public emails."
             />
             <StatusRow
               label="Customer account"
               value="Passwordless email code"
-              note="Customers prove ownership of the reservation email before account orders and QR tickets are displayed."
             />
             <StatusRow
               label="Staff account"
               value="Email + password + active staff profile"
-              note="Admin access also requires an ACTIVE staff profile with an authorized role."
             />
             <div className="mt-5 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 text-xs leading-relaxed text-amber-900">
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
               <span>
-                Supabase currently reports leaked-password protection as
-                disabled. If the project plan supports it, enable it in the
-                Supabase Auth email/password settings before production launch.
+                Supabase currently reports leaked-password protection as disabled.
+                Enable it in the Auth settings before production launch if the
+                current project plan supports the feature.
               </span>
             </div>
           </CardContent>
@@ -220,43 +317,25 @@ export default function Settings() {
             <KeyRound className="h-5 w-5 text-[#2271B1]" />
             <div>
               <CardTitle className="text-lg">Configuration ownership</CardTitle>
-              <CardDescription>
-                Where each production setting should be changed.
-              </CardDescription>
+              <CardDescription>Where production settings are changed.</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="grid gap-4 text-xs leading-relaxed text-[#5F6D79] sm:grid-cols-3">
           <div className="rounded-lg border border-[#C2CBD2]/50 bg-[#F8FAFB] p-4">
-            <div className="font-semibold text-[#0E1721]">Database catalog</div>
-            <p className="mt-2">
-              Event, ticket-category, capacity and seat-block data belong in
-              the admin Events and Ticket Types workflows.
-            </p>
+            <div className="font-semibold text-[#0E1721]">Admin portal</div>
+            <p className="mt-2">Bank transfer instructions, events, categories, staff and operational data are managed here.</p>
           </div>
           <div className="rounded-lg border border-[#C2CBD2]/50 bg-[#F8FAFB] p-4">
             <div className="font-semibold text-[#0E1721]">Server environment</div>
-            <p className="mt-2">
-              Resend, Supabase service credentials and future payment-gateway
-              secrets stay in protected deployment environment variables.
-            </p>
+            <p className="mt-2">Resend, Supabase service credentials and future payment-gateway secrets stay in protected deployment variables.</p>
           </div>
           <div className="rounded-lg border border-[#C2CBD2]/50 bg-[#F8FAFB] p-4">
             <div className="font-semibold text-[#0E1721]">Public content</div>
-            <p className="mt-2">
-              Artist, programme, gallery, banking and official contact details
-              must only be published after the event team confirms them.
-            </p>
+            <p className="mt-2">Artists, programme, gallery and official contact content publish only after confirmation.</p>
           </div>
         </CardContent>
       </Card>
-
-      <div className="flex items-start gap-3 rounded-xl border border-[#2271B1]/20 bg-[#2271B1]/5 p-4 text-xs leading-relaxed text-[#31465A]">
-        <Upload className="mt-0.5 h-4 w-4 shrink-0 text-[#2271B1]" />
-        There is intentionally no generic “Save Settings” button here. The old
-        screen contained mock values that were not connected to production
-        configuration.
-      </div>
     </div>
   );
 }
