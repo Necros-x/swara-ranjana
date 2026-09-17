@@ -28,10 +28,13 @@ export async function selectPaymentMethod(
   accessToken: string,
   method: "CARD" | "ON_ARRIVAL" | "BANK_SLIP",
 ) {
-  if (method === "CARD") {
+  if (method !== "BANK_SLIP") {
     return {
       ok: false,
-      message: "Card payments are not available yet. Choose another payment method.",
+      message:
+        method === "CARD"
+          ? "Card payments are not available yet. Use slip upload for this reservation."
+          : "Pay on arrival is no longer available for new reservations. Use slip upload instead.",
     };
   }
 
@@ -57,43 +60,14 @@ export async function selectPaymentMethod(
 }
 
 export async function confirmOnArrival(
-  orderNumber: string,
-  accessToken: string,
+  _orderNumber: string,
+  _accessToken: string,
 ) {
-  const admin = createAdminClient();
-
-  const { data, error } = await admin.rpc("confirm_on_arrival", {
-    p_order_number: orderNumber,
-    p_access_token: accessToken,
-  });
-
-  if (error || !rec(data) || data.ok !== true) {
-    return {
-      ok: false,
-      message:
-        error?.message ??
-        msg(data, "Unable to confirm pay on arrival."),
-    };
-  }
-
-  const { data: order } = await admin
-    .from("orders")
-    .select("id")
-    .eq("order_number", orderNumber)
-    .eq("access_token", accessToken)
-    .maybeSingle();
-
-  if (order?.id) {
-    await sendTicketsIssuedEmail(order.id).catch((emailError) => {
-      console.error("Ticket email failed:", emailError);
-    });
-  }
-
-  revalidatePath(`/payment/${orderNumber}`);
-  revalidatePath("/account");
-  revalidatePath("/admin/orders");
-
-  return { ok: true };
+  return {
+    ok: false,
+    message:
+      "Pay on arrival is no longer available for new reservations. Use slip upload instead.",
+  };
 }
 
 export async function uploadPaymentSlip(formData: FormData) {
