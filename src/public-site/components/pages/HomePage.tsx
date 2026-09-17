@@ -129,7 +129,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 id="hero-reserve-seat-cta"
                 onClick={() => onOpenTicketsModal()}
                 onMouseEnter={playHoverChime}
-                className="bg-[#0E1721] text-white px-10 py-5 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#2271B1] transition-colors duration-500 flex items-center gap-3"
+                className="cursor-pointer bg-[#0E1721] text-white px-10 py-5 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#2271B1] transition-colors duration-500 flex items-center gap-3"
               >
                 <span>Reserve Your Seat</span>
               </button>
@@ -140,7 +140,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                   const el = document.getElementById("experience-section");
                   el?.scrollIntoView({ behavior: "smooth" });
                 }}
-                className="text-[11px] uppercase tracking-[0.2em] font-bold border-b border-[#0E1721] pb-1 hover:text-[#2271B1] hover:border-[#2271B1] transition-all"
+                className="cursor-pointer text-[11px] uppercase tracking-[0.2em] font-bold border-b border-[#0E1721] pb-1 hover:text-[#2271B1] hover:border-[#2271B1] transition-all"
               >
                 Discover →
               </button>
@@ -216,7 +216,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               <div className="mt-10 flex items-center gap-6">
                 <button
                   onClick={() => onNavigate("about")}
-                  className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] font-medium text-[#0E1721] hover:text-[#2271B1] transition-colors group"
+                  className="group inline-flex cursor-pointer items-center gap-2 text-xs uppercase tracking-[0.25em] font-medium text-[#0E1721] hover:text-[#2271B1] transition-colors"
                 >
                   <span>Explore The Full Vision</span>
                   <span className="group-hover:translate-x-1 transition-transform">
@@ -234,31 +234,31 @@ export const HomePage: React.FC<HomePageProps> = ({
                 </div>
 
                 <span className="text-[10px] font-mono tracking-[0.35em] uppercase text-[#2271B1] block mb-4">
-                  Acoustic Architecture
+                  Auditorium Plan
                 </span>
 
                 <h3 className="font-gemola text-2xl text-[#0E1721] font-light mb-3">
-                  Purity of Sound & Light
+                  Built around the live experience
                 </h3>
 
                 <p className="text-xs text-[#31465A] font-light leading-relaxed mb-6">
-                  Performed within the acoustically calibrated Nelum Pokuna
-                  Symphony Hall, every instrument is amplified with pristine
-                  natural transparency without harsh digital artifacts.
+                  Swara Ranjana 2026 will be presented at Mahinda Rajapaksha
+                  Auditorium, Polgolla. The verified seating plan contains 1,120
+                  physical seats across the ODC and Balcony sections.
                 </p>
 
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t border-ink-10 text-[11px] font-mono text-[#7D8A95]">
                   <div>
                     <span className="block text-[#0E1721] font-semibold">
-                      1,280
+                      1,120
                     </span>
-                    Sanctuary Seats
+                    Physical Seats
                   </div>
                   <div>
                     <span className="block text-[#0E1721] font-semibold">
-                      30+
+                      8
                     </span>
-                    Symphonic Musicians
+                    Seat Blocks A–H
                   </div>
                 </div>
               </div>
@@ -293,7 +293,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
             <button
               onClick={() => onNavigate("artists")}
-              className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] font-medium text-[#0E1721] hover:text-[#2271B1] transition-colors"
+              className="inline-flex cursor-pointer items-center gap-2 text-xs uppercase tracking-[0.25em] font-medium text-[#0E1721] hover:text-[#2271B1] transition-colors"
             >
               <span>View All 6 Maestros</span>
               <span>→</span>
@@ -370,7 +370,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                     <div className="flex items-center gap-4">
                       <button
                         onClick={() => onOpenArtistModal(artist)}
-                        className="px-6 py-2.5 bg-[#0E1721] hover:bg-[#2271B1] text-white text-xs uppercase tracking-[0.2em] font-medium transition-colors rounded-sm"
+                        className="cursor-pointer px-6 py-2.5 bg-[#0E1721] hover:bg-[#2271B1] text-white text-xs uppercase tracking-[0.2em] font-medium transition-colors rounded-sm"
                       >
                         Artist Biography & Repertoire →
                       </button>
@@ -417,10 +417,10 @@ export const HomePage: React.FC<HomePageProps> = ({
               ONE MEMORY.
             </h2>
 
-            <div className="mt-8 flex items-center justify-center gap-4 text-xs font-mono text-[#C2CBD2] tracking-widest">
-              <span>NELUM POKUNA THEATRE</span>
-              <span>/</span>
-              <span>COLOMBO</span>
+            <div className="mt-8 flex flex-col items-center justify-center gap-2 text-xs font-mono text-[#C2CBD2] tracking-widest sm:flex-row sm:gap-4">
+              <span>MAHINDA RAJAPAKSHA AUDITORIUM</span>
+              <span className="hidden sm:inline">/</span>
+              <span>POLGOLLA · KANDY</span>
             </div>
           </motion.div>
         </div>
@@ -442,7 +442,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
             <button
               onClick={() => onNavigate("programme")}
-              className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] font-medium text-[#0E1721] hover:text-[#2271B1] transition-colors"
+              className="inline-flex cursor-pointer items-center gap-2 text-xs uppercase tracking-[0.25em] font-medium text-[#0E1721] hover:text-[#2271B1] transition-colors"
             >
               <span>View Full Schedule (8 Acts)</span>
               <span>→</span>
@@ -489,7 +489,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           <div className="mt-10 text-center">
             <button
               onClick={() => onNavigate("programme")}
-              className="px-8 py-3 border border-ink-20 hover:border-[#2271B1] text-xs uppercase tracking-[0.25em] font-medium text-[#0E1721] hover:text-[#2271B1] transition-colors rounded-sm"
+              className="cursor-pointer px-8 py-3 border border-ink-20 hover:border-[#2271B1] text-xs uppercase tracking-[0.25em] font-medium text-[#0E1721] hover:text-[#2271B1] transition-colors rounded-sm"
             >
               View Full Concert Schedule →
             </button>
@@ -502,112 +502,112 @@ export const HomePage: React.FC<HomePageProps> = ({
       {/* ========================================================================= */}
       {GALLERY_ITEMS.length >= 4 && (
         <section
-        id="gallery-preview-section"
-        className="py-24 sm:py-32 px-4 sm:px-6 lg:px-12 bg-[#F9FBFC] border-t border-ink-10"
-      >
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-16 gap-6">
-            <div>
-              <SectionLabel
-                label="Visual Archive"
-                number="04"
-                className="mb-4"
-              />
-              <EditorialHeading size="lg">The Atmosphere</EditorialHeading>
-            </div>
-
-            <button
-              onClick={() => onNavigate("gallery")}
-              className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] font-medium text-[#0E1721] hover:text-[#2271B1] transition-colors"
-            >
-              <span>Explore Gallery (All Photographs)</span>
-              <span>→</span>
-            </button>
-          </div>
-
-          {/* Artistic Asymmetric Gallery Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-            {/* Image 1: Tall Portrait */}
-            <div
-              className="md:col-span-4 relative group cursor-pointer overflow-hidden rounded-sm bg-[#0E1721] aspect-[3/4]"
-              onClick={() => onOpenGalleryItem(GALLERY_ITEMS[0].id)}
-            >
-              <ParallaxImage
-                src={GALLERY_ITEMS[0].image}
-                alt={GALLERY_ITEMS[0].title}
-                className="grayscale contrast-110 group-hover:scale-105 group-hover:grayscale-0 transition-all duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-6 flex flex-col justify-end text-white">
-                <span className="text-[10px] font-mono text-[#2271B1] tracking-widest uppercase">
-                  {GALLERY_ITEMS[0].category}
-                </span>
-                <h4 className="font-gemola text-2xl font-light">
-                  {GALLERY_ITEMS[0].title}
-                </h4>
+          id="gallery-preview-section"
+          className="py-24 sm:py-32 px-4 sm:px-6 lg:px-12 bg-[#F9FBFC] border-t border-ink-10"
+        >
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-16 gap-6">
+              <div>
+                <SectionLabel
+                  label="Visual Archive"
+                  number="04"
+                  className="mb-4"
+                />
+                <EditorialHeading size="lg">The Atmosphere</EditorialHeading>
               </div>
+
+              <button
+                onClick={() => onNavigate("gallery")}
+                className="inline-flex cursor-pointer items-center gap-2 text-xs uppercase tracking-[0.25em] font-medium text-[#0E1721] hover:text-[#2271B1] transition-colors"
+              >
+                <span>Explore Gallery (All Photographs)</span>
+                <span>→</span>
+              </button>
             </div>
 
-            {/* Image 2: Wide Landscape & Image 3 stacked */}
-            <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {/* Artistic Asymmetric Gallery Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+              {/* Image 1: Tall Portrait */}
               <div
-                className="sm:col-span-2 relative group cursor-pointer overflow-hidden rounded-sm bg-[#0E1721] aspect-[16/9]"
-                onClick={() => onOpenGalleryItem(GALLERY_ITEMS[1].id)}
+                className="md:col-span-4 relative group cursor-pointer overflow-hidden rounded-sm bg-[#0E1721] aspect-[3/4]"
+                onClick={() => onOpenGalleryItem(GALLERY_ITEMS[0].id)}
               >
                 <ParallaxImage
-                  src={GALLERY_ITEMS[1].image}
-                  alt={GALLERY_ITEMS[1].title}
+                  src={GALLERY_ITEMS[0].image}
+                  alt={GALLERY_ITEMS[0].title}
                   className="grayscale contrast-110 group-hover:scale-105 group-hover:grayscale-0 transition-all duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-6 flex flex-col justify-end text-white">
                   <span className="text-[10px] font-mono text-[#2271B1] tracking-widest uppercase">
-                    {GALLERY_ITEMS[1].category}
+                    {GALLERY_ITEMS[0].category}
                   </span>
                   <h4 className="font-gemola text-2xl font-light">
-                    {GALLERY_ITEMS[1].title}
+                    {GALLERY_ITEMS[0].title}
                   </h4>
                 </div>
               </div>
 
-              <div
-                className="relative group cursor-pointer overflow-hidden rounded-sm bg-[#0E1721] aspect-square"
-                onClick={() => onOpenGalleryItem(GALLERY_ITEMS[2].id)}
-              >
-                <ParallaxImage
-                  src={GALLERY_ITEMS[2].image}
-                  alt={GALLERY_ITEMS[2].title}
-                  className="grayscale contrast-110 group-hover:scale-105 group-hover:grayscale-0 transition-all duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-end text-white">
-                  <span className="text-[9px] font-mono text-[#2271B1] tracking-widest uppercase">
-                    {GALLERY_ITEMS[2].category}
-                  </span>
-                  <h4 className="font-gemola text-xl font-light">
-                    {GALLERY_ITEMS[2].title}
-                  </h4>
+              {/* Image 2: Wide Landscape & Image 3 stacked */}
+              <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div
+                  className="sm:col-span-2 relative group cursor-pointer overflow-hidden rounded-sm bg-[#0E1721] aspect-[16/9]"
+                  onClick={() => onOpenGalleryItem(GALLERY_ITEMS[1].id)}
+                >
+                  <ParallaxImage
+                    src={GALLERY_ITEMS[1].image}
+                    alt={GALLERY_ITEMS[1].title}
+                    className="grayscale contrast-110 group-hover:scale-105 group-hover:grayscale-0 transition-all duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-6 flex flex-col justify-end text-white">
+                    <span className="text-[10px] font-mono text-[#2271B1] tracking-widest uppercase">
+                      {GALLERY_ITEMS[1].category}
+                    </span>
+                    <h4 className="font-gemola text-2xl font-light">
+                      {GALLERY_ITEMS[1].title}
+                    </h4>
+                  </div>
                 </div>
-              </div>
 
-              <div
-                className="relative group cursor-pointer overflow-hidden rounded-sm bg-[#0E1721] aspect-square"
-                onClick={() => onOpenGalleryItem(GALLERY_ITEMS[3].id)}
-              >
-                <ParallaxImage
-                  src={GALLERY_ITEMS[3].image}
-                  alt={GALLERY_ITEMS[3].title}
-                  className="grayscale contrast-110 group-hover:scale-105 group-hover:grayscale-0 transition-all duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-end text-white">
-                  <span className="text-[9px] font-mono text-[#2271B1] tracking-widest uppercase">
-                    {GALLERY_ITEMS[3].category}
-                  </span>
-                  <h4 className="font-gemola text-xl font-light">
-                    {GALLERY_ITEMS[3].title}
-                  </h4>
+                <div
+                  className="relative group cursor-pointer overflow-hidden rounded-sm bg-[#0E1721] aspect-square"
+                  onClick={() => onOpenGalleryItem(GALLERY_ITEMS[2].id)}
+                >
+                  <ParallaxImage
+                    src={GALLERY_ITEMS[2].image}
+                    alt={GALLERY_ITEMS[2].title}
+                    className="grayscale contrast-110 group-hover:scale-105 group-hover:grayscale-0 transition-all duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-end text-white">
+                    <span className="text-[9px] font-mono text-[#2271B1] tracking-widest uppercase">
+                      {GALLERY_ITEMS[2].category}
+                    </span>
+                    <h4 className="font-gemola text-xl font-light">
+                      {GALLERY_ITEMS[2].title}
+                    </h4>
+                  </div>
+                </div>
+
+                <div
+                  className="relative group cursor-pointer overflow-hidden rounded-sm bg-[#0E1721] aspect-square"
+                  onClick={() => onOpenGalleryItem(GALLERY_ITEMS[3].id)}
+                >
+                  <ParallaxImage
+                    src={GALLERY_ITEMS[3].image}
+                    alt={GALLERY_ITEMS[3].title}
+                    className="grayscale contrast-110 group-hover:scale-105 group-hover:grayscale-0 transition-all duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-end text-white">
+                    <span className="text-[9px] font-mono text-[#2271B1] tracking-widest uppercase">
+                      {GALLERY_ITEMS[3].category}
+                    </span>
+                    <h4 className="font-gemola text-xl font-light">
+                      {GALLERY_ITEMS[3].title}
+                    </h4>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
         </section>
       )}
 
@@ -641,7 +641,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               </p>
               <p>
                 <strong className="text-[#0E1721]">VENUE:</strong>{" "}
-                {CONCERT_META.venue}, Colombo
+                {CONCERT_META.venue}, Kandy
               </p>
             </div>
           </div>
@@ -692,7 +692,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
                   <button
                     onClick={() => onOpenTicketsModal(tier.id)}
-                    className="px-6 py-3 bg-[#0E1721] hover:bg-[#2271B1] text-white text-xs uppercase tracking-[0.2em] font-medium transition-colors rounded-sm shrink-0"
+                    className="cursor-pointer px-6 py-3 bg-[#0E1721] hover:bg-[#2271B1] text-white text-xs uppercase tracking-[0.2em] font-medium transition-colors rounded-sm shrink-0"
                   >
                     Reserve →
                   </button>
@@ -712,15 +712,22 @@ export const HomePage: React.FC<HomePageProps> = ({
       >
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left: Venue Image */}
-            <div className="lg:col-span-6 relative overflow-hidden rounded-sm bg-[#0E1721] aspect-[4/3] shadow-md">
-              <ParallaxImage
-                src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1200&q=85"
-                alt="Nelum Pokuna Auditorium"
-                className="grayscale contrast-110 group-hover:scale-105 hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute top-6 left-6 bg-[#0E1721]/80 backdrop-blur-sm text-white px-3 py-1 text-[10px] font-mono tracking-widest uppercase">
-                Acoustic Symphony Hall
+            <div className="lg:col-span-6 relative overflow-hidden rounded-sm bg-[#0E1721] aspect-[4/3] shadow-md text-white">
+              <div className="pointer-events-none absolute -bottom-20 -right-16 h-[420px] w-[420px] opacity-[0.14]">
+                <ButterflyArtwork variant="right-wing-hero" />
+              </div>
+              <div className="relative z-10 flex h-full flex-col justify-between p-7 sm:p-9">
+                <span className="w-fit bg-white/10 px-3 py-1 text-[10px] font-mono tracking-widest uppercase text-[#62B6F3]">
+                  Event Venue
+                </span>
+                <div>
+                  <div className="font-gemola text-3xl font-light sm:text-4xl">
+                    Mahinda Rajapaksha Auditorium
+                  </div>
+                  <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-white/55">
+                    Polgolla · Kandy · Sri Lanka
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -729,27 +736,27 @@ export const HomePage: React.FC<HomePageProps> = ({
               <SectionLabel label="The Venue" number="06" className="mb-4" />
 
               <EditorialHeading size="md" className="mb-6">
-                Nelum Pokuna Mahinda Rajapaksa Theatre
+                Mahinda Rajapaksha Auditorium, Polgolla
               </EditorialHeading>
 
               <div className="space-y-4 text-xs sm:text-sm text-[#31465A] font-light leading-relaxed mb-8">
                 <p>
-                  Sri Lanka’s premier architectural performing arts venue,
-                  designed in homage to the historic 12th-century Lotus Pond in
-                  Polonnaruwa.
+                  Swara Ranjana 2026 takes place in Polgolla, Kandy. The verified
+                  auditorium plan contains 1,120 physical seats: 713 in the ODC
+                  and 407 in the Balcony.
                 </p>
                 <div className="grid grid-cols-2 gap-4 pt-2 font-mono text-xs text-[#0E1721]">
                   <div>
                     <span className="block text-[10px] text-[#7D8A95] uppercase">
                       Location
                     </span>
-                    Colombo 07, Sri Lanka
+                    Polgolla, Kandy
                   </div>
                   <div>
                     <span className="block text-[10px] text-[#7D8A95] uppercase">
                       Doors Open
                     </span>
-                    05:30 PM Promptly
+                    {CONCERT_META.doorsOpen}
                   </div>
                 </div>
               </div>
@@ -757,15 +764,15 @@ export const HomePage: React.FC<HomePageProps> = ({
               <div className="flex flex-wrap items-center gap-4">
                 <button
                   onClick={() => onNavigate("venue")}
-                  className="px-6 py-3 bg-[#0E1721] hover:bg-[#2271B1] text-white text-xs uppercase tracking-[0.2em] font-medium transition-colors rounded-sm"
+                  className="cursor-pointer px-6 py-3 bg-[#0E1721] hover:bg-[#2271B1] text-white text-xs uppercase tracking-[0.2em] font-medium transition-colors rounded-sm"
                 >
                   Venue Information & Map →
                 </button>
                 <a
-                  href="https://maps.google.com/?q=Nelum+Pokuna+Mahinda+Rajapaksa+Theatre"
+                  href="https://maps.google.com/?q=Mahinda+Rajapaksha+Auditorium+Polgolla+Kandy"
                   target="_blank"
                   rel="noreferrer"
-                  className="px-6 py-3 border border-ink-20 hover:border-[#0E1721] text-xs uppercase tracking-[0.2em] text-[#0E1721] transition-colors rounded-sm"
+                  className="cursor-pointer px-6 py-3 border border-ink-20 hover:border-[#0E1721] text-xs uppercase tracking-[0.2em] text-[#0E1721] transition-colors rounded-sm"
                 >
                   View on Google Maps
                 </a>
@@ -804,7 +811,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
           <button
             onClick={() => onOpenTicketsModal()}
-            className="px-10 py-4 bg-[#0E1721] hover:bg-[#2271B1] text-white text-xs uppercase tracking-[0.25em] font-medium transition-all duration-300 rounded-sm shadow-xl hover:shadow-[0_10px_30px_rgba(34,113,177,0.3)] inline-flex items-center gap-3"
+            className="cursor-pointer px-10 py-4 bg-[#0E1721] hover:bg-[#2271B1] text-white text-xs uppercase tracking-[0.25em] font-medium transition-all duration-300 rounded-sm shadow-xl hover:shadow-[0_10px_30px_rgba(34,113,177,0.3)] inline-flex items-center gap-3"
           >
             <span>Reserve Your Seat</span>
             <span>→</span>
