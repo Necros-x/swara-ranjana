@@ -67,9 +67,11 @@ export default function Login({
 
         <div className="z-10 text-center px-12">
           <div className="w-24 h-24 mx-auto mb-8 rounded-full bg-[#FEFFFF]/10 flex items-center justify-center backdrop-blur-sm border border-[#FEFFFF]/20">
-            <span className="text-[#FEFFFF] font-gemola text-4xl">S</span>
+            <span className="s3">
+              <img src="/brand/favicon.ico" alt="ico" />
+            </span>
           </div>
-          <h1 className="text-[#FEFFFF] font-gemola text-4xl mb-4 tracking-wide font-light">Swara Ranjana</h1>
+          <h1 className="text-[#FEFFFF] font-gemola text-4xl mb-4 tracking-wide font-light">SWARA RANJANA</h1>
           <p className="text-[#C2CBD2] font-light max-w-sm mx-auto">
             Secure concert administration, ticketing and entrance operations.
           </p>

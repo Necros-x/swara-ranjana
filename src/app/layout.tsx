@@ -1,13 +1,43 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+const siteUrl =
+  configuredSiteUrl?.startsWith("http://") || configuredSiteUrl?.startsWith("https://")
+    ? configuredSiteUrl
+    : "https://swara-ranjana.vercel.app";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
-    default: "Swara Ranjana 2026 — Live Musical Experience",
+    default: "Swara Ranjana 2026 | Live Musical Experience",
     template: "%s | Swara Ranjana 2026",
   },
   description:
     "Swara Ranjana 2026: An evening where voices, melodies and memories become one.",
+  openGraph: {
+    type: "website",
+    locale: "en_LK",
+    siteName: "Swara Ranjana 2026",
+    title: "Swara Ranjana 2026 | Live Musical Experience",
+    description:
+      "An evening where voices, melodies and memories become one.",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Swara Ranjana 2026 — Live Musical Experience",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Swara Ranjana 2026 | Live Musical Experience",
+    description:
+      "An evening where voices, melodies and memories become one.",
+    images: ["/opengraph-image"],
+  },
 };
 
 export default function RootLayout({

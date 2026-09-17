@@ -374,7 +374,7 @@ export const TicketReservationModal: React.FC<TicketModalProps> = ({
                   </button>
 
                   <p className="text-center text-[10px] text-[#7D8A95]">
-                    Your reservation is held for 10 minutes. Tickets are issued only after payment is verified.
+                    Your reservation is held for 30 minutes. Tickets are issued only after payment is verified.
                   </p>
                 </form>
               </div>
@@ -437,7 +437,7 @@ export const TicketReservationModal: React.FC<TicketModalProps> = ({
               <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-[#7D8A95]">
                 Reservation{' '}
                 <strong className="text-[#0E1721]">{reservation?.orderNumber}</strong>{' '}
-                is secured for 10 minutes. Continue to payment to complete the reservation.
+                is secured for 30 minutes. Continue to payment to complete the reservation.
               </p>
 
               <div className="mx-auto mt-7 max-w-md border border-ink-10 bg-[#F8FAFB] p-5">

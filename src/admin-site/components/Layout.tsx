@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -22,6 +22,7 @@ import { cn } from '@/admin-site/lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import { createClient } from '@/lib/supabase/client';
 import type { StaffRole } from '@/types/database';
+import { AdminPageSkeleton } from '@/admin-site/components/AdminPageSkeleton';
 
 export interface AdminLayoutUser {
   id: string;
@@ -57,6 +58,8 @@ function roleLabel(role: StaffRole) {
 
 export function Layout({ children, user }: { children: React.ReactNode; user: AdminLayoutUser }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [routeSwitching, setRouteSwitching] = useState(false);
+  const [pendingSectionName, setPendingSectionName] = useState<string | null>(null);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -65,7 +68,8 @@ export function Layout({ children, user }: { children: React.ReactNode; user: Ad
     [user.role],
   );
 
-  const currentPathName = visibleNavItems.find((item) => pathname.startsWith(item.path))?.name || 'Dashboard';
+  const resolvedPathName = visibleNavItems.find((item) => pathname.startsWith(item.path))?.name || 'Dashboard';
+  const currentPathName = pendingSectionName ?? resolvedPathName;
   const initials = user.name
     .split(' ')
     .filter(Boolean)
@@ -74,6 +78,20 @@ export function Layout({ children, user }: { children: React.ReactNode; user: Ad
     .join('')
     .toUpperCase();
   const displayRole = roleLabel(user.role);
+
+  useEffect(() => {
+    setRouteSwitching(false);
+    setPendingSectionName(null);
+  }, [pathname]);
+
+  const handleAdminNavigation = (item: (typeof navItems)[number]) => {
+    setMobileMenuOpen(false);
+
+    if (pathname === item.path) return;
+
+    setPendingSectionName(item.name);
+    setRouteSwitching(true);
+  };
 
   const handleSignOut = async () => {
     const supabase = createClient();
@@ -99,7 +117,7 @@ export function Layout({ children, user }: { children: React.ReactNode; user: Ad
           <Link
             key={item.name}
             href={item.path}
-            onClick={() => setMobileMenuOpen(false)}
+            onClick={() => handleAdminNavigation(item)}
             className={cn(
               'flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors',
               pathname === item.path || pathname.startsWith(`${item.path}/`)
@@ -192,7 +210,9 @@ export function Layout({ children, user }: { children: React.ReactNode; user: Ad
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto p-6 sm:p-10">{children}</main>
+        <main className="flex-1 overflow-auto p-6 sm:p-10">
+          {routeSwitching ? <AdminPageSkeleton /> : children}
+        </main>
       </div>
     </div>
   );

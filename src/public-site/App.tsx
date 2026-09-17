@@ -18,12 +18,14 @@ import { ArtistModal } from "./components/common/ArtistModal";
 import { TicketReservationModal } from "./components/common/TicketReservationModal";
 import { LightboxModal } from "./components/common/LightboxModal";
 import { ScrollProgress } from "./components/common/ScrollProgress";
+import { VasrPreviewSection } from "./components/common/VasrPreviewSection";
 import type { PublicTicketCatalog } from "@/lib/catalog/types";
 
 // Pages
 import { HomePage } from "./components/pages/HomePage";
 import { AboutPage } from "./components/pages/AboutPage";
 import { ArtistsPage } from "./components/pages/ArtistsPage";
+import { VasrPage } from "./components/pages/VasrPage";
 import { ProgrammePage } from "./components/pages/ProgrammePage";
 import { GalleryPage } from "./components/pages/GalleryPage";
 import { TicketsPage } from "./components/pages/TicketsPage";
@@ -55,6 +57,7 @@ export default function App({
       "home",
       "about",
       "artists",
+      "vasr",
       "programme",
       "gallery",
       "tickets",
@@ -78,6 +81,11 @@ export default function App({
     useState<GalleryItem | null>(null);
 
   const handleNavigate = (page: PageId) => {
+    if (page === "home" && pathname === "/") {
+      window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+      return;
+    }
+
     router.push(page === "home" ? "/" : `/${page}`);
   };
 
@@ -136,12 +144,15 @@ export default function App({
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
           >
             {activePage === "home" && (
-              <HomePage
-                onNavigate={handleNavigate}
-                onOpenArtistModal={setSelectedArtist}
-                onOpenTicketsModal={handleOpenTicketsModal}
-                onOpenGalleryItem={handleOpenGalleryItem}
-              />
+              <>
+                <HomePage
+                  onNavigate={handleNavigate}
+                  onOpenArtistModal={setSelectedArtist}
+                  onOpenTicketsModal={handleOpenTicketsModal}
+                  onOpenGalleryItem={handleOpenGalleryItem}
+                />
+                <VasrPreviewSection onExplore={() => handleNavigate("vasr")} />
+              </>
             )}
             {activePage === "about" && (
               <AboutPage
@@ -155,6 +166,7 @@ export default function App({
                 onOpenTicketsModal={() => handleOpenTicketsModal()}
               />
             )}
+            {activePage === "vasr" && <VasrPage />}
             {activePage === "programme" && (
               <ProgrammePage
                 onOpenTicketsModal={() => handleOpenTicketsModal()}
