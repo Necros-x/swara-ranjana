@@ -102,22 +102,11 @@ export default function AccountOrderActions({
           Refund & cancellation window closed.
         </span>{" "}
         Online requests close 48 hours before showtime. For an urgent exception, {" "}
-        <a href="/contact" className="font-medium text-[#2271B1] hover:underline">
-          contact Swara Ranjana
-        </a>
-        , email {" "}
         <a
-          href="mailto:concierge@swararanjana.lk"
-          className="font-medium text-[#2271B1] hover:underline"
+          href="/contact"
+          className="cursor-pointer font-medium text-[#2271B1] hover:underline"
         >
-          concierge@swararanjana.lk
-        </a>
-        {" "}or call {" "}
-        <a
-          href="tel:+94112689000"
-          className="font-medium text-[#2271B1] hover:underline"
-        >
-          +94 11 268 9000
+          contact Swara Ranjana support
         </a>
         .
       </div>
@@ -183,7 +172,7 @@ export default function AccountOrderActions({
       <button
         type="button"
         onClick={openDialog}
-        className={`inline-flex h-10 items-center gap-2 border px-4 text-xs font-medium transition ${
+        className={`inline-flex h-10 cursor-pointer items-center gap-2 border px-4 text-xs font-medium transition ${
           isRefund
             ? "border-amber-300 text-amber-800 hover:bg-amber-50"
             : "border-red-200 text-red-700 hover:bg-red-50"
@@ -225,7 +214,7 @@ export default function AccountOrderActions({
                 type="button"
                 aria-label="Close"
                 onClick={() => setOpen(false)}
-                className="rounded-full p-2 text-[#7D8A95] hover:bg-[#F4F6F8] hover:text-[#0E1721]"
+                className="cursor-pointer rounded-full p-2 text-[#7D8A95] hover:bg-[#F4F6F8] hover:text-[#0E1721]"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -265,7 +254,7 @@ export default function AccountOrderActions({
                           : refundableTickets.map((ticket) => ticket.id),
                       )
                     }
-                    className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#2271B1] hover:underline"
+                    className="cursor-pointer text-[10px] font-semibold uppercase tracking-[0.12em] text-[#2271B1] hover:underline"
                   >
                     {selectedTicketIds.length === refundableTickets.length
                       ? "Clear all"
@@ -281,7 +270,7 @@ export default function AccountOrderActions({
                         key={ticket.id}
                         type="button"
                         onClick={() => toggleTicket(ticket.id)}
-                        className={`flex w-full items-center justify-between gap-4 border p-3 text-left transition ${
+                        className={`flex w-full cursor-pointer items-center justify-between gap-4 border p-3 text-left transition ${
                           checked
                             ? "border-[#2271B1] bg-white"
                             : "border-[#C2CBD2]/60 bg-white/60 hover:border-[#7D8A95]"
@@ -357,7 +346,7 @@ export default function AccountOrderActions({
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="h-11 border border-[#C2CBD2] text-xs font-medium text-[#31465A] hover:border-[#7D8A95]"
+                className="h-11 cursor-pointer border border-[#C2CBD2] text-xs font-medium text-[#31465A] hover:border-[#7D8A95]"
               >
                 Keep reservation
               </button>
@@ -365,7 +354,7 @@ export default function AccountOrderActions({
                 type="button"
                 disabled={pending || (isRefund && selectedTicketIds.length === 0)}
                 onClick={submit}
-                className={`h-11 text-xs font-bold uppercase tracking-[0.12em] text-white disabled:opacity-50 ${
+                className={`h-11 cursor-pointer text-xs font-bold uppercase tracking-[0.12em] text-white disabled:cursor-not-allowed disabled:opacity-50 ${
                   isRefund
                     ? "bg-amber-600 hover:bg-amber-700"
                     : "bg-red-600 hover:bg-red-700"
