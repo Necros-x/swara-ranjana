@@ -72,24 +72,10 @@ export default function PaymentPageClient({
     order.status === "PENDING" &&
     !!order.expiresAt &&
     new Date(order.expiresAt).getTime() <= Date.now();
-  const cardEnabled = false;
-  const bankSlipEnabled =
-    Boolean(bankTransfer) || order.paymentMethod === "BANK_SLIP";
 
   const choose = (nextMethod: PaymentMethod) => {
-    if (nextMethod === "CARD" && !cardEnabled) {
+    if (nextMethod === "CARD") {
       setMessage("Card payments are not available yet. Choose another payment method.");
-      return;
-    }
-
-    if (
-      nextMethod === "BANK_SLIP" &&
-      !bankTransfer &&
-      order.paymentMethod !== "BANK_SLIP"
-    ) {
-      setMessage(
-        "Bank transfer will become available once the official transfer details are configured.",
-      );
       return;
     }
 
@@ -177,7 +163,7 @@ export default function PaymentPageClient({
       Icon: CreditCard,
       title: "Card",
       description: "Hosted card gateway connection pending.",
-      enabled: cardEnabled,
+      enabled: false,
     },
     {
       id: "ON_ARRIVAL",
@@ -192,10 +178,8 @@ export default function PaymentPageClient({
       title: "Slip upload",
       description: bankTransfer
         ? "Transfer using the official details and upload proof."
-        : order.paymentMethod === "BANK_SLIP"
-          ? "Upload proof for the bank transfer already selected."
-          : "Official bank transfer details pending.",
-      enabled: bankSlipEnabled,
+        : "Upload proof of a bank transfer arranged with Swara Ranjana.",
+      enabled: true,
     },
   ];
 
@@ -325,54 +309,37 @@ export default function PaymentPageClient({
                           </div>
                           <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
                             <div>
-                              <dt className="text-[10px] uppercase tracking-[0.12em] text-[#7D8A95]">
-                                Bank
-                              </dt>
-                              <dd className="mt-1 font-medium text-[#0E1721]">
-                                {bankTransfer.bankName}
-                              </dd>
+                              <dt className="text-[10px] uppercase tracking-[0.12em] text-[#7D8A95]">Bank</dt>
+                              <dd className="mt-1 font-medium">{bankTransfer.bankName}</dd>
                             </div>
                             <div>
-                              <dt className="text-[10px] uppercase tracking-[0.12em] text-[#7D8A95]">
-                                Account name
-                              </dt>
-                              <dd className="mt-1 font-medium text-[#0E1721]">
-                                {bankTransfer.accountName}
-                              </dd>
+                              <dt className="text-[10px] uppercase tracking-[0.12em] text-[#7D8A95]">Account name</dt>
+                              <dd className="mt-1 font-medium">{bankTransfer.accountName}</dd>
                             </div>
                             <div>
-                              <dt className="text-[10px] uppercase tracking-[0.12em] text-[#7D8A95]">
-                                Account number
-                              </dt>
-                              <dd className="mt-1 font-mono font-semibold text-[#0E1721]">
-                                {bankTransfer.accountNumber}
-                              </dd>
+                              <dt className="text-[10px] uppercase tracking-[0.12em] text-[#7D8A95]">Account number</dt>
+                              <dd className="mt-1 font-mono font-semibold">{bankTransfer.accountNumber}</dd>
                             </div>
                             {bankTransfer.branch && (
                               <div>
-                                <dt className="text-[10px] uppercase tracking-[0.12em] text-[#7D8A95]">
-                                  Branch
-                                </dt>
-                                <dd className="mt-1 font-medium text-[#0E1721]">
-                                  {bankTransfer.branch}
-                                </dd>
+                                <dt className="text-[10px] uppercase tracking-[0.12em] text-[#7D8A95]">Branch</dt>
+                                <dd className="mt-1 font-medium">{bankTransfer.branch}</dd>
                               </div>
                             )}
                           </dl>
                         </div>
                       ) : (
                         <div className="mt-4 border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-900">
-                          Official transfer details are not currently published
-                          on this page. Do not make a new transfer until confirmed
-                          banking details are provided by Swara Ranjana support.
+                          Official bank details are not published on this page yet.
+                          Use only transfer details confirmed directly by Swara Ranjana,
+                          then upload the payment proof below.
                         </div>
                       )}
 
                       <p className="mt-4 text-sm leading-relaxed text-[#7D8A95]">
-                        After transferring, upload a JPG, PNG, WebP or PDF here.
-                        Images are converted to WebP and compressed; PDFs are
-                        optimized before upload. Final uploads are limited to{" "}
-                        {fileSize(MAX_FINAL_SLIP_BYTES)}.
+                        Upload a JPG, PNG, WebP or PDF. Images are converted to
+                        WebP and compressed; PDFs are optimized before upload.
+                        Final uploads are limited to {fileSize(MAX_FINAL_SLIP_BYTES)}.
                       </p>
 
                       {order.slipStatus === "PENDING" ? (
@@ -381,10 +348,7 @@ export default function PaymentPageClient({
                           Slip submitted — awaiting staff verification.
                         </div>
                       ) : (
-                        <form
-                          onSubmit={submitSlip}
-                          className="mt-5 space-y-4"
-                        >
+                        <form onSubmit={submitSlip} className="mt-5 space-y-4">
                           <input
                             ref={inputRef}
                             type="file"
@@ -435,9 +399,7 @@ export default function PaymentPageClient({
                             {optimizing ? (
                               <>
                                 <UploadCloud className="h-7 w-7 animate-pulse text-[#2271B1]" />
-                                <div className="mt-3 text-sm font-medium">
-                                  Optimizing slip…
-                                </div>
+                                <div className="mt-3 text-sm font-medium">Optimizing slip…</div>
                                 <div className="mt-1 text-xs text-[#7D8A95]">
                                   Converting/compressing before upload.
                                 </div>
@@ -466,8 +428,7 @@ export default function PaymentPageClient({
                                   Click to upload or drag & drop
                                 </div>
                                 <div className="mt-1 text-xs text-[#7D8A95]">
-                                  JPG, PNG, WebP or PDF • source up to{" "}
-                                  {fileSize(MAX_SOURCE_SLIP_BYTES)}
+                                  JPG, PNG, WebP or PDF • source up to {fileSize(MAX_SOURCE_SLIP_BYTES)}
                                 </div>
                               </>
                             )}
@@ -486,12 +447,7 @@ export default function PaymentPageClient({
 
                           <button
                             type="submit"
-                            disabled={
-                              pending ||
-                              expired ||
-                              optimizing ||
-                              !slip
-                            }
+                            disabled={pending || expired || optimizing || !slip}
                             className="cursor-pointer bg-[#0E1721] px-6 py-3 text-xs uppercase tracking-[.18em] text-white hover:bg-[#2271B1] disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             {pending ? "Uploading…" : "Upload payment slip"}
@@ -517,16 +473,10 @@ export default function PaymentPageClient({
             <h2 className="mt-5 font-gemola text-2xl">{order.eventName}</h2>
             <div className="mt-6 space-y-3">
               {order.items.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex justify-between gap-4 text-sm"
-                >
-                  <span>
-                    {item.name} × {item.quantity}
-                  </span>
+                <div key={index} className="flex justify-between gap-4 text-sm">
+                  <span>{item.name} × {item.quantity}</span>
                   <span className="shrink-0">
-                    {order.currency}{" "}
-                    {item.totalPrice.toLocaleString("en-LK")}
+                    {order.currency} {item.totalPrice.toLocaleString("en-LK")}
                   </span>
                 </div>
               ))}
@@ -539,8 +489,7 @@ export default function PaymentPageClient({
             </div>
             {order.expiresAt && order.status === "PENDING" && (
               <p className="mt-4 text-xs text-[#7D8A95]">
-                Hold until{" "}
-                {new Date(order.expiresAt).toLocaleString("en-LK")}
+                Hold until {new Date(order.expiresAt).toLocaleString("en-LK")}
               </p>
             )}
           </aside>
