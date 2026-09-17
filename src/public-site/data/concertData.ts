@@ -10,10 +10,10 @@ export const CONCERT_META = {
   time: '06:00 PM – 11:00 PM',
   doorsOpen: '05:30 PM',
   venue: 'Mahinda Rajapaksha Auditorium, Polgolla',
-  hall: 'NICD Mahinda Rajapaksha Auditorium',
+  hall: 'Mahinda Rajapaksha Auditorium, Polgolla',
   city: 'Polgolla, Kandy, Sri Lanka',
   organizer: "St. Sylvester's College, Kandy",
-  dressCode: 'Black Tie / Formal Eveningwear / Modern Sri Lankan Elegance',
+  dressCode: 'To be confirmed',
   expectedAudience: '1,120 Guests',
   ticketCurrency: 'LKR',
 };
@@ -173,9 +173,46 @@ export const PROGRAMME_ACTS: ProgrammeAct[] = [
 ];
 
 export const TICKET_TIERS: TicketTier[] = [
-  { id: 'tier-general', code: 'GENERAL', tierName: 'General', subtitle: 'Panoramic auditorium view from the balcony.', priceLKR: 5000, formattedPrice: '5,000', availability: 'Available', seatingZone: 'Auditorium Balcony · Blocks F–H', benefits: ['Digital admission pass', 'Balcony seating', 'Event programme access'], maxPerOrder: 6, remainingSeats: 407 },
-  { id: 'tier-premium', code: 'PREMIUM', tierName: 'Premium', subtitle: 'ODC seating with balanced stage sightlines.', priceLKR: 10000, formattedPrice: '10,000', availability: 'Available', seatingZone: 'Auditorium ODC · Blocks A & E', benefits: ['Digital admission pass', 'ODC seating', 'Priority entry'], recommended: true, maxPerOrder: 6, remainingSeats: 335 },
-  { id: 'tier-vip', code: 'VIP', tierName: 'VIP', subtitle: 'Central ODC seating closest to the primary performance axis.', priceLKR: 18000, formattedPrice: '18,000', availability: 'Available', seatingZone: 'Auditorium ODC · Blocks B–D', benefits: ['Digital admission pass', 'Central ODC seating', 'Priority entry'], maxPerOrder: 6, remainingSeats: 378 },
+  {
+    id: 'tier-general',
+    code: 'GENERAL',
+    tierName: 'Balcony Sanctuary',
+    subtitle: 'Balcony admission with automatic physical seat allocation.',
+    priceLKR: 5000,
+    formattedPrice: '5,000',
+    availability: 'Available',
+    seatingZone: 'Auditorium Balcony · Blocks F–H',
+    benefits: ['Balcony seating in Blocks F–H', 'Automatic physical seat allocation', 'Secure digital QR admission'],
+    maxPerOrder: 6,
+    remainingSeats: 407,
+  },
+  {
+    id: 'tier-premium',
+    code: 'PREMIUM',
+    tierName: 'Grand Tier Stalls',
+    subtitle: 'ODC admission in Blocks A or E with automatic physical seat allocation.',
+    priceLKR: 10000,
+    formattedPrice: '10,000',
+    availability: 'Available',
+    seatingZone: 'Auditorium ODC · Blocks A & E',
+    benefits: ['ODC seating in Blocks A or E', 'Automatic physical seat allocation', 'Secure digital QR admission'],
+    recommended: true,
+    maxPerOrder: 6,
+    remainingSeats: 335,
+  },
+  {
+    id: 'tier-vip',
+    code: 'VIP',
+    tierName: 'Royal Box & Diamond Stalls',
+    subtitle: 'ODC admission in Blocks B, C or D with automatic physical seat allocation.',
+    priceLKR: 18000,
+    formattedPrice: '18,000',
+    availability: 'Available',
+    seatingZone: 'Auditorium ODC · Blocks B–D',
+    benefits: ['ODC seating in Blocks B, C or D', 'Automatic physical seat allocation', 'Secure digital QR admission'],
+    maxPerOrder: 6,
+    remainingSeats: 378,
+  },
 ];
 
 // TEMPORARY GALLERY CONTENT
