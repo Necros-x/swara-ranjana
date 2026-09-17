@@ -9,6 +9,7 @@ const PAYMENT_ROLES: StaffRole[] = [
   "SUPER_ADMIN",
   "ADMIN",
   "BOX_OFFICE",
+  "SCANNER",
 ];
 
 export interface PaymentCounterOrder {
