@@ -5,7 +5,6 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireStaff } from "@/lib/auth/requireStaff";
 import { sendTicketsIssuedEmail } from "@/lib/email/orderEmails";
-import { isBankTransferConfigured } from "@/lib/payment/bankTransfer";
 import type { Json } from "@/types/database";
 
 function rec(
@@ -33,14 +32,6 @@ export async function selectPaymentMethod(
     return {
       ok: false,
       message: "Card payments are not available yet. Choose another payment method.",
-    };
-  }
-
-  if (method === "BANK_SLIP" && !isBankTransferConfigured()) {
-    return {
-      ok: false,
-      message:
-        "Bank transfer is not available until the official transfer details are configured.",
     };
   }
 
