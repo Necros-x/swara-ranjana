@@ -9,6 +9,7 @@ export default async function Page() {
     "SUPER_ADMIN",
     "ADMIN",
     "BOX_OFFICE",
+    "SCANNER",
   ]);
 
   return <PaymentCounter />;
