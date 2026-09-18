@@ -29,6 +29,8 @@ export default async function Page() {
       doorsOpenAt: event.doors_open_at,
       startsAt: event.starts_at,
       endsAt: event.ends_at,
+      schoolShowStartsAt: event.school_show_starts_at,
+      schoolShowEndsAt: event.school_show_ends_at,
       venueName: event.venue_name,
       venueAddress: event.venue_address,
       totalCapacity: event.total_capacity,
