@@ -28,6 +28,7 @@ export interface PhysicalTicketInventoryCategory {
   soldPhysical: number;
   soldOnline: number;
   heldOnline: number;
+  internalAllocated: number;
 }
 
 export interface PhysicalTicketInventoryData {
@@ -105,6 +106,7 @@ export async function getPhysicalTicketInventory(): Promise<PhysicalTicketInvent
           .length,
         soldOnline: typeRows.filter((row) => row.status === "SOLD_ONLINE").length,
         heldOnline: typeRows.filter((row) => row.status === "HELD_ONLINE").length,
+        internalAllocated: typeRows.filter((row) => row.status === "SOLD_INTERNAL").length,
       };
     },
   );
