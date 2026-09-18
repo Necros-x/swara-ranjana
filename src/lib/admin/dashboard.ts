@@ -1,7 +1,10 @@
 import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getAllSeatTicketInventory } from "@/lib/admin/seatTicketInventory";
+import {
+  getAllEventTickets,
+  getAllSeatTicketInventory,
+} from "@/lib/admin/seatTicketInventory";
 import { getAdminOrders, type AdminOrderListItem } from "@/lib/admin/orders";
 import {
   getAdminScanHistory,
@@ -98,7 +101,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     };
   }
 
-  const [ordersResult, typesResult, ticketsResult, inventoryRows] = await Promise.all([
+  const [ordersResult, typesResult, ticketRows, inventoryRows] = await Promise.all([
     admin
       .from("orders")
       .select(
@@ -111,16 +114,12 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       .select("id,name,capacity,sort_order")
       .eq("event_id", event.id)
       .order("sort_order", { ascending: true }),
-    admin
-      .from("tickets")
-      .select("id,event_id,ticket_type_id,status,is_inside")
-      .eq("event_id", event.id),
+    getAllEventTickets(event.id),
     getAllSeatTicketInventory(event.id),
   ]);
 
   if (ordersResult.error) throw ordersResult.error;
   if (typesResult.error) throw typesResult.error;
-  if (ticketsResult.error) throw ticketsResult.error;
 
   const eventOrders = ordersResult.data ?? [];
   const orderIds = eventOrders.map((order) => order.id);
@@ -161,7 +160,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     },
   );
 
-  const activeTicketRows = (ticketsResult.data ?? []).filter(
+  const activeTicketRows = ticketRows.filter(
     (ticket) => ticket.status === "VALID" || ticket.status === "USED",
   );
   const activeTickets = activeTicketRows.length;
