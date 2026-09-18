@@ -17,6 +17,7 @@ export type AdminTicketSource = "WEBSITE" | "INTERNAL" | "PHYSICAL";
 export interface AdminTicketListItem {
   id: string;
   ticketNumber: string;
+  qrToken: string;
   eventId: string;
   eventName: string;
   orderId: string;
@@ -174,24 +175,49 @@ function isUuid(value: string) {
 }
 
 export async function getAdminTickets(
-  limit = 1000,
+  limit = 5000,
 ): Promise<AdminTicketListItem[]> {
   const admin = createAdminClient();
+  const pageSize = 500;
+  const tickets: Array<{
+    id: string;
+    event_id: string;
+    order_id: string;
+    ticket_type_id: string;
+    ticket_number: string;
+    qr_token: string;
+    attendee_name: string | null;
+    status: TicketStatus;
+    issued_at: string;
+    checked_in_at: string | null;
+    seat_label: string | null;
+  }> = [];
 
-  const { data: tickets, error } = await admin
-    .from("tickets")
-    .select(
-      "id,event_id,order_id,ticket_type_id,ticket_number,attendee_name,status,issued_at,checked_in_at,seat_label",
-    )
-    .order("issued_at", { ascending: false })
-    .limit(limit);
+  let from = 0;
 
-  if (error) {
-    console.error("Failed to load admin tickets:", error);
-    return [];
+  while (tickets.length < limit) {
+    const to = Math.min(from + pageSize - 1, limit - 1);
+    const { data, error } = await admin
+      .from("tickets")
+      .select(
+        "id,event_id,order_id,ticket_type_id,ticket_number,qr_token,attendee_name,status,issued_at,checked_in_at,seat_label",
+      )
+      .order("issued_at", { ascending: false })
+      .range(from, to);
+
+    if (error) {
+      console.error("Failed to load admin tickets:", error);
+      return [];
+    }
+
+    const page = (data ?? []) as typeof tickets;
+    tickets.push(...page);
+
+    if (page.length < pageSize || tickets.length >= limit) break;
+    from += pageSize;
   }
 
-  if (!tickets?.length) return [];
+  if (!tickets.length) return [];
 
   const eventIds = unique(tickets.map((ticket) => ticket.event_id));
   const orderIds = unique(tickets.map((ticket) => ticket.order_id));
@@ -230,6 +256,7 @@ export async function getAdminTickets(
     return {
       id: ticket.id,
       ticketNumber: ticket.ticket_number,
+      qrToken: ticket.qr_token,
       eventId: ticket.event_id,
       eventName: eventMap.get(ticket.event_id) ?? "Unknown show",
       orderId: ticket.order_id,
