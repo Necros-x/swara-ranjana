@@ -15,6 +15,8 @@ import {
   Menu,
   LogOut,
   WalletCards,
+  BadgeDollarSign,
+  PackageCheck,
   RotateCcw,
   UserCircle,
 } from "lucide-react";
@@ -47,6 +49,8 @@ const navItems: Array<{
   { name: "Orders", path: "/admin/orders", icon: ShoppingCart, roles: ["SUPER_ADMIN", "ADMIN", "BOX_OFFICE"] },
   { name: "Refunds", path: "/admin/requests", icon: RotateCcw, roles: ["SUPER_ADMIN", "ADMIN"] },
   { name: "Payment Counter", path: "/admin/payment-counter", icon: WalletCards, roles: ["SUPER_ADMIN", "ADMIN", "BOX_OFFICE", "SCANNER"] },
+  { name: "Physical Sales", path: "/admin/sales", icon: BadgeDollarSign, roles: ["SUPER_ADMIN", "ADMIN", "SELLER"] },
+  { name: "Ticket Inventory", path: "/admin/physical-tickets", icon: PackageCheck, roles: ["SUPER_ADMIN", "ADMIN"] },
   { name: "Tickets", path: "/admin/tickets", icon: Ticket, roles: ["SUPER_ADMIN", "ADMIN", "BOX_OFFICE"] },
   { name: "Customers", path: "/admin/customers", icon: Users, roles: ["SUPER_ADMIN", "ADMIN", "BOX_OFFICE", "SCANNER"] },
   { name: "Scanner", path: "/admin/scanner", icon: Scan, roles: ["SUPER_ADMIN", "ADMIN", "BOX_OFFICE", "SCANNER"] },
@@ -57,6 +61,7 @@ const navItems: Array<{
 
 function roleLabel(role: StaffRole) {
   if (role === "BOX_OFFICE") return "SWARA RANJANA STAFF";
+  if (role === "SELLER") return "SELLER";
   return role.replaceAll("_", " ");
 }
 
@@ -220,7 +225,7 @@ export function Layout({
             >
               <Menu className="h-5 w-5" />
             </button>
-            <h1 className="hidden font-serif text-xl text-[#31465A] sm:block">{currentPathName}</h1>
+            <h1 className="hidden font-gemola text-2xl font-light text-[#31465A] sm:block">{currentPathName}</h1>
           </div>
 
           <div className="flex items-center gap-3 sm:gap-6">
@@ -243,7 +248,7 @@ export function Layout({
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto p-6 sm:p-10">
+        <main className="admin-portal-main flex-1 overflow-auto p-6 sm:p-10">
           {routeSwitching ? <AdminPageSkeleton /> : children}
         </main>
       </div>

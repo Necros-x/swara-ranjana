@@ -51,6 +51,9 @@ export default function SlipPaymentPageClient({
     order.paymentMethod === "BANK_SLIP" ? "BANK_SLIP" : "CARD",
   );
   const [message, setMessage] = useState("");
+  const [slipSubmitted, setSlipSubmitted] = useState(
+    order.slipStatus === "PENDING",
+  );
   const [slip, setSlip] = useState<File | null>(null);
   const [optimizing, setOptimizing] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -125,8 +128,12 @@ export default function SlipPaymentPageClient({
       formData.set("slip", slip);
 
       const result = await uploadPaymentSlip(formData);
-      if (result.ok) location.reload();
-      else setMessage(result.message || "Unable to upload slip.");
+      if (result.ok) {
+        setSlip(null);
+        setSlipSubmitted(true);
+      } else {
+        setMessage(result.message || "Unable to upload slip.");
+      }
     });
   };
 
@@ -200,7 +207,7 @@ export default function SlipPaymentPageClient({
                   <button
                     type="button"
                     onClick={chooseSlip}
-                    disabled={expired || !bankTransfer}
+                    disabled={pending || expired || !bankTransfer}
                     className={`border p-5 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${
                       method === "BANK_SLIP"
                         ? "border-[#2271B1] bg-[#2271B1]/5"
@@ -280,7 +287,7 @@ export default function SlipPaymentPageClient({
                       uploads are limited to {fileSize(MAX_FINAL_SLIP_BYTES)}.
                     </p>
 
-                    {order.slipStatus === "PENDING" ? (
+                    {slipSubmitted ? (
                       <div className="mt-5 flex gap-2 text-sm text-amber-700">
                         <Clock3 className="h-4 w-4 shrink-0" />
                         Slip submitted — awaiting staff verification.

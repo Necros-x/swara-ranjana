@@ -1,6 +1,10 @@
 import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  getAllEventTickets,
+  getAllSeatTicketInventory,
+} from "@/lib/admin/seatTicketInventory";
 import { getAdminOrders, type AdminOrderListItem } from "@/lib/admin/orders";
 import {
   getAdminScanHistory,
@@ -97,7 +101,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     };
   }
 
-  const [ordersResult, typesResult, ticketsResult] = await Promise.all([
+  const [ordersResult, typesResult, ticketRows, inventoryRows] = await Promise.all([
     admin
       .from("orders")
       .select(
@@ -110,15 +114,12 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       .select("id,name,capacity,sort_order")
       .eq("event_id", event.id)
       .order("sort_order", { ascending: true }),
-    admin
-      .from("tickets")
-      .select("id,event_id,ticket_type_id,status,is_inside")
-      .eq("event_id", event.id),
+    getAllEventTickets(event.id),
+    getAllSeatTicketInventory(event.id),
   ]);
 
   if (ordersResult.error) throw ordersResult.error;
   if (typesResult.error) throw typesResult.error;
-  if (ticketsResult.error) throw ticketsResult.error;
 
   const eventOrders = ordersResult.data ?? [];
   const orderIds = eventOrders.map((order) => order.id);
@@ -132,52 +133,34 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   if (itemsError) throw itemsError;
 
   const orderMap = new Map(eventOrders.map((order) => [order.id, order]));
-  const now = Date.now();
-  const soldByType = new Map<string, number>();
-  const reservedByType = new Map<string, number>();
-
-  for (const item of items ?? []) {
-    const order = orderMap.get(item.order_id);
-    if (!order) continue;
-
-    if (order.status === "CONFIRMED") {
-      soldByType.set(
-        item.ticket_type_id,
-        (soldByType.get(item.ticket_type_id) ?? 0) + item.quantity,
-      );
-      continue;
-    }
-
-    const holdActive =
-      order.status === "PENDING" &&
-      order.payment_status === "PENDING" &&
-      Boolean(order.expires_at) &&
-      new Date(order.expires_at as string).getTime() > now;
-
-    if (holdActive) {
-      reservedByType.set(
-        item.ticket_type_id,
-        (reservedByType.get(item.ticket_type_id) ?? 0) + item.quantity,
-      );
-    }
-  }
 
   const categories: AdminDashboardCategory[] = (typesResult.data ?? []).map(
     (type) => {
-      const sold = soldByType.get(type.id) ?? 0;
-      const reserved = reservedByType.get(type.id) ?? 0;
+      const typeRows = inventoryRows.filter(
+        (row) => row.ticket_type_id === type.id,
+      );
+      const sold = typeRows.filter((row) =>
+        ["SOLD_ONLINE", "SOLD_PHYSICAL", "SOLD_INTERNAL"].includes(row.status),
+      ).length;
+      const reserved = typeRows.filter(
+        (row) => row.status === "HELD_ONLINE",
+      ).length;
+      const remaining = typeRows.filter(
+        (row) => row.status === "AVAILABLE",
+      ).length;
+
       return {
         id: type.id,
         name: type.name,
         capacity: type.capacity,
         sold,
         reserved,
-        remaining: Math.max(type.capacity - sold - reserved, 0),
+        remaining,
       };
     },
   );
 
-  const activeTicketRows = (ticketsResult.data ?? []).filter(
+  const activeTicketRows = ticketRows.filter(
     (ticket) => ticket.status === "VALID" || ticket.status === "USED",
   );
   const activeTickets = activeTicketRows.length;

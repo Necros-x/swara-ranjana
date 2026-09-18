@@ -20,6 +20,8 @@ export type ScannerResultCode =
   | "REVOKED"
   | "REFUNDED"
   | "WRONG_EVENT"
+  | "NOT_YET_VALID"
+  | "EXPIRED"
   | "ERROR";
 
 export interface ScannerActionResult {
@@ -39,6 +41,9 @@ export interface ScannerActionResult {
   paymentStatus?: string | null;
   amountDue?: number | null;
   currency?: string | null;
+  admissionSlot?: string | null;
+  validFrom?: string | null;
+  validUntil?: string | null;
 }
 
 export interface ScannerActionInput {
@@ -94,6 +99,8 @@ function parseResult(data: Json | null): ScannerActionResult {
     "REVOKED",
     "REFUNDED",
     "WRONG_EVENT",
+    "NOT_YET_VALID",
+    "EXPIRED",
   ];
   const result = allowed.includes(rawResult as ScannerResultCode)
     ? (rawResult as ScannerResultCode)
@@ -122,6 +129,9 @@ function parseResult(data: Json | null): ScannerActionResult {
     paymentStatus: stringValue(data, "paymentStatus") ?? null,
     amountDue: numberValue(data, "amountDue") ?? null,
     currency: stringValue(data, "currency") ?? null,
+    admissionSlot: stringValue(data, "admissionSlot") ?? null,
+    validFrom: stringValue(data, "validFrom") ?? null,
+    validUntil: stringValue(data, "validUntil") ?? null,
   };
 }
 

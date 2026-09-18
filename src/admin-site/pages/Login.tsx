@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/admin-site/components/ui/Button";
 import { Input } from "@/admin-site/components/ui/Input";
@@ -16,17 +16,28 @@ const SCANNER_ALLOWED_PATHS = [
   "/admin/profile",
 ];
 
+const SELLER_ALLOWED_PATHS = ["/admin/sales", "/admin/profile"];
+
 function defaultPathForRole(role: StaffRole) {
-  return role === "SCANNER" ? "/admin/scanner" : "/admin/dashboard";
+  if (role === "SCANNER") return "/admin/scanner";
+  if (role === "SELLER") return "/admin/sales";
+  return "/admin/dashboard";
 }
 
 function resolveNextPath(nextPath: string | undefined, role: StaffRole) {
   const fallback = defaultPathForRole(role);
   if (!nextPath?.startsWith("/admin/")) return fallback;
 
-  if (role !== "SCANNER") return nextPath;
+  const restrictedPaths =
+    role === "SCANNER"
+      ? SCANNER_ALLOWED_PATHS
+      : role === "SELLER"
+        ? SELLER_ALLOWED_PATHS
+        : null;
 
-  return SCANNER_ALLOWED_PATHS.some(
+  if (!restrictedPaths) return nextPath;
+
+  return restrictedPaths.some(
     (path) => nextPath === path || nextPath.startsWith(`${path}/`),
   )
     ? nextPath
@@ -47,10 +58,14 @@ export default function Login({
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const [error, setError] = useState<string | null>(initialError ?? null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current) return;
+
+    submittingRef.current = true;
     setError(null);
     setIsSubmitting(true);
 
@@ -84,6 +99,7 @@ export default function Login({
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to sign in.");
     } finally {
+      submittingRef.current = false;
       setIsSubmitting(false);
     }
   };

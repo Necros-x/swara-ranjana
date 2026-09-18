@@ -4,5 +4,7 @@ import { requireStaff } from "@/lib/auth/requireStaff";
 export default async function AdminIndex() {
   const { profile } = await requireStaff();
 
-  redirect(profile.role === "SCANNER" ? "/admin/scanner" : "/admin/dashboard");
+  if (profile.role === "SCANNER") redirect("/admin/scanner");
+  if (profile.role === "SELLER") redirect("/admin/sales");
+  redirect("/admin/dashboard");
 }

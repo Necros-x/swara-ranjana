@@ -224,3 +224,9 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #7D8A95;
 }
+
+
+.admin-portal-main h1 {
+  font-family: 'gemola', serif;
+  font-weight: 400;
+}

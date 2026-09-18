@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useFormStatus } from "react-dom";
 import { MailPlus, Plus, ShieldCheck, Trash2, UserRoundCog, X } from "lucide-react";
 import { Badge } from "@/admin-site/components/ui/Badge";
 import { Button } from "@/admin-site/components/ui/Button";
@@ -38,6 +39,7 @@ function roleLabel(role: StaffRole) {
   if (role === "SUPER_ADMIN") return "Super Admin";
   if (role === "ADMIN") return "Admin";
   if (role === "BOX_OFFICE") return "Swara Ranjana Staff";
+  if (role === "SELLER") return "Seller";
   return "Scanner";
 }
 
@@ -53,6 +55,37 @@ function dateLabel(value: string | null) {
 function statusVariant(status: StaffStatus) {
   return status === "ACTIVE" ? "success" : "secondary";
 }
+
+function PendingActionButton({
+  children,
+  pendingLabel,
+  disabled,
+  variant,
+  size,
+  className,
+}: {
+  children: React.ReactNode;
+  pendingLabel: string;
+  disabled?: boolean;
+  variant?: React.ComponentProps<typeof Button>["variant"];
+  size?: React.ComponentProps<typeof Button>["size"];
+  className?: string;
+}) {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button
+      type="submit"
+      variant={variant}
+      size={size}
+      disabled={pending || disabled}
+      className={className}
+    >
+      {pending ? pendingLabel : children}
+    </Button>
+  );
+}
+
 
 function StaffEditor({
   member,
@@ -109,6 +142,7 @@ function StaffEditor({
               <option value="ADMIN">Admin</option>
               <option value="BOX_OFFICE">Swara Ranjana Staff</option>
               <option value="SCANNER">Scanner</option>
+              <option value="SELLER">Seller</option>
             </select>
           </label>
 
@@ -128,9 +162,13 @@ function StaffEditor({
         </div>
       )}
 
-      <Button type="submit" size="sm" className="w-full cursor-pointer">
+      <PendingActionButton
+        size="sm"
+        pendingLabel="Saving…"
+        className="w-full cursor-pointer disabled:cursor-not-allowed"
+      >
         Save changes
-      </Button>
+      </PendingActionButton>
     </form>
   );
 }
@@ -142,6 +180,7 @@ function StaffActions({
   member: StaffMember;
   currentUserId: string;
 }) {
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const isCurrentUser = member.userId === currentUserId;
 
   if (isCurrentUser) {
@@ -153,46 +192,104 @@ function StaffActions({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-2 border-t border-[#E4E9ED] pt-3 sm:grid-cols-2">
-      <form action={resendStaffInvitation}>
-        <input type="hidden" name="userId" value={member.userId} />
-        <button
-          type="submit"
-          disabled={member.status !== "ACTIVE"}
-          title={
-            member.status === "ACTIVE"
-              ? "Generate a new setup code and resend the staff invitation"
-              : "Enable this staff account before resending an invitation"
-          }
-          className="inline-flex h-9 w-full cursor-pointer items-center justify-center gap-2 border border-[#C2CBD2] bg-white px-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#31465A] transition hover:border-[#2271B1] hover:text-[#2271B1] disabled:cursor-not-allowed disabled:opacity-45"
-        >
-          <MailPlus className="h-3.5 w-3.5" />
-          Resend invite
-        </button>
-      </form>
+    <>
+      <div className="grid grid-cols-1 gap-2 border-t border-[#E4E9ED] pt-3 sm:grid-cols-2">
+        <form action={resendStaffInvitation}>
+          <input type="hidden" name="userId" value={member.userId} />
+          <PendingActionButton
+            pendingLabel="Sending…"
+            disabled={member.status !== "ACTIVE"}
+            variant="outline"
+            size="sm"
+            className="h-9 w-full cursor-pointer text-[10px] font-semibold uppercase tracking-[0.1em] disabled:cursor-not-allowed"
+          >
+            <MailPlus className="mr-2 h-3.5 w-3.5" />
+            Resend invite
+          </PendingActionButton>
+        </form>
 
-      <form
-        action={deleteStaffMember}
-        onSubmit={(event) => {
-          if (
-            !window.confirm(
-              `Delete ${member.displayName} from staff access? Their operational audit history will be preserved.`,
-            )
-          ) {
-            event.preventDefault();
-          }
-        }}
-      >
-        <input type="hidden" name="userId" value={member.userId} />
-        <button
-          type="submit"
-          className="inline-flex h-9 w-full cursor-pointer items-center justify-center gap-2 border border-red-200 bg-red-50 px-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-red-700 transition hover:border-red-300 hover:bg-red-100"
+        <Button
+          type="button"
+          variant="destructive"
+          size="sm"
+          onClick={() => setDeleteOpen(true)}
+          className="h-9 w-full cursor-pointer text-[10px] font-semibold uppercase tracking-[0.1em]"
         >
-          <Trash2 className="h-3.5 w-3.5" />
+          <Trash2 className="mr-2 h-3.5 w-3.5" />
           Delete staff
-        </button>
-      </form>
-    </div>
+        </Button>
+      </div>
+
+      {deleteOpen && (
+        <div
+          className="fixed inset-0 z-[180] flex items-end justify-center bg-[#0E1721]/70 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+          onClick={() => setDeleteOpen(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`delete-staff-${member.userId}`}
+            className="w-full max-w-md bg-white p-6 shadow-2xl sm:rounded-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="font-mono text-[9px] uppercase tracking-[0.2em] text-red-600">
+                  Destructive action
+                </div>
+                <h2
+                  id={`delete-staff-${member.userId}`}
+                  className="mt-2 font-gemola text-3xl font-light text-[#0E1721]"
+                >
+                  Delete staff access?
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDeleteOpen(false)}
+                className="cursor-pointer rounded-full p-2 text-[#7D8A95] transition hover:bg-[#F3F5F7] hover:text-[#0E1721]"
+                aria-label="Close delete confirmation"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <p className="mt-4 text-sm leading-relaxed text-[#7D8A95]">
+              <span className="font-semibold text-[#31465A]">
+                {member.displayName}
+              </span>{" "}
+              will immediately lose staff access and disappear from Staff
+              Management. Scanner, payment and refund audit history will be
+              preserved.
+            </p>
+
+            <div className="mt-4 border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-800">
+              Their authentication identity is kept for audit integrity and can
+              be invited again later using the same email.
+            </div>
+
+            <form action={deleteStaffMember} className="mt-6 grid grid-cols-2 gap-3">
+              <input type="hidden" name="userId" value={member.userId} />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setDeleteOpen(false)}
+                className="cursor-pointer"
+              >
+                Keep staff
+              </Button>
+              <PendingActionButton
+                variant="destructive"
+                pendingLabel="Deleting…"
+                className="cursor-pointer disabled:cursor-not-allowed"
+              >
+                Delete staff
+              </PendingActionButton>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -298,15 +395,19 @@ export default function Staff({
                 >
                   <option value="SCANNER">Scanner</option>
                   <option value="BOX_OFFICE">Swara Ranjana Staff</option>
+                  <option value="SELLER">Seller</option>
                   <option value="ADMIN">Admin</option>
                   <option value="SUPER_ADMIN">Super Admin</option>
                 </select>
               </label>
 
               <div className="md:col-span-3 flex justify-end">
-                <Button type="submit" className="w-full cursor-pointer sm:w-auto">
+                <PendingActionButton
+                  pendingLabel="Sending invitation…"
+                  className="w-full cursor-pointer sm:w-auto disabled:cursor-not-allowed"
+                >
                   Send staff invitation
-                </Button>
+                </PendingActionButton>
               </div>
             </form>
           </CardContent>

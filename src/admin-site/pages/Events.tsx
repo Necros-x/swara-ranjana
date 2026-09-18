@@ -17,6 +17,9 @@ export interface LiveAdminEvent {
   doorsOpenAt: string | null;
   startsAt: string;
   endsAt: string | null;
+  schoolShowStartsAt: string | null;
+  schoolShowEndsAt: string | null;
+  admissionTimeEnforced: boolean;
   venueName: string;
   venueAddress: string | null;
   totalCapacity: number;
@@ -74,26 +77,73 @@ function EventForm({ event, onClose }: { event?: LiveAdminEvent; onClose: () => 
             <textarea name="description" rows={3} defaultValue={event?.description ?? ''} className="w-full px-3 py-2 border border-[#C2CBD2]/60 rounded-md text-sm resize-y" />
           </label>
 
-          <label className="space-y-1.5">
-            <span className="text-xs font-medium text-[#31465A]">Doors open</span>
-            <input type="datetime-local" name="doorsOpenAt" defaultValue={localInputValue(event?.doorsOpenAt ?? null)} className="w-full h-10 px-3 border border-[#C2CBD2]/60 rounded-md text-sm" />
-          </label>
+          <div className="md:col-span-2 border border-[#C2CBD2]/50 bg-[#F8FAFB] p-4">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#2271B1]">
+              Public show
+            </div>
+            <p className="mt-1 text-xs leading-relaxed text-[#7D8A95]">
+              Public website and physical-sale tickets are admitted only from Doors Open until Public Show End.
+            </p>
+            <div className="mt-4 grid gap-4 md:grid-cols-3">
+              <label className="space-y-1.5">
+                <span className="text-xs font-medium text-[#31465A]">Doors open</span>
+                <input type="datetime-local" name="doorsOpenAt" defaultValue={localInputValue(event?.doorsOpenAt ?? null)} className="w-full h-10 px-3 border border-[#C2CBD2]/60 rounded-md text-sm" />
+              </label>
 
-          <label className="space-y-1.5">
-            <span className="text-xs font-medium text-[#31465A]">Starts</span>
-            <input type="datetime-local" name="startsAt" required defaultValue={localInputValue(event?.startsAt ?? null)} className="w-full h-10 px-3 border border-[#C2CBD2]/60 rounded-md text-sm" />
-          </label>
+              <label className="space-y-1.5">
+                <span className="text-xs font-medium text-[#31465A]">Show starts</span>
+                <input type="datetime-local" name="startsAt" required defaultValue={localInputValue(event?.startsAt ?? null)} className="w-full h-10 px-3 border border-[#C2CBD2]/60 rounded-md text-sm" />
+              </label>
 
-          <label className="space-y-1.5">
-            <span className="text-xs font-medium text-[#31465A]">Ends</span>
-            <input type="datetime-local" name="endsAt" defaultValue={localInputValue(event?.endsAt ?? null)} className="w-full h-10 px-3 border border-[#C2CBD2]/60 rounded-md text-sm" />
-          </label>
+              <label className="space-y-1.5">
+                <span className="text-xs font-medium text-[#31465A]">Show ends</span>
+                <input type="datetime-local" name="endsAt" defaultValue={localInputValue(event?.endsAt ?? null)} className="w-full h-10 px-3 border border-[#C2CBD2]/60 rounded-md text-sm" />
+              </label>
+            </div>
+          </div>
+
+          <div className="md:col-span-2 border border-[#C2CBD2]/50 bg-white p-4">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#31465A]">
+              School show
+            </div>
+            <p className="mt-1 text-xs leading-relaxed text-[#7D8A95]">
+              Internal School tickets are admitted only inside this window and are rejected during the public show.
+            </p>
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <label className="space-y-1.5">
+                <span className="text-xs font-medium text-[#31465A]">School show starts</span>
+                <input type="datetime-local" name="schoolShowStartsAt" defaultValue={localInputValue(event?.schoolShowStartsAt ?? null)} className="w-full h-10 px-3 border border-[#C2CBD2]/60 rounded-md text-sm" />
+              </label>
+
+              <label className="space-y-1.5">
+                <span className="text-xs font-medium text-[#31465A]">School show ends</span>
+                <input type="datetime-local" name="schoolShowEndsAt" defaultValue={localInputValue(event?.schoolShowEndsAt ?? null)} className="w-full h-10 px-3 border border-[#C2CBD2]/60 rounded-md text-sm" />
+              </label>
+            </div>
+          </div>
 
           <label className="space-y-1.5">
             <span className="text-xs font-medium text-[#31465A]">Status</span>
             <select name="status" defaultValue={event?.status ?? 'DRAFT'} className="w-full h-10 px-3 border border-[#C2CBD2]/60 rounded-md text-sm bg-white">
               {['DRAFT', 'ON_SALE', 'SOLD_OUT', 'COMPLETED', 'CANCELLED'].map((status) => <option key={status}>{status}</option>)}
             </select>
+          </label>
+
+          <label className="md:col-span-2 flex cursor-pointer items-start gap-3 border border-[#2271B1]/25 bg-[#2271B1]/5 p-4">
+            <input
+              type="checkbox"
+              name="admissionTimeEnforced"
+              defaultChecked={event?.admissionTimeEnforced ?? false}
+              className="mt-0.5 h-4 w-4 cursor-pointer accent-[#2271B1]"
+            />
+            <span>
+              <span className="block text-xs font-semibold text-[#31465A]">
+                Enforce admission times at the gate
+              </span>
+              <span className="mt-1 block text-xs leading-relaxed text-[#7D8A95]">
+                Keep this off during general QA if you need to scan future-dated tickets. Turn it on when testing time rules and for the live show.
+              </span>
+            </span>
           </label>
 
           <label className="space-y-1.5">
@@ -178,7 +228,14 @@ export default function Events({ events }: { events: LiveAdminEvent[] }) {
                   <TableCell>
                     <div className="flex flex-col text-sm">
                       <span>{new Date(event.startsAt).toLocaleDateString('en-LK', { timeZone: 'Asia/Colombo' })}</span>
-                      <span className="text-[#7D8A95] text-xs">{new Date(event.startsAt).toLocaleTimeString('en-LK', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Colombo' })}</span>
+                      <span className="text-[#7D8A95] text-xs">
+                        Public {new Date(event.startsAt).toLocaleTimeString('en-LK', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Colombo' })}
+                      </span>
+                      {event.schoolShowStartsAt && (
+                        <span className="text-[#2271B1] text-xs">
+                          School {new Date(event.schoolShowStartsAt).toLocaleTimeString('en-LK', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Colombo' })}
+                        </span>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell>{event.venueName}</TableCell>

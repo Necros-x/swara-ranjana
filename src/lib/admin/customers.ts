@@ -59,7 +59,9 @@ export async function getAdminCustomerSummaries(): Promise<AdminCustomerSummary[
     );
   }
 
-  return customers.map((customer) => {
+  return customers
+    .filter((customer) => !customer.email.endsWith("@swara-ranjana.invalid"))
+    .map((customer) => {
     const orderDates = ordersByCustomer.get(customer.id) ?? [];
     const lastOrderAt = orderDates.length
       ? orderDates.reduce((latest, value) =>

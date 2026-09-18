@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PublicAmbienceShell } from "@/public-site/components/common/PublicAmbienceShell";
 import "./globals.css";
 
 const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL;
@@ -58,7 +59,7 @@ export default function RootLayout({
         />
       </head>
       <body className="overflow-x-hidden bg-[#FEFFFF] text-[#0E1721] antialiased selection:bg-[#2271B1] selection:text-white">
-        {children}
+        <PublicAmbienceShell>{children}</PublicAmbienceShell>
         <div className="relative z-[70] border-t border-white/10 bg-[#0E1721] px-4 py-2.5 text-center font-mono text-[9px] uppercase tracking-[0.18em] text-white/45">
           Designed & Developed by{" "}
           <a
