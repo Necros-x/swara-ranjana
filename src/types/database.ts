@@ -305,6 +305,78 @@ type StaffProfileInsert = {
   updated_at?: string;
 };
 
+type SeatBlockRow = {
+  id: string;
+  event_id: string;
+  ticket_type_id: string | null;
+  code: string;
+  level: string;
+  display_name: string;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
+type SeatBlockInsert = {
+  id?: string;
+  event_id: string;
+  ticket_type_id?: string | null;
+  code: string;
+  level: string;
+  display_name: string;
+  sort_order?: number;
+  created_at?: string;
+  updated_at?: string;
+};
+
+type EventSeatRow = {
+  id: string;
+  event_id: string;
+  block_id: string;
+  row_number: number;
+  seat_number: number;
+  label: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+type EventSeatInsert = {
+  id?: string;
+  event_id: string;
+  block_id: string;
+  row_number: number;
+  seat_number: number;
+  label: string;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+};
+
+type OrderSeatRow = {
+  id: string;
+  order_id: string;
+  order_item_id: string;
+  seat_id: string;
+  ticket_id: string | null;
+  status: "HOLD" | "CONFIRMED" | "RELEASED";
+  held_until: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+type OrderSeatInsert = {
+  id?: string;
+  order_id: string;
+  order_item_id: string;
+  seat_id: string;
+  ticket_id?: string | null;
+  status?: "HOLD" | "CONFIRMED" | "RELEASED";
+  held_until?: string | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
 type SeatTicketInventoryRow = {
   id: string;
   event_id: string;
@@ -380,6 +452,9 @@ export interface Database {
       tickets: TableDefinition<TicketRow, TicketInsert>;
       payment_submissions: TableDefinition<PaymentSubmissionRow, PaymentSubmissionInsert>;
       staff_profiles: TableDefinition<StaffProfileRow, StaffProfileInsert>;
+      seat_blocks: TableDefinition<SeatBlockRow, SeatBlockInsert>;
+      event_seats: TableDefinition<EventSeatRow, EventSeatInsert>;
+      order_seats: TableDefinition<OrderSeatRow, OrderSeatInsert>;
       seat_ticket_inventory: TableDefinition<
         SeatTicketInventoryRow,
         SeatTicketInventoryInsert
