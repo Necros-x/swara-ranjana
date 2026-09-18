@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   CheckCircle2,
   Clock3,
@@ -48,11 +47,13 @@ export default function SlipPaymentPageClient({
   accessToken: string;
   bankTransfer: BankTransferDetails | null;
 }) {
-  const router = useRouter();
   const [method, setMethod] = useState<"CARD" | "BANK_SLIP">(
     order.paymentMethod === "BANK_SLIP" ? "BANK_SLIP" : "CARD",
   );
   const [message, setMessage] = useState("");
+  const [slipSubmitted, setSlipSubmitted] = useState(
+    order.slipStatus === "PENDING",
+  );
   const [slip, setSlip] = useState<File | null>(null);
   const [optimizing, setOptimizing] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -129,7 +130,7 @@ export default function SlipPaymentPageClient({
       const result = await uploadPaymentSlip(formData);
       if (result.ok) {
         setSlip(null);
-        router.refresh();
+        setSlipSubmitted(true);
       } else {
         setMessage(result.message || "Unable to upload slip.");
       }
@@ -206,7 +207,7 @@ export default function SlipPaymentPageClient({
                   <button
                     type="button"
                     onClick={chooseSlip}
-                    disabled={expired || !bankTransfer}
+                    disabled={pending || expired || !bankTransfer}
                     className={`border p-5 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${
                       method === "BANK_SLIP"
                         ? "border-[#2271B1] bg-[#2271B1]/5"
@@ -286,7 +287,7 @@ export default function SlipPaymentPageClient({
                       uploads are limited to {fileSize(MAX_FINAL_SLIP_BYTES)}.
                     </p>
 
-                    {order.slipStatus === "PENDING" ? (
+                    {slipSubmitted ? (
                       <div className="mt-5 flex gap-2 text-sm text-amber-700">
                         <Clock3 className="h-4 w-4 shrink-0" />
                         Slip submitted — awaiting staff verification.
