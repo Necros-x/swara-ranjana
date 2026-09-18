@@ -47,7 +47,7 @@ function canReviewRequests(role: StaffRole) {
 }
 
 function canSeeOrders(role: StaffRole) {
-  return role !== "SCANNER";
+  return ["SUPER_ADMIN", "ADMIN", "BOX_OFFICE"].includes(role);
 }
 
 export async function getAdminNotifications(
