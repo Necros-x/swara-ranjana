@@ -19,6 +19,7 @@ export interface LiveAdminEvent {
   endsAt: string | null;
   schoolShowStartsAt: string | null;
   schoolShowEndsAt: string | null;
+  admissionTimeEnforced: boolean;
   venueName: string;
   venueAddress: string | null;
   totalCapacity: number;
@@ -126,6 +127,23 @@ function EventForm({ event, onClose }: { event?: LiveAdminEvent; onClose: () => 
             <select name="status" defaultValue={event?.status ?? 'DRAFT'} className="w-full h-10 px-3 border border-[#C2CBD2]/60 rounded-md text-sm bg-white">
               {['DRAFT', 'ON_SALE', 'SOLD_OUT', 'COMPLETED', 'CANCELLED'].map((status) => <option key={status}>{status}</option>)}
             </select>
+          </label>
+
+          <label className="md:col-span-2 flex cursor-pointer items-start gap-3 border border-[#2271B1]/25 bg-[#2271B1]/5 p-4">
+            <input
+              type="checkbox"
+              name="admissionTimeEnforced"
+              defaultChecked={event?.admissionTimeEnforced ?? false}
+              className="mt-0.5 h-4 w-4 cursor-pointer accent-[#2271B1]"
+            />
+            <span>
+              <span className="block text-xs font-semibold text-[#31465A]">
+                Enforce admission times at the gate
+              </span>
+              <span className="mt-1 block text-xs leading-relaxed text-[#7D8A95]">
+                Keep this off during general QA if you need to scan future-dated tickets. Turn it on when testing time rules and for the live show.
+              </span>
+            </span>
           </label>
 
           <label className="space-y-1.5">
