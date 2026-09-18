@@ -24,6 +24,7 @@ function statusLabel(status: PhysicalTicketInventoryItem["status"]) {
   if (status === "AVAILABLE") return "Available";
   if (status === "HELD_ONLINE") return "Online hold";
   if (status === "SOLD_ONLINE") return "Online sold";
+  if (status === "SOLD_INTERNAL") return "Internal";
   return "Physical sold";
 }
 
@@ -31,6 +32,7 @@ function statusVariant(status: PhysicalTicketInventoryItem["status"]) {
   if (status === "AVAILABLE") return "outline" as const;
   if (status === "HELD_ONLINE") return "warning" as const;
   if (status === "SOLD_ONLINE") return "secondary" as const;
+  if (status === "SOLD_INTERNAL") return "warning" as const;
   return "success" as const;
 }
 
@@ -211,6 +213,7 @@ export default function PhysicalTicketInventory({
                   <span>{item.soldPhysical} physical sold</span>
                   <span>{item.soldOnline} online sold</span>
                   <span>{item.heldOnline} online held</span>
+                  <span>{item.internalAllocated} internal</span>
                 </div>
               </CardContent>
             </Card>
