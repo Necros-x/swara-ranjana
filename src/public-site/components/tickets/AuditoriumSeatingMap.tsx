@@ -105,12 +105,12 @@ export function AuditoriumSeatingMap() {
             </div>
           </div>
 
-          <div className="grid grid-cols-[1fr_1.15fr_1fr] items-end gap-5 px-12">
-            <div className="origin-bottom-right rotate-[7deg]">
+          <div className="grid grid-cols-[1fr_1fr_1fr] items-end gap-1 px-12">
+            <div className="origin-bottom-right rotate-[-7deg] translate-x-28">
               <Block block={block("F")} selected={selectedBlock === "F"} onSelect={() => setSelectedBlock(selectedBlock === "F" ? null : "F")} />
             </div>
             <Block block={block("G")} selected={selectedBlock === "G"} onSelect={() => setSelectedBlock(selectedBlock === "G" ? null : "G")} />
-            <div className="origin-bottom-left -rotate-[7deg]">
+            <div className="origin-bottom-left -rotate-[-7deg]">
               <Block block={block("H")} selected={selectedBlock === "H"} onSelect={() => setSelectedBlock(selectedBlock === "H" ? null : "H")} />
             </div>
           </div>
@@ -128,17 +128,17 @@ export function AuditoriumSeatingMap() {
           </div>
 
           <div className="grid grid-cols-[1fr_.55fr_1.35fr_.55fr_1fr] items-end gap-3">
-            <div className="origin-bottom-right rotate-[10deg]">
+            <div className="origin-bottom-right rotate-[-10deg] translate-x-28">
               <Block block={block("A")} selected={selectedBlock === "A"} onSelect={() => setSelectedBlock(selectedBlock === "A" ? null : "A")} />
             </div>
-            <div className="origin-bottom-right rotate-[4deg]">
+            <div className="origin-bottom-right rotate-[-4deg] translate-x-5">
               <Block block={block("B")} selected={selectedBlock === "B"} onSelect={() => setSelectedBlock(selectedBlock === "B" ? null : "B")} />
             </div>
             <Block block={block("C")} selected={selectedBlock === "C"} onSelect={() => setSelectedBlock(selectedBlock === "C" ? null : "C")} />
-            <div className="origin-bottom-left -rotate-[4deg]">
+            <div className="origin-bottom-left -rotate-[-4deg]">
               <Block block={block("D")} selected={selectedBlock === "D"} onSelect={() => setSelectedBlock(selectedBlock === "D" ? null : "D")} />
             </div>
-            <div className="origin-bottom-left -rotate-[10deg]">
+            <div className="origin-bottom-left -rotate-[-10deg]">
               <Block block={block("E")} selected={selectedBlock === "E"} onSelect={() => setSelectedBlock(selectedBlock === "E" ? null : "E")} />
             </div>
           </div>
