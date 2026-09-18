@@ -36,7 +36,8 @@ export type SeatTicketInventoryStatus =
   | "AVAILABLE"
   | "HELD_ONLINE"
   | "SOLD_ONLINE"
-  | "SOLD_PHYSICAL";
+  | "SOLD_PHYSICAL"
+  | "SOLD_INTERNAL";
 export type ScanResult =
   | "ADMITTED"
   | "EXITED"
