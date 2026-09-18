@@ -10,25 +10,23 @@ const PAGE_SIZE = 500;
 
 export async function getAllSeatTicketInventory(
   eventId: string,
-  columns:
-    | "ticket_type_id,status"
-    | "ticket_type_id,status,serial_number"
-    | "id,ticket_type_id,seat_id,serial_number,serial_code,ticket_number,qr_token,status",
-) {
+): Promise<InventoryRow[]> {
   const admin = createAdminClient();
-  const rows: Partial<InventoryRow>[] = [];
+  const rows: InventoryRow[] = [];
   let from = 0;
 
   while (true) {
     const { data, error } = await admin
       .from("seat_ticket_inventory")
-      .select(columns)
+      .select("*")
       .eq("event_id", eventId)
+      .order("ticket_type_id", { ascending: true })
+      .order("serial_number", { ascending: true })
       .range(from, from + PAGE_SIZE - 1);
 
     if (error) throw error;
 
-    const page = (data ?? []) as Partial<InventoryRow>[];
+    const page = data ?? [];
     rows.push(...page);
 
     if (page.length < PAGE_SIZE) break;
