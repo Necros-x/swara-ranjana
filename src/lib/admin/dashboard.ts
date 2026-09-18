@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getAllSeatTicketInventory } from "@/lib/admin/seatTicketInventory";
 import { getAdminOrders, type AdminOrderListItem } from "@/lib/admin/orders";
 import {
   getAdminScanHistory,
@@ -97,7 +98,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     };
   }
 
-  const [ordersResult, typesResult, ticketsResult, inventoryResult] = await Promise.all([
+  const [ordersResult, typesResult, ticketsResult, inventoryRows] = await Promise.all([
     admin
       .from("orders")
       .select(
@@ -114,16 +115,12 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       .from("tickets")
       .select("id,event_id,ticket_type_id,status,is_inside")
       .eq("event_id", event.id),
-    admin
-      .from("seat_ticket_inventory")
-      .select("ticket_type_id,status")
-      .eq("event_id", event.id),
+    getAllSeatTicketInventory(event.id),
   ]);
 
   if (ordersResult.error) throw ordersResult.error;
   if (typesResult.error) throw typesResult.error;
   if (ticketsResult.error) throw ticketsResult.error;
-  if (inventoryResult.error) throw inventoryResult.error;
 
   const eventOrders = ordersResult.data ?? [];
   const orderIds = eventOrders.map((order) => order.id);
@@ -137,7 +134,6 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   if (itemsError) throw itemsError;
 
   const orderMap = new Map(eventOrders.map((order) => [order.id, order]));
-  const inventoryRows = inventoryResult.data ?? [];
 
   const categories: AdminDashboardCategory[] = (typesResult.data ?? []).map(
     (type) => {
