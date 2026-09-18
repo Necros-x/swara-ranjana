@@ -4,20 +4,27 @@ import { requireStaff } from "@/lib/auth/requireStaff";
 export default async function Page() {
   const { supabase } = await requireStaff(["SUPER_ADMIN", "ADMIN"]);
 
-  const [{ data: events, error: eventsError }, { data: tickets, error: ticketsError }] = await Promise.all([
-    supabase.from("events").select("*").order("starts_at", { ascending: false }),
-    supabase.from("tickets").select("event_id, status"),
-  ]);
+  const { data: events, error: eventsError } = await supabase
+    .from("events")
+    .select("*")
+    .order("starts_at", { ascending: false });
 
   if (eventsError) throw new Error(eventsError.message);
-  if (ticketsError) throw new Error(ticketsError.message);
 
-  const soldByEvent = new Map<string, number>();
-  for (const ticket of tickets ?? []) {
-    if (ticket.status === "VALID" || ticket.status === "USED") {
-      soldByEvent.set(ticket.event_id, (soldByEvent.get(ticket.event_id) ?? 0) + 1);
-    }
-  }
+  const soldCounts = await Promise.all(
+    (events ?? []).map(async (event) => {
+      const { count, error } = await supabase
+        .from("tickets")
+        .select("id", { count: "exact", head: true })
+        .eq("event_id", event.id)
+        .in("status", ["VALID", "USED"]);
+
+      if (error) throw new Error(error.message);
+      return [event.id, count ?? 0] as const;
+    }),
+  );
+
+  const soldByEvent = new Map<string, number>(soldCounts);
 
   const liveEvents: LiveAdminEvent[] = (events ?? []).map((event) => {
     const ticketsSold = soldByEvent.get(event.id) ?? 0;
