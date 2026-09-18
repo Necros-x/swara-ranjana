@@ -67,6 +67,7 @@ type EventRow = {
   ends_at: string | null;
   school_show_starts_at: string | null;
   school_show_ends_at: string | null;
+  admission_time_enforced: boolean;
   timezone: string;
   venue_name: string;
   venue_address: string | null;
@@ -88,6 +89,7 @@ type EventInsert = {
   ends_at?: string | null;
   school_show_starts_at?: string | null;
   school_show_ends_at?: string | null;
+  admission_time_enforced?: boolean;
   timezone?: string;
   venue_name: string;
   venue_address?: string | null;
