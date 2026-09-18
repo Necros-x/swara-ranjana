@@ -21,6 +21,7 @@ export type PaymentStatus =
   | "PENDING"
   | "PAID"
   | "FAILED"
+  | "CANCELLED"
   | "PARTIALLY_REFUNDED"
   | "REFUNDED";
 export type TicketStatus = "VALID" | "USED" | "REVOKED" | "REFUNDED";
