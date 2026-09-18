@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/admin-site/components/ui/Button";
 import { Input } from "@/admin-site/components/ui/Input";
@@ -58,10 +58,14 @@ export default function Login({
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const [error, setError] = useState<string | null>(initialError ?? null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current) return;
+
+    submittingRef.current = true;
     setError(null);
     setIsSubmitting(true);
 
@@ -95,6 +99,7 @@ export default function Login({
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to sign in.");
     } finally {
+      submittingRef.current = false;
       setIsSubmitting(false);
     }
   };
