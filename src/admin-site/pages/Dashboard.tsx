@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Line,
@@ -52,7 +52,92 @@ function scanBadge(result: string) {
   return "bg-red-100 text-red-700";
 }
 
+type ChartRange = "7" | "14" | "30" | "custom";
+
+function colomboDayKey(value = new Date()) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Colombo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(value);
+}
+
+function offsetDayKey(key: string, offset: number) {
+  const date = new Date(`${key}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + offset);
+  return date.toISOString().slice(0, 10);
+}
+
+function chartDayLabel(key: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${key}T00:00:00Z`));
+}
+
+function fillChartDays(
+  source: AdminDashboardData["salesSeries"],
+  startKey: string,
+  endKey: string,
+) {
+  const sourceMap = new Map(source.map((item) => [item.key, item]));
+  const rows: AdminDashboardData["salesSeries"] = [];
+  let cursor = startKey;
+  let guard = 0;
+
+  while (cursor <= endKey && guard < 3660) {
+    const existing = sourceMap.get(cursor);
+    rows.push(
+      existing ?? {
+        key: cursor,
+        label: chartDayLabel(cursor),
+        orders: 0,
+        tickets: 0,
+      },
+    );
+    cursor = offsetDayKey(cursor, 1);
+    guard += 1;
+  }
+
+  return rows;
+}
+
 export default function Dashboard({ data }: { data: AdminDashboardData }) {
+  const todayKey = useMemo(() => colomboDayKey(), []);
+  const [chartRange, setChartRange] = useState<ChartRange>("7");
+  const [customStart, setCustomStart] = useState(() =>
+    offsetDayKey(todayKey, -6),
+  );
+  const [customEnd, setCustomEnd] = useState(todayKey);
+
+  const selectedWindow = useMemo(() => {
+    if (chartRange === "custom") {
+      const start = customStart || todayKey;
+      const end = customEnd || todayKey;
+      return start <= end
+        ? { start, end }
+        : { start: end, end: start };
+    }
+
+    const days = Number(chartRange);
+    return {
+      start: offsetDayKey(todayKey, -(days - 1)),
+      end: todayKey,
+    };
+  }, [chartRange, customEnd, customStart, todayKey]);
+
+  const chartSeries = useMemo(
+    () =>
+      fillChartDays(
+        data.salesSeries,
+        selectedWindow.start,
+        selectedWindow.end,
+      ),
+    [data.salesSeries, selectedWindow.end, selectedWindow.start],
+  );
+
   if (!data.event) {
     return (
       <Card>
@@ -168,19 +253,71 @@ export default function Dashboard({ data }: { data: AdminDashboardData }) {
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         <Card className="xl:col-span-2">
-          <CardHeader>
-            <CardTitle className="font-serif text-2xl font-normal text-[#31465A]">
-              Last 7 Days
-            </CardTitle>
-            <CardDescription>
-              New orders and tickets confirmed by reservation date.
-            </CardDescription>
+          <CardHeader className="gap-4">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+              <div>
+                <CardTitle className="font-serif text-2xl font-normal text-[#31465A]">
+                  Order & Ticket Activity
+                </CardTitle>
+                <CardDescription>
+                  New orders and tickets confirmed by reservation date.
+                </CardDescription>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {(["7", "14", "30", "custom"] as ChartRange[]).map((range) => (
+                  <button
+                    key={range}
+                    type="button"
+                    onClick={() => setChartRange(range)}
+                    className={`cursor-pointer rounded-md border px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] transition ${
+                      chartRange === range
+                        ? "border-[#2271B1] bg-[#2271B1] text-white"
+                        : "border-[#C2CBD2] bg-white text-[#31465A] hover:border-[#2271B1] hover:text-[#2271B1]"
+                    }`}
+                  >
+                    {range === "custom" ? "Custom" : `${range} days`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {chartRange === "custom" && (
+              <div className="flex flex-col gap-3 rounded-lg border border-[#C2CBD2]/50 bg-[#F8FAFB] p-3 sm:flex-row sm:items-end">
+                <label className="flex-1">
+                  <span className="mb-1 block text-[9px] font-bold uppercase tracking-[0.14em] text-[#7D8A95]">
+                    From
+                  </span>
+                  <input
+                    type="date"
+                    value={customStart}
+                    onChange={(event) => setCustomStart(event.target.value)}
+                    className="h-10 w-full cursor-pointer rounded-md border border-[#C2CBD2] bg-white px-3 text-xs text-[#31465A] outline-none focus:border-[#2271B1]"
+                  />
+                </label>
+                <label className="flex-1">
+                  <span className="mb-1 block text-[9px] font-bold uppercase tracking-[0.14em] text-[#7D8A95]">
+                    To
+                  </span>
+                  <input
+                    type="date"
+                    value={customEnd}
+                    onChange={(event) => setCustomEnd(event.target.value)}
+                    className="h-10 w-full cursor-pointer rounded-md border border-[#C2CBD2] bg-white px-3 text-xs text-[#31465A] outline-none focus:border-[#2271B1]"
+                  />
+                </label>
+              </div>
+            )}
+
+            <div className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#7D8A95]">
+              {selectedWindow.start} → {selectedWindow.end}
+            </div>
           </CardHeader>
           <CardContent>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
-                  data={data.salesSeries}
+                  data={chartSeries}
                   margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
                 >
                   <CartesianGrid
@@ -193,6 +330,8 @@ export default function Dashboard({ data }: { data: AdminDashboardData }) {
                     axisLine={false}
                     tickLine={false}
                     tick={{ fill: "#7D8A95", fontSize: 12 }}
+                    minTickGap={28}
+                    interval="preserveStartEnd"
                     dy={10}
                   />
                   <YAxis

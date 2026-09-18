@@ -10,11 +10,19 @@ import { Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { AdminOrderListItem } from '@/lib/admin/orders';
 
-function statusClass(paymentStatus: AdminOrderListItem['paymentStatus']) {
-  if (paymentStatus === 'PAID') return 'bg-green-100 text-green-700';
+function paymentStatusClass(paymentStatus: AdminOrderListItem['paymentStatus']) {
+  if (paymentStatus === 'PAID') return 'bg-emerald-100 text-emerald-700';
   if (paymentStatus === 'FAILED') return 'bg-red-100 text-red-700';
+  if (paymentStatus === 'CANCELLED') return 'bg-slate-100 text-slate-600';
   if (paymentStatus === 'REFUNDED' || paymentStatus === 'PARTIALLY_REFUNDED') return 'bg-amber-100 text-amber-700';
-  return 'bg-gray-100 text-[#31465A]';
+  return 'bg-sky-100 text-sky-700';
+}
+
+function orderStatusClass(orderStatus: AdminOrderListItem['orderStatus']) {
+  if (orderStatus === 'CONFIRMED') return 'bg-emerald-100 text-emerald-700';
+  if (orderStatus === 'CANCELLED') return 'bg-red-100 text-red-700';
+  if (orderStatus === 'REFUNDED') return 'bg-violet-100 text-violet-700';
+  return 'bg-amber-100 text-amber-800';
 }
 
 export default function Orders({ orders }: { orders: AdminOrderListItem[] }) {
@@ -65,8 +73,8 @@ export default function Orders({ orders }: { orders: AdminOrderListItem[] }) {
           <option value="CONFIRMED">Confirmed</option>
           <option value="PAID">Paid</option>
           <option value="FAILED">Failed</option>
-          <option value="REFUNDED">Refunded</option>
           <option value="CANCELLED">Cancelled</option>
+          <option value="REFUNDED">Refunded</option>
         </select>
       </div>
 
@@ -114,12 +122,14 @@ export default function Orders({ orders }: { orders: AdminOrderListItem[] }) {
                       </TableCell>
                       <TableCell className="font-bold text-[#31465A] text-sm">{formatCurrency(order.total, order.currency)}</TableCell>
                       <TableCell>
-                        <Badge className={cn('px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border-none', statusClass(order.paymentStatus))}>
+                        <Badge className={cn('px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border-none', paymentStatusClass(order.paymentStatus))}>
                           {order.paymentStatus.replaceAll('_', ' ')}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="text-[10px]">{order.orderStatus}</Badge>
+                        <Badge className={cn('border-none px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider', orderStatusClass(order.orderStatus))}>
+                          {order.orderStatus.replaceAll('_', ' ')}
+                        </Badge>
                       </TableCell>
                       <TableCell className="text-[10px] font-bold uppercase tracking-wider text-[#7D8A95]">{formatDate(order.createdAt)}</TableCell>
                     </TableRow>
@@ -139,13 +149,19 @@ export default function Orders({ orders }: { orders: AdminOrderListItem[] }) {
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start gap-3 mb-3">
                     <span className="font-bold text-[#2271B1] text-sm">{order.orderNumber}</span>
-                    <Badge className={cn('px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border-none', statusClass(order.paymentStatus))}>
+                    <Badge className={cn('px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border-none', paymentStatusClass(order.paymentStatus))}>
                       {order.paymentStatus.replaceAll('_', ' ')}
                     </Badge>
                   </div>
                   <div className="mb-3">
                     <div className="font-bold text-[#31465A] text-sm">{order.customerName}</div>
                     <div className="text-[10px] font-bold uppercase tracking-wider text-[#7D8A95]">{order.customerEmail}</div>
+                  </div>
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#7D8A95]">Order state</span>
+                    <Badge className={cn('border-none px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider', orderStatusClass(order.orderStatus))}>
+                      {order.orderStatus.replaceAll('_', ' ')}
+                    </Badge>
                   </div>
                   <div className="flex justify-between items-end border-t border-[#C2CBD2]/30 pt-3 mt-3 gap-4">
                     <div className="text-[10px] font-bold uppercase tracking-wider text-[#7D8A95]">

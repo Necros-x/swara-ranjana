@@ -61,17 +61,6 @@ function dayLabel(key: string) {
   }).format(new Date(`${key}T00:00:00Z`));
 }
 
-function lastSevenDayKeys() {
-  const now = new Date();
-  const keys: string[] = [];
-  for (let offset = 6; offset >= 0; offset -= 1) {
-    const day = new Date(now);
-    day.setUTCDate(day.getUTCDate() - offset);
-    keys.push(colomboDayKey(day));
-  }
-  return Array.from(new Set(keys));
-}
-
 export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   const admin = createAdminClient();
 
@@ -203,24 +192,35 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     )
     .reduce((sum, order) => sum + order.total_lkr, 0);
 
-  const dayKeys = lastSevenDayKeys();
-  const dayMap = new Map(
-    dayKeys.map((key) => [key, { key, label: dayLabel(key), orders: 0, tickets: 0 }]),
-  );
+  const dayMap = new Map<string, AdminDashboardDay>();
+
+  const ensureDay = (key: string) => {
+    const existing = dayMap.get(key);
+    if (existing) return existing;
+
+    const created: AdminDashboardDay = {
+      key,
+      label: dayLabel(key),
+      orders: 0,
+      tickets: 0,
+    };
+    dayMap.set(key, created);
+    return created;
+  };
 
   for (const order of eventOrders) {
-    const bucket = dayMap.get(colomboDayKey(order.created_at));
-    if (!bucket) continue;
-    bucket.orders += 1;
+    ensureDay(colomboDayKey(order.created_at)).orders += 1;
   }
 
   for (const item of items ?? []) {
     const order = orderMap.get(item.order_id);
     if (!order || order.status !== "CONFIRMED") continue;
-    const bucket = dayMap.get(colomboDayKey(order.created_at));
-    if (!bucket) continue;
-    bucket.tickets += item.quantity;
+    ensureDay(colomboDayKey(order.created_at)).tickets += item.quantity;
   }
+
+  const salesSeries = Array.from(dayMap.values()).sort((a, b) =>
+    a.key.localeCompare(b.key),
+  );
 
   const eventOrderIds = new Set(eventOrders.map((order) => order.id));
   const recentOrders = allOrders
@@ -242,7 +242,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     activeTickets,
     insideNow,
     categories,
-    salesSeries: dayKeys.map((key) => dayMap.get(key)!),
+    salesSeries,
     recentOrders,
     recentScans,
   };
