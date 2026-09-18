@@ -145,7 +145,7 @@ export default function PhysicalSales({
                   {money(category.priceLkr)}
                 </div>
 
-                <div className="mt-5 grid grid-cols-3 gap-2 border-t border-[#E4E9ED] pt-4 text-center">
+                <div className="mt-5 grid grid-cols-4 gap-2 border-t border-[#E4E9ED] pt-4 text-center">
                   <div>
                     <div className="text-lg font-semibold text-[#31465A]">
                       {category.soldPhysical}
@@ -168,6 +168,14 @@ export default function PhysicalSales({
                     </div>
                     <div className="mt-1 text-[8px] font-bold uppercase tracking-[0.1em] text-[#7D8A95]">
                       Held
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-semibold text-[#31465A]">
+                      {category.internalAllocated}
+                    </div>
+                    <div className="mt-1 text-[8px] font-bold uppercase tracking-[0.1em] text-[#7D8A95]">
+                      Internal
                     </div>
                   </div>
                 </div>
