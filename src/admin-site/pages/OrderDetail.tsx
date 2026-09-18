@@ -10,10 +10,19 @@ import type { AdminOrderDetailData } from '@/lib/admin/orders';
 import { reviewBankSlip } from '@/app/actions/payment';
 
 function paymentClass(status: AdminOrderDetailData['paymentStatus']) {
-  if (status === 'PAID') return 'border-green-500 text-green-700';
-  if (status === 'FAILED') return 'border-red-400 text-red-700';
-  if (status.includes('REFUNDED')) return 'border-amber-400 text-amber-700';
-  return 'border-[#C2CBD2] text-[#31465A]';
+  if (status === 'PAID') return 'border-emerald-200 bg-emerald-50 text-emerald-700';
+  if (status === 'FAILED') return 'border-red-200 bg-red-50 text-red-700';
+  if (status === 'CANCELLED') return 'border-slate-200 bg-slate-50 text-slate-600';
+  if (status.includes('REFUNDED')) return 'border-amber-200 bg-amber-50 text-amber-700';
+  return 'border-sky-200 bg-sky-50 text-sky-700';
+}
+
+function orderClass(status: AdminOrderDetailData['orderStatus'], expired: boolean) {
+  if (expired) return 'border-amber-200 bg-amber-50 text-amber-800';
+  if (status === 'CONFIRMED') return 'border-emerald-200 bg-emerald-50 text-emerald-700';
+  if (status === 'CANCELLED') return 'border-red-200 bg-red-50 text-red-700';
+  if (status === 'REFUNDED') return 'border-violet-200 bg-violet-50 text-violet-700';
+  return 'border-amber-200 bg-amber-50 text-amber-800';
 }
 
 export default function OrderDetail({ order }: { order: AdminOrderDetailData }) {
@@ -42,7 +51,9 @@ export default function OrderDetail({ order }: { order: AdminOrderDetailData }) 
         <div>
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="font-serif text-2xl font-medium text-[#0E1721]">Order {order.orderNumber}</h1>
-            <Badge variant="outline">{holdExpired ? 'EXPIRED HOLD' : order.orderStatus}</Badge>
+            <Badge variant="outline" className={orderClass(order.orderStatus, Boolean(holdExpired))}>
+              {holdExpired ? 'EXPIRED HOLD' : order.orderStatus.replaceAll('_', ' ')}
+            </Badge>
           </div>
           <p className="text-sm text-[#7D8A95]">Created {formatDate(order.createdAt)}</p>
         </div>
