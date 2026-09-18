@@ -20,6 +20,9 @@ export interface RecordPhysicalSaleResult {
   serialCodeEnd?: string;
   remaining?: number;
   soldOut?: boolean;
+  totalLkr?: number;
+  nextPhysicalSerial?: number | null;
+  highestAvailableSerial?: number | null;
 }
 
 function record(value: Json | null) {
@@ -83,6 +86,38 @@ export async function recordPhysicalSale(
     };
   }
 
+  const orderId =
+    typeof payload.order_id === "string" ? payload.order_id : null;
+
+  const [orderResult, nextPhysicalResult, highestAvailableResult] =
+    await Promise.all([
+      orderId
+        ? admin
+            .from("orders")
+            .select("total_lkr")
+            .eq("id", orderId)
+            .maybeSingle()
+        : Promise.resolve({ data: null, error: null }),
+      admin
+        .from("seat_ticket_inventory")
+        .select("serial_number")
+        .eq("event_id", eventId)
+        .eq("ticket_type_id", ticketTypeId)
+        .eq("status", "AVAILABLE")
+        .order("serial_number", { ascending: true })
+        .limit(1)
+        .maybeSingle(),
+      admin
+        .from("seat_ticket_inventory")
+        .select("serial_number")
+        .eq("event_id", eventId)
+        .eq("ticket_type_id", ticketTypeId)
+        .eq("status", "AVAILABLE")
+        .order("serial_number", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    ]);
+
   revalidatePath("/admin/sales");
   revalidatePath("/admin/dashboard");
   revalidatePath("/admin/orders");
@@ -121,5 +156,19 @@ export async function recordPhysicalSale(
       typeof payload.sold_out === "boolean"
         ? payload.sold_out
         : undefined,
+    totalLkr:
+      orderResult.data && typeof orderResult.data.total_lkr === "number"
+        ? orderResult.data.total_lkr
+        : undefined,
+    nextPhysicalSerial:
+      nextPhysicalResult.data &&
+      typeof nextPhysicalResult.data.serial_number === "number"
+        ? nextPhysicalResult.data.serial_number
+        : null,
+    highestAvailableSerial:
+      highestAvailableResult.data &&
+      typeof highestAvailableResult.data.serial_number === "number"
+        ? highestAvailableResult.data.serial_number
+        : null,
   };
 }
