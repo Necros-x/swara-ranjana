@@ -12,7 +12,7 @@ import type {
   TicketTypeStatus,
 } from "@/types/database";
 
-export type AdminTicketSource = "WEBSITE" | "INTERNAL";
+export type AdminTicketSource = "WEBSITE" | "INTERNAL" | "PHYSICAL";
 
 export interface AdminTicketListItem {
   id: string;
@@ -140,6 +140,15 @@ function sourceFromMetadata(metadata: Json): AdminTicketSource {
     metadata.source === "internal_admin"
   ) {
     return "INTERNAL";
+  }
+
+  if (
+    metadata &&
+    typeof metadata === "object" &&
+    !Array.isArray(metadata) &&
+    metadata.source === "physical_seller"
+  ) {
+    return "PHYSICAL";
   }
 
   return "WEBSITE";
