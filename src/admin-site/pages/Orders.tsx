@@ -75,7 +75,6 @@ export default function Orders({ orders }: { orders: AdminOrderListItem[] }) {
           <option value="FAILED">Failed</option>
           <option value="CANCELLED">Cancelled</option>
           <option value="REFUNDED">Refunded</option>
-          <option value="CANCELLED">Cancelled</option>
         </select>
       </div>
 
