@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { Badge } from "@/admin-site/components/ui/Badge";
 import { Button } from "@/admin-site/components/ui/Button";
 import { Card, CardContent } from "@/admin-site/components/ui/Card";
+import { BulkTicketReprint } from "@/admin-site/components/BulkTicketReprint";
 import { Input } from "@/admin-site/components/ui/Input";
 import {
   Table,
@@ -140,18 +141,22 @@ export default function Tickets({
           </p>
         </div>
 
-        {canIssue && (
-          <Button
-            className="w-full sm:w-auto"
-            onClick={() => {
-              setIssueError("");
-              setIssueOpen(true);
-            }}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Issue internal tickets
-          </Button>
-        )}
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+          <BulkTicketReprint tickets={tickets} />
+
+          {canIssue && (
+            <Button
+              className="w-full sm:w-auto"
+              onClick={() => {
+                setIssueError("");
+                setIssueOpen(true);
+              }}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Issue internal tickets
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-[minmax(240px,1fr)_auto_auto_auto]">
