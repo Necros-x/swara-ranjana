@@ -46,7 +46,9 @@ export type ScanResult =
   | "INVALID"
   | "REVOKED"
   | "REFUNDED"
-  | "WRONG_EVENT";
+  | "WRONG_EVENT"
+  | "NOT_YET_VALID"
+  | "EXPIRED";
 
 type TableDefinition<Row, Insert, Update = Partial<Insert>> = {
   Row: Row;
@@ -63,6 +65,8 @@ type EventRow = {
   doors_open_at: string | null;
   starts_at: string;
   ends_at: string | null;
+  school_show_starts_at: string | null;
+  school_show_ends_at: string | null;
   timezone: string;
   venue_name: string;
   venue_address: string | null;
@@ -82,6 +86,8 @@ type EventInsert = {
   doors_open_at?: string | null;
   starts_at: string;
   ends_at?: string | null;
+  school_show_starts_at?: string | null;
+  school_show_ends_at?: string | null;
   timezone?: string;
   venue_name: string;
   venue_address?: string | null;
