@@ -65,6 +65,18 @@ export async function saveEvent(formData: FormData) {
     throw new Error("Set both School show start and end times, or leave both empty.");
   }
 
+  const admissionTimeEnforced =
+    formData.get("admissionTimeEnforced") === "on";
+
+  if (
+    admissionTimeEnforced &&
+    (!endsAt || !schoolShowStartsAt || !schoolShowEndsAt)
+  ) {
+    throw new Error(
+      "Gate time enforcement requires a Public show end plus both School show start and end times.",
+    );
+  }
+
   if (
     schoolShowStartsAt &&
     schoolShowEndsAt &&
@@ -95,7 +107,7 @@ export async function saveEvent(formData: FormData) {
     ends_at: endsAt,
     school_show_starts_at: schoolShowStartsAt,
     school_show_ends_at: schoolShowEndsAt,
-    admission_time_enforced: formData.get("admissionTimeEnforced") === "on",
+    admission_time_enforced: admissionTimeEnforced,
     timezone: "Asia/Colombo",
     venue_name: text(formData, "venueName") || "Venue TBA",
     venue_address: nullableText(formData, "venueAddress"),
