@@ -225,7 +225,7 @@ export function Layout({
             >
               <Menu className="h-5 w-5" />
             </button>
-            <h1 className="hidden font-serif text-xl text-[#31465A] sm:block">{currentPathName}</h1>
+            <h1 className="hidden font-gemola text-2xl font-light text-[#31465A] sm:block">{currentPathName}</h1>
           </div>
 
           <div className="flex items-center gap-3 sm:gap-6">
@@ -248,7 +248,7 @@ export function Layout({
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto p-6 sm:p-10">
+        <main className="admin-portal-main flex-1 overflow-auto p-6 sm:p-10">
           {routeSwitching ? <AdminPageSkeleton /> : children}
         </main>
       </div>
