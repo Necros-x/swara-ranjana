@@ -13,6 +13,7 @@ export interface PhysicalSalesCategory {
   heldOnline: number;
   soldOnline: number;
   soldPhysical: number;
+  internalAllocated: number;
   nextPhysicalSerial: number | null;
   highestAvailableSerial: number | null;
   soldOut: boolean;
@@ -111,6 +112,7 @@ export async function getPhysicalSalesDashboard(): Promise<PhysicalSalesDashboar
       heldOnline: categoryRows.filter((row) => row.status === "HELD_ONLINE").length,
       soldOnline: categoryRows.filter((row) => row.status === "SOLD_ONLINE").length,
       soldPhysical: categoryRows.filter((row) => row.status === "SOLD_PHYSICAL").length,
+      internalAllocated: categoryRows.filter((row) => row.status === "SOLD_INTERNAL").length,
       nextPhysicalSerial: availableRows[0]?.serial_number ?? null,
       highestAvailableSerial:
         availableRows[availableRows.length - 1]?.serial_number ?? null,
