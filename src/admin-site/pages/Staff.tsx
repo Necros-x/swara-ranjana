@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, ShieldCheck, UserRoundCog, X } from "lucide-react";
+import { MailPlus, Plus, ShieldCheck, Trash2, UserRoundCog, X } from "lucide-react";
 import { Badge } from "@/admin-site/components/ui/Badge";
 import { Button } from "@/admin-site/components/ui/Button";
 import { Card, CardContent } from "@/admin-site/components/ui/Card";
@@ -14,7 +14,9 @@ import {
   TableRow,
 } from "@/admin-site/components/ui/Table";
 import {
+  deleteStaffMember,
   inviteStaff,
+  resendStaffInvitation,
   updateStaffMember,
 } from "@/app/admin/actions/staff";
 import type { StaffRole, StaffStatus } from "@/types/database";
@@ -130,6 +132,67 @@ function StaffEditor({
         Save changes
       </Button>
     </form>
+  );
+}
+
+function StaffActions({
+  member,
+  currentUserId,
+}: {
+  member: StaffMember;
+  currentUserId: string;
+}) {
+  const isCurrentUser = member.userId === currentUserId;
+
+  if (isCurrentUser) {
+    return (
+      <div className="border-t border-[#E4E9ED] pt-3 text-[10px] font-medium uppercase tracking-[0.12em] text-[#7D8A95]">
+        Current account
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 gap-2 border-t border-[#E4E9ED] pt-3 sm:grid-cols-2">
+      <form action={resendStaffInvitation}>
+        <input type="hidden" name="userId" value={member.userId} />
+        <button
+          type="submit"
+          disabled={member.status !== "ACTIVE"}
+          title={
+            member.status === "ACTIVE"
+              ? "Generate a new setup code and resend the staff invitation"
+              : "Enable this staff account before resending an invitation"
+          }
+          className="inline-flex h-9 w-full cursor-pointer items-center justify-center gap-2 border border-[#C2CBD2] bg-white px-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#31465A] transition hover:border-[#2271B1] hover:text-[#2271B1] disabled:cursor-not-allowed disabled:opacity-45"
+        >
+          <MailPlus className="h-3.5 w-3.5" />
+          Resend invite
+        </button>
+      </form>
+
+      <form
+        action={deleteStaffMember}
+        onSubmit={(event) => {
+          if (
+            !window.confirm(
+              `Delete ${member.displayName} from staff access? Their operational audit history will be preserved.`,
+            )
+          ) {
+            event.preventDefault();
+          }
+        }}
+      >
+        <input type="hidden" name="userId" value={member.userId} />
+        <button
+          type="submit"
+          className="inline-flex h-9 w-full cursor-pointer items-center justify-center gap-2 border border-red-200 bg-red-50 px-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-red-700 transition hover:border-red-300 hover:bg-red-100"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+          Delete staff
+        </button>
+      </form>
+    </div>
   );
 }
 
@@ -288,8 +351,9 @@ export default function Staff({
                     </div>
                   </div>
 
-                  <div className="mt-4">
+                  <div className="mt-4 space-y-3">
                     <StaffEditor member={member} currentUserId={currentUserId} />
+                    <StaffActions member={member} currentUserId={currentUserId} />
                   </div>
                 </CardContent>
               </Card>
@@ -340,7 +404,10 @@ export default function Staff({
                           {dateLabel(member.lastActiveAt)}
                         </TableCell>
                         <TableCell>
-                          <StaffEditor member={member} currentUserId={currentUserId} />
+                          <div className="space-y-3">
+                            <StaffEditor member={member} currentUserId={currentUserId} />
+                            <StaffActions member={member} currentUserId={currentUserId} />
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}

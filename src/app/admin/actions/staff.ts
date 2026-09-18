@@ -65,6 +65,56 @@ function inviteHtml(name: string, code: string, setupUrl: string) {
 </html>`;
 }
 
+async function sendStaffSetupInvitation({
+  email,
+  displayName,
+}: {
+  email: string;
+  displayName: string;
+}) {
+  const admin = createAdminClient();
+  const { data: linkData, error: linkError } =
+    await admin.auth.admin.generateLink({
+      type: "magiclink",
+      email,
+    });
+
+  const code = linkData?.properties?.email_otp;
+  if (linkError || !code) {
+    console.error("Staff setup code generation failed:", linkError);
+    return {
+      ok: false as const,
+      error: "The setup code could not be generated.",
+    };
+  }
+
+  const setupUrl = `${siteUrl()}/admin/accept-invite?email=${encodeURIComponent(email)}`;
+  const delivery = await sendTransactionalEmail({
+    to: email,
+    subject: `${code} is your Swara Ranjana staff setup code`,
+    html: inviteHtml(displayName, code, setupUrl),
+    text: [
+      "Swara Ranjana — Staff Portal",
+      "",
+      `Hello ${displayName},`,
+      `Your one-time staff setup code is: ${code}`,
+      "",
+      `Finish setup: ${setupUrl}`,
+      "Do not share this code.",
+    ].join("\n"),
+  });
+
+  if (!delivery.ok) {
+    console.error("Staff invite email failed:", delivery.error);
+    return {
+      ok: false as const,
+      error: "The invitation email could not be sent.",
+    };
+  }
+
+  return { ok: true as const };
+}
+
 export async function inviteStaff(formData: FormData) {
   await requireStaff(["SUPER_ADMIN"]);
 
@@ -129,44 +179,127 @@ export async function inviteStaff(formData: FormData) {
     staffRedirect("error", "Unable to save the staff profile.");
   }
 
-  const { data: linkData, error: linkError } =
-    await admin.auth.admin.generateLink({
-      type: "magiclink",
-      email,
-    });
-
-  const code = linkData?.properties?.email_otp;
-  if (linkError || !code) {
-    console.error("Staff setup code generation failed:", linkError);
-    staffRedirect("error", "Staff access was saved, but the setup code could not be generated.");
-  }
-
-  const setupUrl = `${siteUrl()}/admin/accept-invite?email=${encodeURIComponent(email)}`;
-  const delivery = await sendTransactionalEmail({
-    to: email,
-    subject: `${code} is your Swara Ranjana staff setup code`,
-    html: inviteHtml(displayName, code, setupUrl),
-    text: [
-      "Swara Ranjana — Staff Portal",
-      "",
-      `Hello ${displayName},`,
-      `Your one-time staff setup code is: ${code}`,
-      "",
-      `Finish setup: ${setupUrl}`,
-      "Do not share this code.",
-    ].join("\n"),
+  const delivery = await sendStaffSetupInvitation({
+    email,
+    displayName,
   });
 
   if (!delivery.ok) {
-    console.error("Staff invite email failed:", delivery.error);
     staffRedirect(
       "error",
-      "Staff access was saved, but the invitation email could not be sent. Submit the same email again to resend it.",
+      `Staff access was saved, but ${delivery.error} Use Resend invitation from the staff row to try again.`,
     );
   }
 
   revalidatePath("/admin/staff");
   staffRedirect("success", `Invitation sent to ${email}.`);
+}
+
+export async function resendStaffInvitation(formData: FormData) {
+  const { user } = await requireStaff(["SUPER_ADMIN"]);
+  const userId = String(formData.get("userId") ?? "").trim();
+
+  if (!userId) {
+    staffRedirect("error", "Staff member not found.");
+  }
+  if (userId === user.id) {
+    staffRedirect("error", "You do not need to resend an invitation to your own account.");
+  }
+
+  const admin = createAdminClient();
+  const [{ data: profile, error: profileError }, { data: authData, error: authError }] =
+    await Promise.all([
+      admin
+        .from("staff_profiles")
+        .select("display_name,status")
+        .eq("user_id", userId)
+        .maybeSingle(),
+      admin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
+    ]);
+
+  if (profileError || !profile) {
+    staffRedirect("error", "Staff member not found.");
+  }
+  if (profile.status !== "ACTIVE") {
+    staffRedirect("error", "Enable this staff account before resending its setup invitation.");
+  }
+  if (authError) {
+    console.error("Staff auth lookup failed:", authError);
+    staffRedirect("error", "Unable to load the staff email address.");
+  }
+
+  const authUser = authData.users.find((candidate) => candidate.id === userId);
+  const email = authUser?.email?.trim().toLowerCase();
+
+  if (!email) {
+    staffRedirect("error", "This staff account does not have a usable email address.");
+  }
+
+  const delivery = await sendStaffSetupInvitation({
+    email,
+    displayName: profile.display_name,
+  });
+
+  if (!delivery.ok) {
+    staffRedirect("error", delivery.error);
+  }
+
+  revalidatePath("/admin/staff");
+  staffRedirect("success", `Invitation resent to ${email}.`);
+}
+
+export async function deleteStaffMember(formData: FormData) {
+  const { user } = await requireStaff(["SUPER_ADMIN"]);
+  const userId = String(formData.get("userId") ?? "").trim();
+
+  if (!userId) {
+    staffRedirect("error", "Staff member not found.");
+  }
+  if (userId === user.id) {
+    staffRedirect("error", "You cannot delete your own staff access.");
+  }
+
+  const admin = createAdminClient();
+  const { data: current, error: currentError } = await admin
+    .from("staff_profiles")
+    .select("role,status,display_name")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (currentError || !current) {
+    staffRedirect("error", "Staff member not found.");
+  }
+
+  if (current.role === "SUPER_ADMIN" && current.status === "ACTIVE") {
+    const { count, error: countError } = await admin
+      .from("staff_profiles")
+      .select("user_id", { count: "exact", head: true })
+      .eq("role", "SUPER_ADMIN")
+      .eq("status", "ACTIVE");
+
+    if (countError) {
+      staffRedirect("error", "Unable to verify super-admin coverage.");
+    }
+    if ((count ?? 0) <= 1) {
+      staffRedirect("error", "The last active super admin cannot be deleted.");
+    }
+  }
+
+  const { error: deleteError } = await admin
+    .from("staff_profiles")
+    .delete()
+    .eq("user_id", userId);
+
+  if (deleteError) {
+    console.error("Staff profile deletion failed:", deleteError);
+    staffRedirect("error", "Unable to delete this staff member.");
+  }
+
+  revalidatePath("/admin/staff");
+  staffRedirect(
+    "success",
+    `${current.display_name} was removed from staff access. Audit history was preserved.`,
+  );
 }
 
 export async function updateStaffMember(formData: FormData) {
