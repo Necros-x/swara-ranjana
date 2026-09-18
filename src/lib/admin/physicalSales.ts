@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getAllSeatTicketInventory } from "@/lib/admin/seatTicketInventory";
 import type { Json } from "@/types/database";
 
 export interface PhysicalSalesCategory {
@@ -68,7 +69,7 @@ export async function getPhysicalSalesDashboard(): Promise<PhysicalSalesDashboar
 
   const [
     { data: types, error: typesError },
-    { data: inventory, error: inventoryError },
+    inventory,
     { data: recentOrders, error: ordersError },
   ] = await Promise.all([
     admin
@@ -76,10 +77,7 @@ export async function getPhysicalSalesDashboard(): Promise<PhysicalSalesDashboar
       .select("id,code,name,price_lkr,capacity,sort_order")
       .eq("event_id", event.id)
       .order("sort_order", { ascending: true }),
-    admin
-      .from("seat_ticket_inventory")
-      .select("ticket_type_id,status,serial_number")
-      .eq("event_id", event.id),
+    getAllSeatTicketInventory(event.id),
     admin
       .from("orders")
       .select("id,order_number,total_lkr,created_at,metadata")
@@ -90,10 +88,9 @@ export async function getPhysicalSalesDashboard(): Promise<PhysicalSalesDashboar
   ]);
 
   if (typesError) throw typesError;
-  if (inventoryError) throw inventoryError;
   if (ordersError) throw ordersError;
 
-  const rows = inventory ?? [];
+  const rows = inventory;
   const categories: PhysicalSalesCategory[] = (types ?? []).map((type) => {
     const categoryRows = rows.filter(
       (row) => row.ticket_type_id === type.id,
