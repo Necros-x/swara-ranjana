@@ -31,9 +31,10 @@ export async function proxy(request: NextRequest) {
     const isAdmin = pathname.startsWith("/admin");
     const isAccount = pathname.startsWith("/account");
     const isAdminLogin = pathname === "/admin/login";
+    const isAdminInviteSetup = pathname === "/admin/accept-invite";
     const isAccountLogin = pathname === "/account/login";
 
-    if (!user && isAdmin && !isAdminLogin) {
+    if (!user && isAdmin && !isAdminLogin && !isAdminInviteSetup) {
       const loginUrl = request.nextUrl.clone();
       loginUrl.pathname = "/admin/login";
       loginUrl.searchParams.set("next", pathname);
