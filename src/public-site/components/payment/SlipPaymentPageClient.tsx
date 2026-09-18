@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   CheckCircle2,
   Clock3,
@@ -47,6 +48,7 @@ export default function SlipPaymentPageClient({
   accessToken: string;
   bankTransfer: BankTransferDetails | null;
 }) {
+  const router = useRouter();
   const [method, setMethod] = useState<"CARD" | "BANK_SLIP">(
     order.paymentMethod === "BANK_SLIP" ? "BANK_SLIP" : "CARD",
   );
@@ -125,8 +127,12 @@ export default function SlipPaymentPageClient({
       formData.set("slip", slip);
 
       const result = await uploadPaymentSlip(formData);
-      if (result.ok) location.reload();
-      else setMessage(result.message || "Unable to upload slip.");
+      if (result.ok) {
+        setSlip(null);
+        router.refresh();
+      } else {
+        setMessage(result.message || "Unable to upload slip.");
+      }
     });
   };
 
