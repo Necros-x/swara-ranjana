@@ -95,6 +95,7 @@ export async function saveEvent(formData: FormData) {
     ends_at: endsAt,
     school_show_starts_at: schoolShowStartsAt,
     school_show_ends_at: schoolShowEndsAt,
+    admission_time_enforced: formData.get("admissionTimeEnforced") === "on",
     timezone: "Asia/Colombo",
     venue_name: text(formData, "venueName") || "Venue TBA",
     venue_address: nullableText(formData, "venueAddress"),
