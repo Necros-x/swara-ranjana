@@ -79,6 +79,26 @@ function resultAppearance(result: ScannerActionResult["result"]) {
     };
   }
 
+  if (result === "NOT_YET_VALID") {
+    return {
+      background: "bg-amber-400",
+      foreground: "text-[#18130A]",
+      Icon: AlertTriangle,
+      title: "Too Early",
+      description: "This ticket is not inside its admission window yet.",
+    };
+  }
+
+  if (result === "EXPIRED") {
+    return {
+      background: "bg-orange-600",
+      foreground: "text-white",
+      Icon: XCircle,
+      title: "Admission Ended",
+      description: "This ticket is outside its allowed show time.",
+    };
+  }
+
   if (result === "DUPLICATE") {
     return {
       background: "bg-yellow-400",
@@ -348,6 +368,27 @@ export default function LiveScanner({
                   <div className="mt-1 text-2xl font-bold">
                     {result.currency || "LKR"}{" "}
                     {(result.amountDue ?? 0).toLocaleString("en-LK")}
+                  </div>
+                </div>
+              )}
+
+              {(result.result === "NOT_YET_VALID" ||
+                result.result === "EXPIRED") && (
+                <div className="mt-5 rounded-lg bg-black/10 p-4 text-left">
+                  <div className="text-[10px] font-bold uppercase tracking-wider opacity-60">
+                    {result.admissionSlot === "SCHOOL"
+                      ? "School show window"
+                      : "Public show window"}
+                  </div>
+                  <div className="mt-2 text-sm font-medium">
+                    {result.validFrom
+                      ? `From ${formatUsedAt(result.validFrom)}`
+                      : "Start time not configured"}
+                  </div>
+                  <div className="mt-1 text-sm font-medium">
+                    {result.validUntil
+                      ? `Until ${formatUsedAt(result.validUntil)}`
+                      : "End time not configured"}
                   </div>
                 </div>
               )}
