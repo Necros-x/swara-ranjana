@@ -38,6 +38,7 @@ function roleLabel(role: StaffRole) {
   if (role === "SUPER_ADMIN") return "Super Admin";
   if (role === "ADMIN") return "Admin";
   if (role === "BOX_OFFICE") return "Swara Ranjana Staff";
+  if (role === "SELLER") return "Seller";
   return "Scanner";
 }
 
@@ -109,6 +110,7 @@ function StaffEditor({
               <option value="ADMIN">Admin</option>
               <option value="BOX_OFFICE">Swara Ranjana Staff</option>
               <option value="SCANNER">Scanner</option>
+              <option value="SELLER">Seller</option>
             </select>
           </label>
 
@@ -298,6 +300,7 @@ export default function Staff({
                 >
                   <option value="SCANNER">Scanner</option>
                   <option value="BOX_OFFICE">Swara Ranjana Staff</option>
+                  <option value="SELLER">Seller</option>
                   <option value="ADMIN">Admin</option>
                   <option value="SUPER_ADMIN">Super Admin</option>
                 </select>
