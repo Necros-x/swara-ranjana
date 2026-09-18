@@ -39,19 +39,62 @@ export async function saveEvent(formData: FormData) {
   const id = text(formData, "id");
   const name = text(formData, "name");
   const slug = text(formData, "slug");
+  const doorsOpenAt = colomboDateTime(nullableText(formData, "doorsOpenAt"));
   const startsAt = colomboDateTime(text(formData, "startsAt"));
+  const endsAt = colomboDateTime(nullableText(formData, "endsAt"));
+  const schoolShowStartsAt = colomboDateTime(
+    nullableText(formData, "schoolShowStartsAt"),
+  );
+  const schoolShowEndsAt = colomboDateTime(
+    nullableText(formData, "schoolShowEndsAt"),
+  );
 
   if (!name || !slug || !startsAt) {
     throw new Error("Event name, slug and start date/time are required.");
+  }
+
+  if (doorsOpenAt && new Date(doorsOpenAt) > new Date(startsAt)) {
+    throw new Error("Public doors-open time cannot be after the public show start.");
+  }
+
+  if (endsAt && new Date(endsAt) <= new Date(startsAt)) {
+    throw new Error("Public show end must be after the public show start.");
+  }
+
+  if (Boolean(schoolShowStartsAt) !== Boolean(schoolShowEndsAt)) {
+    throw new Error("Set both School show start and end times, or leave both empty.");
+  }
+
+  if (
+    schoolShowStartsAt &&
+    schoolShowEndsAt &&
+    new Date(schoolShowEndsAt) <= new Date(schoolShowStartsAt)
+  ) {
+    throw new Error("School show end must be after the School show start.");
+  }
+
+  const publicAdmissionStart = doorsOpenAt ?? startsAt;
+  if (
+    schoolShowStartsAt &&
+    schoolShowEndsAt &&
+    endsAt &&
+    new Date(schoolShowStartsAt) < new Date(endsAt) &&
+    new Date(schoolShowEndsAt) > new Date(publicAdmissionStart)
+  ) {
+    throw new Error(
+      "School and public admission windows cannot overlap. Keep the School show completely before or after the public show.",
+    );
   }
 
   const payload = {
     name,
     slug,
     description: nullableText(formData, "description"),
-    doors_open_at: colomboDateTime(nullableText(formData, "doorsOpenAt")),
+    doors_open_at: doorsOpenAt,
     starts_at: startsAt,
-    ends_at: colomboDateTime(nullableText(formData, "endsAt")),
+    ends_at: endsAt,
+    school_show_starts_at: schoolShowStartsAt,
+    school_show_ends_at: schoolShowEndsAt,
     timezone: "Asia/Colombo",
     venue_name: text(formData, "venueName") || "Venue TBA",
     venue_address: nullableText(formData, "venueAddress"),
