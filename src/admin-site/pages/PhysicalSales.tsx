@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
@@ -41,17 +41,23 @@ export default function PhysicalSales({
   data: PhysicalSalesDashboardData;
 }) {
   const router = useRouter();
+  const [liveCategories, setLiveCategories] = useState(data.categories);
   const firstAvailable =
-    data.categories.find((category) => !category.soldOut) ??
-    data.categories[0];
+    liveCategories.find((category) => !category.soldOut) ??
+    liveCategories[0];
   const [ticketTypeId, setTicketTypeId] = useState(firstAvailable?.id ?? "");
   const [quantity, setQuantity] = useState(1);
   const [result, setResult] = useState<RecordPhysicalSaleResult | null>(null);
   const [pending, startTransition] = useTransition();
 
+  useEffect(() => {
+    setLiveCategories(data.categories);
+  }, [data.categories]);
+
   const selected = useMemo(
-    () => data.categories.find((category) => category.id === ticketTypeId) ?? null,
-    [data.categories, ticketTypeId],
+    () =>
+      liveCategories.find((category) => category.id === ticketTypeId) ?? null,
+    [liveCategories, ticketTypeId],
   );
 
   const submit = () => {
@@ -67,6 +73,31 @@ export default function PhysicalSales({
 
       setResult(next);
       if (next.ok) {
+        const soldQuantity = next.quantity ?? quantity;
+
+        setLiveCategories((current) =>
+          current.map((category) =>
+            category.id === selected.id
+              ? {
+                  ...category,
+                  available:
+                    typeof next.remaining === "number"
+                      ? next.remaining
+                      : Math.max(category.available - soldQuantity, 0),
+                  soldPhysical: category.soldPhysical + soldQuantity,
+                  nextPhysicalSerial:
+                    next.nextPhysicalSerial ?? null,
+                  highestAvailableSerial:
+                    next.highestAvailableSerial ?? null,
+                  soldOut:
+                    typeof next.soldOut === "boolean"
+                      ? next.soldOut
+                      : (next.remaining ?? category.available - soldQuantity) <= 0,
+                }
+              : category,
+          ),
+        );
+
         setQuantity(1);
         router.refresh();
       }
@@ -100,7 +131,7 @@ export default function PhysicalSales({
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        {data.categories.map((category) => (
+        {liveCategories.map((category) => (
           <button
             key={category.id}
             type="button"
@@ -243,7 +274,7 @@ export default function PhysicalSales({
                   }}
                   className="h-11 w-full cursor-pointer border border-[#C2CBD2] bg-white px-3 text-sm outline-none focus:border-[#2271B1]"
                 >
-                  {data.categories.map((category) => (
+                  {liveCategories.map((category) => (
                     <option
                       key={category.id}
                       value={category.id}
@@ -319,6 +350,11 @@ export default function PhysicalSales({
                           : ""}
                       </div>
                     )}
+                  {result.ok && typeof result.totalLkr === "number" && (
+                    <div className="mt-1 text-xs font-semibold">
+                      Sale total: {money(result.totalLkr)}
+                    </div>
+                  )}
                   {result.soldOut && (
                     <div className="mt-2 font-semibold">
                       This category is now full. Notify the other sellers immediately.
