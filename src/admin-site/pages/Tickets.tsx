@@ -185,6 +185,7 @@ export default function Tickets({
         >
           <option value="">All sources</option>
           <option value="WEBSITE">Website</option>
+          <option value="PHYSICAL">Physical</option>
           <option value="INTERNAL">Internal</option>
         </select>
 
@@ -266,7 +267,9 @@ export default function Tickets({
                           variant={
                             ticket.source === "INTERNAL"
                               ? "warning"
-                              : "outline"
+                              : ticket.source === "PHYSICAL"
+                                ? "success"
+                                : "outline"
                           }
                         >
                           {ticket.source}
