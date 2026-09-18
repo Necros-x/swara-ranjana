@@ -97,6 +97,18 @@ export function PublicPageLoader() {
         >
           Preparing the experience
         </motion.p>
+
+        <motion.a
+          href="https://studio.necros.co"
+          target="_blank"
+          rel="noreferrer"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: reduceMotion ? 0 : 0.7 }}
+          className="mt-7 cursor-pointer font-mono text-[8px] uppercase tracking-[0.2em] text-[#7D8A95] transition-colors hover:text-[#2271B1]"
+        >
+          Digital experience by <span className="font-semibold text-[#31465A]">NECROS Studio ↗</span>
+        </motion.a>
       </div>
     </motion.div>
   );
