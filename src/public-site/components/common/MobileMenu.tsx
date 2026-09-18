@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Ticket, UserRound } from 'lucide-react';
 import { PageId } from '../../types';
@@ -109,14 +110,14 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
           </div>
 
           <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-row">
-            <a
+            <Link
               href="/account"
               onClick={onClose}
               className="flex min-h-10 items-center justify-center gap-1.5 border border-[#0E1721]/10 px-3 py-2 text-[10px] font-medium uppercase tracking-[0.12em] text-[#31465A] transition hover:border-[#2271B1] hover:text-[#2271B1] sm:px-5 sm:py-3 sm:text-xs sm:tracking-[0.18em]"
             >
               <UserRound className="h-3.5 w-3.5 shrink-0" />
               My Tickets
-            </a>
+            </Link>
 
             <button
               onClick={() => {
@@ -127,7 +128,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
             >
               <Ticket className="h-3.5 w-3.5 shrink-0 text-[#2271B1]" />
               <span className="sm:hidden">Reserve</span>
-              <span className="hidden sm:inline">Reserve Seat (LKR 5,000+)</span>
+              <span className="hidden sm:inline">Reserve Seat (LKR 1,500+)</span>
             </button>
           </div>
         </div>
