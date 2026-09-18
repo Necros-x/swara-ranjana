@@ -13,6 +13,7 @@ const STAFF_ROLES: StaffRole[] = [
   "ADMIN",
   "BOX_OFFICE",
   "SCANNER",
+  "SELLER",
 ];
 const STAFF_STATUSES: StaffStatus[] = ["ACTIVE", "DISABLED"];
 
